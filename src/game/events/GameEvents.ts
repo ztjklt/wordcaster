@@ -1,0 +1,15 @@
+export const GameEvents = {
+  VOICE_LISTEN_START: 'voice:listen-start',
+  VOICE_LISTEN_END: 'voice:listen-end',
+  VOICE_RESULT: 'voice:result',
+  VOICE_ERROR: 'voice:error',
+  VOICE_RETRY: 'voice:retry',
+  HINT_REQUEST: 'language:hint-request',
+  VOICE_COUNTDOWN: 'voice:countdown',
+  VOICE_UTTERANCE: 'voice:utterance',
+  VOICE_INTERPRETATION: 'voice:interpretation',
+  VOICE_CHANNEL: 'voice:channel',
+  VOICE_COMMAND_SUCCESS: 'voice:command-success',
+  VOICE_COMMAND_FAILED: 'voice:command-failed',
+  TEXT_INPUT_FOCUS: 'voice:text-focus',
+} as const;

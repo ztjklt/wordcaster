@@ -1,0 +1,1 @@
+[{"id":"request_item_need","template":"I need a {item}.","intent":"SUMMON_EQUIPMENT","level":1,"requiredSlots":["item"],"acceptedPatterns":["i need a {item}","i need an {item}","i need {item}"],"hintStages":{"chinese":"我需要一个{item}","keywords":["need","{item}"],"sentenceStart":"I need...","fullSentence":"I need a {item}."}}]

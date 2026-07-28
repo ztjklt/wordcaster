@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+    <meta name="theme-color" content="#090d19" />
+    <title>Speak to Fight</title>
+  </head>
+  <body>
+    <main id="app">
+      <div id="game-container" aria-label="Speak to Fight 游戏画面"></div>
+      <div id="dom-overlay"></div>
+      <section id="orientation-warning" role="dialog" aria-live="polite">
+        <div class="rotate-icon">↻</div>
+        <h1>请旋转设备</h1>
+        <p>Speak to Fight 需要横屏体验</p>
+      </section>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
