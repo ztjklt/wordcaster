@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>言灵词典 — WordBook Demo</title>
+<link rel="stylesheet" href="WordBook.css">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0d0a06;
+    display: flex; align-items: center; justify-content: center;
+    min-height: 100vh;
+    font-family: 'Georgia', 'Times New Roman', 'SimSun', serif;
+  }
+  .game-screen {
+    position: relative;
+    width: 960px; height: 600px;
+    background: linear-gradient(180deg, #1a2844 0%, #243a5c 30%, #3a5030 65%, #2a3820 100%);
+    border: 3px solid #3a2818;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 0 60px rgba(0,0,0,0.4), inset 0 0 40px rgba(0,0,0,0.2);
+  }
+  .game-screen::before {
+    content: '';
+    position: absolute; bottom: 0; left: 0; right: 0; height: 35%;
+    background: linear-gradient(180deg, #3a5030 0%, #2a3820 20%, #3a2818 40%, #2a1a10 70%, #1a0a04 100%);
+    border-top: 2px solid #4a5a30;
+  }
+  .game-screen::after {
+    content: '';
+    position: absolute; bottom: 35%; left: 0; right: 0; height: 4px;
+    background: repeating-linear-gradient(90deg, #5a6a3a 0px, #5a6a3a 3px, transparent 3px, transparent 6px);
+    opacity: 0.6;
+  }
+  .demo-hint {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    color: rgba(255,255,255,0.5); font-size: 14px; letter-spacing: 0.1em;
+    pointer-events: none;
+    text-shadow: 0 0 10px rgba(0,0,0,0.5);
+  }
+  .demo-info {
+    position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
+    color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 0.05em;
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+
+<div class="game-screen" id="gameScene">
+  <div class="demo-hint">点击右上角魔法书图标打开言灵词典</div>
+  <div class="demo-info">WordBook Component Demo · 独立演示</div>
+</div>
+
+<script src="WordBook.js"></script>
+<script>
+(function() {
+  var container = document.getElementById('gameScene');
+
+  var wordBook = new WordBook({
+    container: container,
+    dataUrl: 'word_data.json',
+    onOpen: function() {
+      console.log('WordBook opened');
+    },
+    onClose: function() {
+      console.log('WordBook closed');
+    }
+  });
+
+  // 自动构建 (build会在open时自动调用，但为了提前准备也可以手动调用)
+  wordBook.build();
+
+  // 演示：解锁一些单词
+  setTimeout(function() {
+    // 解锁 barriers 类别的前几个单词
+    wordBook.unlockWord(0, 0, 3); // Barricade
+    wordBook.unlockWord(0, 1, 2); // Stone Wall
+    wordBook.unlockWord(0, 2, 1); // Iron Gate
+    wordBook.unlockWord(0, 3, 3); // Palisade
+    wordBook.unlockWord(1, 0, 3); // Footman (soldiers)
+    wordBook.unlockWord(1, 1, 2); // Archer
+    wordBook.unlockWord(2, 0, 1); // Caltrops (traps)
+  }, 500);
+
+  console.log('WordBook Component initialized. Click the book icon in the top-right corner.');
+})();
+</script>
+
+</body>
+</html>

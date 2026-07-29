@@ -1,0 +1,4460 @@
+{
+  "categories": [
+    {
+      "key": "barriers",
+      "emoji": "🧱",
+      "title": "防御工事",
+      "sub": "Barriers & Walls",
+      "desc": "高耐久阻挡实体",
+      "words": [
+        {
+          "en": "Barricade",
+          "zh": "路障",
+          "emoji": "🧱",
+          "effect": "最基础的障碍物，放在路径上阻挡敌人前进",
+          "cost": 12,
+          "type": "基础",
+          "unlocked": false
+        },
+        {
+          "en": "Stone Wall",
+          "zh": "石墙",
+          "emoji": "🪨",
+          "effect": "坚固石墙血量极高，适合堵住关键路口",
+          "cost": 28,
+          "type": "重型",
+          "unlocked": false
+        },
+        {
+          "en": "Iron Gate",
+          "zh": "铁栅门",
+          "emoji": "🔩",
+          "effect": "金属栅栏血量最高+反弹伤害，后期经济支撑",
+          "cost": 45,
+          "type": "金属",
+          "unlocked": false
+        },
+        {
+          "en": "Palisade",
+          "zh": "尖刺木栅",
+          "emoji": "🪵",
+          "effect": "尖刺木桩对接触敌人造成持续伤害，攻防一体",
+          "cost": 18,
+          "type": "尖刺",
+          "unlocked": false
+        },
+        {
+          "en": "Ice Wall",
+          "zh": "冰墙",
+          "emoji": "🧊",
+          "effect": "被摧毁时爆裂减速周围敌人2秒，配合输出",
+          "cost": 22,
+          "type": "元素",
+          "unlocked": false
+        },
+        {
+          "en": "Fire Wall",
+          "zh": "火墙",
+          "emoji": "🔥",
+          "effect": "持续灼烧接触敌人，自身缓慢损血需及时替换",
+          "cost": 32,
+          "type": "元素",
+          "unlocked": false
+        },
+        {
+          "en": "Chain Fence",
+          "zh": "铁链栅栏",
+          "emoji": "⛓️",
+          "effect": "铁丝网轻微减速通过的敌人，便宜适合前期过渡",
+          "cost": 15,
+          "type": "轻型",
+          "unlocked": false
+        },
+        {
+          "en": "Boulder",
+          "zh": "巨石",
+          "emoji": "🪨",
+          "effect": "无法被击退的巨石，放在窄路口一夫当关",
+          "cost": 35,
+          "type": "重型",
+          "unlocked": false
+        },
+        {
+          "en": "Sandbag Wall",
+          "zh": "沙袋墙",
+          "emoji": "🧱",
+          "effect": "最廉价的障碍物，开局快速铺场用",
+          "cost": 10,
+          "type": "基础",
+          "unlocked": false
+        },
+        {
+          "en": "Crystal Barrier",
+          "zh": "水晶屏障",
+          "emoji": "🔮",
+          "effect": "可反射敌方远程魔法攻击，对付法师型敌人",
+          "cost": 40,
+          "type": "魔法",
+          "unlocked": false
+        },
+        {
+          "en": "Reinforced Gate",
+          "zh": "加固大门",
+          "emoji": "🪵",
+          "effect": "全游戏最高血量的终极障碍物",
+          "cost": 50,
+          "type": "史诗",
+          "unlocked": false
+        },
+        {
+          "en": "Obsidian Wall",
+          "zh": "黑曜石墙",
+          "emoji": "🌋",
+          "effect": "对攻击者反弹火焰伤害，耐高温免疫火系攻击",
+          "cost": 38,
+          "type": "元素",
+          "unlocked": false
+        },
+        {
+          "en": "Mirror Wall",
+          "zh": "镜面墙",
+          "emoji": "🪞",
+          "effect": "镜面反射敌方远程弹道攻击",
+          "cost": 30,
+          "type": "魔法",
+          "unlocked": false
+        },
+        {
+          "en": "Slime Wall",
+          "zh": "粘液墙",
+          "emoji": "🧪",
+          "effect": "粘液墙大幅减速接触的敌人",
+          "cost": 16,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Bone Wall",
+          "zh": "骨墙",
+          "emoji": "🦴",
+          "effect": "用敌人尸骨筑墙，附近每死一个敌人减1费",
+          "cost": 14,
+          "type": "亡灵",
+          "unlocked": false
+        },
+        {
+          "en": "Electric Fence",
+          "zh": "电网",
+          "emoji": "⚡",
+          "effect": "通电栅栏持续电击接触的敌人",
+          "cost": 25,
+          "type": "元素",
+          "unlocked": false
+        },
+        {
+          "en": "Coral Reef",
+          "zh": "珊瑚礁",
+          "emoji": "🪸",
+          "effect": "珊瑚礁缓慢自动回复耐久度",
+          "cost": 20,
+          "type": "植物",
+          "unlocked": false
+        },
+        {
+          "en": "Frozen Barricade",
+          "zh": "冻结路障",
+          "emoji": "🧊",
+          "effect": "最便宜的冰障但会随时间融化消失",
+          "cost": 8,
+          "type": "元素",
+          "unlocked": false
+        },
+        {
+          "en": "Scaffold Wall",
+          "zh": "脚手架墙",
+          "emoji": "🏗️",
+          "effect": "可花费半价升级为石墙的前期投资",
+          "cost": 10,
+          "type": "基础",
+          "unlocked": false
+        },
+        {
+          "en": "Log Barricade",
+          "zh": "圆木路障",
+          "emoji": "🪵",
+          "effect": "放置时向前滚动造成伤害",
+          "cost": 14,
+          "type": "物理",
+          "unlocked": false
+        },
+        {
+          "en": "Energy Net",
+          "zh": "能量网",
+          "emoji": "🌐",
+          "effect": "能量网捕获并定身前3个接触的敌人",
+          "cost": 22,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Wicker Wall",
+          "zh": "柳条墙",
+          "emoji": "🪹",
+          "effect": "最便宜的选择之一，适合开局快速布防",
+          "cost": 6,
+          "type": "基础",
+          "unlocked": false
+        },
+        {
+          "en": "Amber Wall",
+          "zh": "琥珀墙",
+          "emoji": "🔶",
+          "effect": "有一定概率眩晕攻击它的敌人",
+          "cost": 28,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Avalanche Gate",
+          "zh": "雪崩门",
+          "emoji": "🏔️",
+          "effect": "被摧毁时雪崩造成范围伤害",
+          "cost": 30,
+          "type": "元素",
+          "unlocked": false
+        },
+        {
+          "en": "Spike Log",
+          "zh": "刺木",
+          "emoji": "🪵",
+          "effect": "对高速冲锋敌人造成额外伤害",
+          "cost": 16,
+          "type": "物理",
+          "unlocked": false
+        },
+        {
+          "en": "Chain Barrier",
+          "zh": "锁链屏障",
+          "emoji": "🔗",
+          "effect": "多个锁链屏障互相分摊受到的伤害",
+          "cost": 20,
+          "type": "金属",
+          "unlocked": false
+        },
+        {
+          "en": "Rune Wall",
+          "zh": "符文墙",
+          "emoji": "🪨",
+          "effect": "被摧毁时符文爆炸造成魔法伤害",
+          "cost": 24,
+          "type": "魔法",
+          "unlocked": false
+        },
+        {
+          "en": "Diamond Block",
+          "zh": "钻石块",
+          "emoji": "💎",
+          "effect": "小型障碍物中耐久最高的终极选择",
+          "cost": 35,
+          "type": "史诗",
+          "unlocked": false
+        },
+        {
+          "en": "Mist Barrier",
+          "zh": "迷雾屏障",
+          "emoji": "🌫️",
+          "effect": "通过迷雾的敌人短暂致盲",
+          "cost": 14,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Sturdy Palisade",
+          "zh": "坚固木栅",
+          "emoji": "🪵",
+          "effect": "强化版尖刺木栅，耐久和伤害都更高",
+          "cost": 24,
+          "type": "尖刺",
+          "unlocked": false
+        },
+        {
+          "en": "Warding Gate",
+          "zh": "结界门",
+          "emoji": "🔮",
+          "effect": "通过结界的敌人攻击力-20%",
+          "cost": 32,
+          "type": "魔法",
+          "unlocked": false
+        },
+        {
+          "en": "Torii Gate",
+          "zh": "鸟居门",
+          "emoji": "⛩️",
+          "effect": "通过的亡灵受到圣光净化伤害",
+          "cost": 28,
+          "type": "神圣",
+          "unlocked": false
+        }
+      ]
+    },
+    {
+      "key": "soldiers",
+      "emoji": "⚔️",
+      "title": "召唤士兵",
+      "sub": "Soldiers & Defenders",
+      "desc": "自动战斗的勇士单位",
+      "words": [
+        {
+          "en": "Swordsman",
+          "zh": "剑士",
+          "emoji": "🗡️",
+          "effect": "基础近战单位，攻速快伤害稳，放路障后方输出",
+          "cost": 18,
+          "type": "近战",
+          "unlocked": false
+        },
+        {
+          "en": "Archer",
+          "zh": "弓箭手",
+          "emoji": "🏹",
+          "effect": "后排远程输出，优先攻击飞行单位，需前排保护",
+          "cost": 22,
+          "type": "远程",
+          "unlocked": false
+        },
+        {
+          "en": "Knight",
+          "zh": "骑士",
+          "emoji": "🛡️",
+          "effect": "重甲前排可抗伤，自带嘲讽吸引火力保后排",
+          "cost": 38,
+          "type": "坦克",
+          "unlocked": false
+        },
+        {
+          "en": "Spearman",
+          "zh": "枪兵",
+          "emoji": "🔱",
+          "effect": "长枪隔一个单位戳刺，克制冲锋型敌人",
+          "cost": 22,
+          "type": "中程",
+          "unlocked": false
+        },
+        {
+          "en": "Cavalry",
+          "zh": "骑兵",
+          "emoji": "🏇",
+          "effect": "高速冲锋击退敌人打断攻击，打乱敌方阵型",
+          "cost": 32,
+          "type": "突击",
+          "unlocked": false
+        },
+        {
+          "en": "Bomber",
+          "zh": "爆破兵",
+          "emoji": "💣",
+          "effect": "投炸弹范围伤害，攻速慢但AOE威力大",
+          "cost": 28,
+          "type": "AOE",
+          "unlocked": false
+        },
+        {
+          "en": "Berserker",
+          "zh": "狂战士",
+          "emoji": "🪓",
+          "effect": "血量越低攻速越快，残血时输出爆炸但容易死",
+          "cost": 30,
+          "type": "近战",
+          "unlocked": false
+        },
+        {
+          "en": "Musketeer",
+          "zh": "火枪手",
+          "emoji": "🔫",
+          "effect": "超远射程+穿甲无视防御，攻速极慢但每发致命",
+          "cost": 35,
+          "type": "远程",
+          "unlocked": false
+        },
+        {
+          "en": "Assassin",
+          "zh": "刺客",
+          "emoji": "🗡️",
+          "effect": "从背后攻击伤害翻倍，绕到敌人后方输出最大化",
+          "cost": 25,
+          "type": "近战",
+          "unlocked": false
+        },
+        {
+          "en": "Miner",
+          "zh": "矿工",
+          "emoji": "⛏️",
+          "effect": "不擅长战斗但持续产出金币，前期投资后期回报",
+          "cost": 12,
+          "type": "经济",
+          "unlocked": false
+        },
+        {
+          "en": "Crossbowman",
+          "zh": "弩手",
+          "emoji": "🎯",
+          "effect": "每发附带轻微击退，在长直道上持续推敌人后退",
+          "cost": 28,
+          "type": "远程",
+          "unlocked": false
+        },
+        {
+          "en": "Gladiator",
+          "zh": "角斗士",
+          "emoji": "⚔️",
+          "effect": "击杀敌人回复20%血量，适合堵在敌群中持续作战",
+          "cost": 35,
+          "type": "续航",
+          "unlocked": false
+        },
+        {
+          "en": "Sergeant",
+          "zh": "军士长",
+          "emoji": "🪖",
+          "effect": "为相邻士兵提供+10%攻击力光环",
+          "cost": 26,
+          "type": "辅助",
+          "unlocked": false
+        },
+        {
+          "en": "Longbowman",
+          "zh": "长弓手",
+          "emoji": "🏹",
+          "effect": "超远射程狙击手适合后排支援",
+          "cost": 30,
+          "type": "远程",
+          "unlocked": false
+        },
+        {
+          "en": "Woodcutter",
+          "zh": "伐木工",
+          "emoji": "🪓",
+          "effect": "对木质敌人3倍伤害",
+          "cost": 14,
+          "type": "近战",
+          "unlocked": false
+        },
+        {
+          "en": "Duelist",
+          "zh": "决斗者",
+          "emoji": "🗡️",
+          "effect": "锁定一个敌人持续增加对其攻速",
+          "cost": 24,
+          "type": "近战",
+          "unlocked": false
+        },
+        {
+          "en": "Shieldbearer",
+          "zh": "持盾兵",
+          "emoji": "🛡️",
+          "effect": "正面伤害-50%的防御型士兵",
+          "cost": 20,
+          "type": "坦克",
+          "unlocked": false
+        },
+        {
+          "en": "Poison Archer",
+          "zh": "毒箭手",
+          "emoji": "🏹",
+          "effect": "毒箭造成持续伤害并降低治疗效果",
+          "cost": 26,
+          "type": "DOT",
+          "unlocked": false
+        },
+        {
+          "en": "Samurai",
+          "zh": "武士",
+          "emoji": "⚔️",
+          "effect": "高暴击率+暴击伤害的近战精英",
+          "cost": 32,
+          "type": "近战",
+          "unlocked": false
+        },
+        {
+          "en": "Hammer Warrior",
+          "zh": "锤战士",
+          "emoji": "🔨",
+          "effect": "每3次攻击触发范围眩晕",
+          "cost": 28,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Scout",
+          "zh": "侦察兵",
+          "emoji": "🏃",
+          "effect": "扩大视野范围+标记优先目标",
+          "cost": 10,
+          "type": "辅助",
+          "unlocked": false
+        },
+        {
+          "en": "Rogue",
+          "zh": "游荡者",
+          "emoji": "🗡️",
+          "effect": "每击降低敌人护甲5%",
+          "cost": 22,
+          "type": "近战",
+          "unlocked": false
+        },
+        {
+          "en": "Hunter",
+          "zh": "猎人",
+          "emoji": "🏹",
+          "effect": "对野兽类敌人额外伤害",
+          "cost": 24,
+          "type": "远程",
+          "unlocked": false
+        },
+        {
+          "en": "Paladin",
+          "zh": "圣骑士",
+          "emoji": "🛡️",
+          "effect": "神圣伤害+治疗附近友方",
+          "cost": 38,
+          "type": "神圣",
+          "unlocked": false
+        },
+        {
+          "en": "Warlord",
+          "zh": "军阀",
+          "emoji": "⚔️",
+          "effect": "全局士兵攻击力+15%",
+          "cost": 40,
+          "type": "辅助",
+          "unlocked": false
+        },
+        {
+          "en": "Elven Archer",
+          "zh": "精灵弓手",
+          "emoji": "🏹",
+          "effect": "在自然地形上攻速翻倍",
+          "cost": 28,
+          "type": "远程",
+          "unlocked": false
+        },
+        {
+          "en": "Blade Dancer",
+          "zh": "剑舞者",
+          "emoji": "🗡️",
+          "effect": "360度范围攻击所有相邻敌人",
+          "cost": 30,
+          "type": "近战",
+          "unlocked": false
+        },
+        {
+          "en": "Phalanx Soldier",
+          "zh": "方阵兵",
+          "emoji": "🛡️",
+          "effect": "相邻士兵越多防御越高",
+          "cost": 22,
+          "type": "坦克",
+          "unlocked": false
+        },
+        {
+          "en": "Lancer",
+          "zh": "枪骑兵",
+          "emoji": "🏇",
+          "effect": "冲锋距离越远伤害越高",
+          "cost": 30,
+          "type": "突击",
+          "unlocked": false
+        },
+        {
+          "en": "Templar",
+          "zh": "圣殿骑士",
+          "emoji": "⚔️",
+          "effect": "坦克+神圣伤害+治疗三位一体",
+          "cost": 42,
+          "type": "神圣",
+          "unlocked": false
+        },
+        {
+          "en": "Sniper",
+          "zh": "狙击手",
+          "emoji": "🏹",
+          "effect": "极慢攻速但超高伤害超远射程",
+          "cost": 35,
+          "type": "远程",
+          "unlocked": false
+        },
+        {
+          "en": "Executioner",
+          "zh": "刽子手",
+          "emoji": "🪓",
+          "effect": "对低于20%HP的敌人造成3倍伤害",
+          "cost": 34,
+          "type": "近战",
+          "unlocked": false
+        }
+      ]
+    },
+    {
+      "key": "traps",
+      "emoji": "🪤",
+      "title": "陷阱机关",
+      "sub": "Traps & Mechanisms",
+      "desc": "地面触发高爆发装置",
+      "words": [
+        {
+          "en": "Spike Trap",
+          "zh": "尖刺陷阱",
+          "emoji": "📌",
+          "effect": "敌人踩中造成高额单体伤害，可多次触发",
+          "cost": 10,
+          "type": "物理",
+          "unlocked": false
+        },
+        {
+          "en": "Bear Trap",
+          "zh": "捕兽夹",
+          "emoji": "🪤",
+          "effect": "夹住敌人定身，配合远程单位集火秒杀",
+          "cost": 14,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Fire Trap",
+          "zh": "火焰陷阱",
+          "emoji": "🔥",
+          "effect": "触发后留下火海持续灼烧经过的敌人",
+          "cost": 18,
+          "type": "元素",
+          "unlocked": false
+        },
+        {
+          "en": "Ice Trap",
+          "zh": "冰冻陷阱",
+          "emoji": "❄️",
+          "effect": "冻结周围敌人后附带减速，弯道处控场神器",
+          "cost": 22,
+          "type": "元素",
+          "unlocked": false
+        },
+        {
+          "en": "Pitfall",
+          "zh": "陷坑",
+          "emoji": "🕳️",
+          "effect": "第一个踩入的普通敌人直接秒杀，对BOSS无效",
+          "cost": 38,
+          "type": "即死",
+          "unlocked": false
+        },
+        {
+          "en": "Poison Trap",
+          "zh": "毒雾陷阱",
+          "emoji": "☠️",
+          "effect": "毒雾持续伤害+削弱护甲，为后续输出铺路",
+          "cost": 18,
+          "type": "减益",
+          "unlocked": false
+        },
+        {
+          "en": "Shock Trap",
+          "zh": "电击陷阱",
+          "emoji": "⚡",
+          "effect": "触发后电弧弹射周围3个敌人",
+          "cost": 16,
+          "type": "连锁",
+          "unlocked": false
+        },
+        {
+          "en": "Landmine",
+          "zh": "地雷",
+          "emoji": "💥",
+          "effect": "敌人接近时引爆造成巨大范围伤害",
+          "cost": 24,
+          "type": "爆炸",
+          "unlocked": false
+        },
+        {
+          "en": "Web Trap",
+          "zh": "蛛网陷阱",
+          "emoji": "🕸️",
+          "effect": "喷出蛛网缠绕敌人使其完全无法移动",
+          "cost": 12,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Rolling Boulder",
+          "zh": "滚石机关",
+          "emoji": "🪨",
+          "effect": "释放巨石沿路径滚压",
+          "cost": 28,
+          "type": "物理",
+          "unlocked": false
+        },
+        {
+          "en": "Wind Trap",
+          "zh": "旋风陷阱",
+          "emoji": "🌪️",
+          "effect": "触发后释放强风将周围敌人向后抛飞",
+          "cost": 20,
+          "type": "位移",
+          "unlocked": false
+        },
+        {
+          "en": "Alarm Trap",
+          "zh": "警戒陷阱",
+          "emoji": "🔔",
+          "effect": "触发后标记敌人使其受到伤害+30%",
+          "cost": 8,
+          "type": "辅助",
+          "unlocked": false
+        },
+        {
+          "en": "Proximity Mine",
+          "zh": "感应地雷",
+          "emoji": "💣",
+          "effect": "敌人靠近2.5格时自动引爆",
+          "cost": 20,
+          "type": "爆炸",
+          "unlocked": false
+        },
+        {
+          "en": "Snare Trap",
+          "zh": "套索陷阱",
+          "emoji": "🪤",
+          "effect": "套索吊起敌人使其完全失去行动能力",
+          "cost": 16,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Acid Pool",
+          "zh": "酸液池",
+          "emoji": "⚗️",
+          "effect": "酸液持续溶解敌人护甲",
+          "cost": 22,
+          "type": "减益",
+          "unlocked": false
+        },
+        {
+          "en": "Caltrop Field",
+          "zh": "蒺藜阵",
+          "emoji": "💀",
+          "effect": "铁蒺藜对轻甲无甲敌人效果翻倍",
+          "cost": 12,
+          "type": "物理",
+          "unlocked": false
+        },
+        {
+          "en": "Rune Trap",
+          "zh": "符文陷阱",
+          "emoji": "🔮",
+          "effect": "魔法爆炸+沉默周围敌人",
+          "cost": 22,
+          "type": "魔法",
+          "unlocked": false
+        },
+        {
+          "en": "Magnetic Mine",
+          "zh": "磁性地雷",
+          "emoji": "🧲",
+          "effect": "先吸附金属敌人再爆炸",
+          "cost": 22,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Smoke Screen",
+          "zh": "烟幕陷阱",
+          "emoji": "🌫️",
+          "effect": "持续致盲经过的敌人",
+          "cost": 10,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Tesla Trap",
+          "zh": "特斯拉陷阱",
+          "emoji": "⚡",
+          "effect": "持续电场伤害",
+          "cost": 22,
+          "type": "元素",
+          "unlocked": false
+        },
+        {
+          "en": "Cluster Bomb",
+          "zh": "集束炸弹",
+          "emoji": "💥",
+          "effect": "爆炸后散射5个小炸弹",
+          "cost": 30,
+          "type": "爆炸",
+          "unlocked": false
+        },
+        {
+          "en": "Cryo Mine",
+          "zh": "冰冻地雷",
+          "emoji": "🧊",
+          "effect": "大范围冰冻2.5秒",
+          "cost": 24,
+          "type": "元素",
+          "unlocked": false
+        },
+        {
+          "en": "Sinkhole",
+          "zh": "塌陷坑",
+          "emoji": "🕳️",
+          "effect": "可吞掉最多3个小敌人",
+          "cost": 32,
+          "type": "即死",
+          "unlocked": false
+        },
+        {
+          "en": "Siren Trap",
+          "zh": "警报陷阱",
+          "emoji": "🔔",
+          "effect": "大范围降低敌人攻击力",
+          "cost": 18,
+          "type": "减益",
+          "unlocked": false
+        },
+        {
+          "en": "Arrow Trap",
+          "zh": "箭雨陷阱",
+          "emoji": "🏹",
+          "effect": "触发后齐射10支箭矢",
+          "cost": 22,
+          "type": "物理",
+          "unlocked": false
+        },
+        {
+          "en": "Dust Devil",
+          "zh": "沙尘陷阱",
+          "emoji": "🌪️",
+          "effect": "沙尘致盲+持续伤害",
+          "cost": 16,
+          "type": "元素",
+          "unlocked": false
+        },
+        {
+          "en": "Water Trap",
+          "zh": "水陷阱",
+          "emoji": "💧",
+          "effect": "水流击退敌人3格",
+          "cost": 14,
+          "type": "位移",
+          "unlocked": false
+        },
+        {
+          "en": "Napalm Trap",
+          "zh": "凝固汽油陷阱",
+          "emoji": "🔥",
+          "effect": "粘着火焰持续10秒",
+          "cost": 26,
+          "type": "元素",
+          "unlocked": false
+        },
+        {
+          "en": "Confusion Gas",
+          "zh": "混乱毒气",
+          "emoji": "🧪",
+          "effect": "释放毒气让敌人互相攻击",
+          "cost": 26,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Grinder Trap",
+          "zh": "粉碎陷阱",
+          "emoji": "⚙️",
+          "effect": "持续绞碎接触的敌人",
+          "cost": 28,
+          "type": "物理",
+          "unlocked": false
+        },
+        {
+          "en": "Avalanche Trap",
+          "zh": "雪崩陷阱",
+          "emoji": "🪨",
+          "effect": "雪崩AOE伤害+减速幸存者",
+          "cost": 30,
+          "type": "物理",
+          "unlocked": false
+        },
+        {
+          "en": "Prism Trap",
+          "zh": "棱镜陷阱",
+          "emoji": "🌈",
+          "effect": "触发后向四个方向发射光束",
+          "cost": 24,
+          "type": "魔法",
+          "unlocked": false
+        }
+      ]
+    },
+    {
+      "key": "sorcery",
+      "emoji": "🔮",
+      "title": "魔法咒术",
+      "sub": "Sorcery & Spells",
+      "desc": "消耗法力即时释放",
+      "words": [
+        {
+          "en": "Fireball",
+          "zh": "火球术",
+          "emoji": "🔥",
+          "effect": "范围爆炸中心伤害翻倍",
+          "cost": 28,
+          "type": "伤害",
+          "unlocked": false
+        },
+        {
+          "en": "Ice Storm",
+          "zh": "暴风雪",
+          "emoji": "❄️",
+          "effect": "指定区域暴风雪持续减速+伤害",
+          "cost": 32,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Lightning Bolt",
+          "zh": "闪电箭",
+          "emoji": "⚡",
+          "effect": "单体高伤+弹射附近3敌",
+          "cost": 24,
+          "type": "连锁",
+          "unlocked": false
+        },
+        {
+          "en": "Healing Ward",
+          "zh": "治愈结界",
+          "emoji": "💚",
+          "effect": "放置治疗图腾恢复友方生命",
+          "cost": 18,
+          "type": "回复",
+          "unlocked": false
+        },
+        {
+          "en": "Shield",
+          "zh": "护盾术",
+          "emoji": "🛡️",
+          "effect": "给最前方路障/士兵套盾",
+          "cost": 14,
+          "type": "防护",
+          "unlocked": false
+        },
+        {
+          "en": "Tornado",
+          "zh": "龙卷风",
+          "emoji": "🌪️",
+          "effect": "龙卷风将沿途敌人向后抛飞",
+          "cost": 38,
+          "type": "位移",
+          "unlocked": false
+        },
+        {
+          "en": "Meteor",
+          "zh": "陨石术",
+          "emoji": "🔥",
+          "effect": "召唤陨石砸落造成巨额范围伤害",
+          "cost": 50,
+          "type": "终极",
+          "unlocked": false
+        },
+        {
+          "en": "Stone Spikes",
+          "zh": "地刺术",
+          "emoji": "⛏️",
+          "effect": "地面刺出石锥穿透一条直线",
+          "cost": 22,
+          "type": "物理",
+          "unlocked": false
+        },
+        {
+          "en": "Water Blast",
+          "zh": "水弹术",
+          "emoji": "💧",
+          "effect": "高压水弹造成伤害并轻微击退",
+          "cost": 16,
+          "type": "元素",
+          "unlocked": false
+        },
+        {
+          "en": "Arcane Missile",
+          "zh": "奥术飞弹",
+          "emoji": "🌀",
+          "effect": "发射3枚自动追踪魔法飞弹",
+          "cost": 20,
+          "type": "法术",
+          "unlocked": false
+        },
+        {
+          "en": "Chain Lightning",
+          "zh": "连锁闪电",
+          "emoji": "💫",
+          "effect": "闪电链弹射5个敌人",
+          "cost": 30,
+          "type": "连锁",
+          "unlocked": false
+        },
+        {
+          "en": "Polymorph",
+          "zh": "变形术",
+          "emoji": "🪄",
+          "effect": "将敌人变成无害的羊",
+          "cost": 28,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Flame Strike",
+          "zh": "烈焰冲击",
+          "emoji": "🔥",
+          "effect": "地面喷出火柱伤害直线敌人",
+          "cost": 30,
+          "type": "伤害",
+          "unlocked": false
+        },
+        {
+          "en": "Gale",
+          "zh": "烈风术",
+          "emoji": "💨",
+          "effect": "宽范围击退比龙卷风便宜",
+          "cost": 18,
+          "type": "位移",
+          "unlocked": false
+        },
+        {
+          "en": "Mana Shield",
+          "zh": "法力盾",
+          "emoji": "🔮",
+          "effect": "吸收魔法伤害但不吸收物理",
+          "cost": 16,
+          "type": "防护",
+          "unlocked": false
+        },
+        {
+          "en": "Rain of Daggers",
+          "zh": "匕首雨",
+          "emoji": "💧",
+          "effect": "匕首雨每击降低敌人护甲",
+          "cost": 28,
+          "type": "物理",
+          "unlocked": false
+        },
+        {
+          "en": "Thorn Whip",
+          "zh": "荆棘鞭",
+          "emoji": "🌿",
+          "effect": "荆棘鞭将敌人拉近2格",
+          "cost": 18,
+          "type": "位移",
+          "unlocked": false
+        },
+        {
+          "en": "Static Field",
+          "zh": "静电场",
+          "emoji": "⚡",
+          "effect": "持续5秒每秒25%概率眩晕",
+          "cost": 26,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Frost Nova",
+          "zh": "冰霜新星",
+          "emoji": "❄️",
+          "effect": "以施法者为中心范围冰冻",
+          "cost": 28,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Dragon Breath",
+          "zh": "龙息术",
+          "emoji": "🔥",
+          "effect": "前方锥形范围高伤火焰",
+          "cost": 36,
+          "type": "伤害",
+          "unlocked": false
+        },
+        {
+          "en": "Shadow Step",
+          "zh": "暗影步",
+          "emoji": "🌑",
+          "effect": "传送任意友方单位到地图任何位置",
+          "cost": 20,
+          "type": "位移",
+          "unlocked": false
+        },
+        {
+          "en": "Mass Heal",
+          "zh": "群体治疗",
+          "emoji": "💚",
+          "effect": "治疗地图上所有友方单位",
+          "cost": 30,
+          "type": "回复",
+          "unlocked": false
+        },
+        {
+          "en": "Hailstorm",
+          "zh": "冰雹术",
+          "emoji": "🧊",
+          "effect": "冰雹持续4秒造成伤害和轻度减速",
+          "cost": 24,
+          "type": "元素",
+          "unlocked": false
+        },
+        {
+          "en": "Gravity Well",
+          "zh": "重力井",
+          "emoji": "🌀",
+          "effect": "持续5秒将敌人拉向中心",
+          "cost": 28,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Disenchant",
+          "zh": "解除魔法",
+          "emoji": "🪄",
+          "effect": "清除敌人所有增益和护盾",
+          "cost": 20,
+          "type": "驱散",
+          "unlocked": false
+        },
+        {
+          "en": "Arcane Explosion",
+          "zh": "奥术爆炸",
+          "emoji": "💫",
+          "effect": "纯粹魔法能量造成高额AOE",
+          "cost": 34,
+          "type": "伤害",
+          "unlocked": false
+        },
+        {
+          "en": "Moonbeam",
+          "zh": "月光术",
+          "emoji": "🌙",
+          "effect": "同时治疗友方和伤害亡灵",
+          "cost": 20,
+          "type": "神圣",
+          "unlocked": false
+        },
+        {
+          "en": "Scorch",
+          "zh": "灼热术",
+          "emoji": "🔥",
+          "effect": "最便宜的火系伤害法术",
+          "cost": 10,
+          "type": "伤害",
+          "unlocked": false
+        },
+        {
+          "en": "Blink",
+          "zh": "闪现术",
+          "emoji": "🌀",
+          "effect": "短距离重新部署友方单位",
+          "cost": 12,
+          "type": "位移",
+          "unlocked": false
+        },
+        {
+          "en": "Crystal Lance",
+          "zh": "晶石长矛",
+          "emoji": "💎",
+          "effect": "投掷晶石长矛穿透一排并造成流血",
+          "cost": 26,
+          "type": "物理",
+          "unlocked": false
+        },
+        {
+          "en": "Whirlpool",
+          "zh": "漩涡术",
+          "emoji": "🌊",
+          "effect": "漩涡将敌人困在原地持续伤害",
+          "cost": 28,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Sanctuary",
+          "zh": "圣所术",
+          "emoji": "🛡️",
+          "effect": "区域内友方无敌4秒",
+          "cost": 35,
+          "type": "终极",
+          "unlocked": false
+        }
+      ]
+    },
+    {
+      "key": "engines",
+      "emoji": "🏗️",
+      "title": "构造体",
+      "sub": "Engines & Constructs",
+      "desc": "自动攻击的固定装置",
+      "words": [
+        {
+          "en": "Ballista",
+          "zh": "弩车",
+          "emoji": "🎯",
+          "effect": "超远射程单体高伤击退",
+          "cost": 32,
+          "type": "炮台",
+          "unlocked": false
+        },
+        {
+          "en": "Catapult",
+          "zh": "投石车",
+          "emoji": "💥",
+          "effect": "超远范围轰炸",
+          "cost": 38,
+          "type": "攻城",
+          "unlocked": false
+        },
+        {
+          "en": "Tesla Coil",
+          "zh": "特斯拉线圈",
+          "emoji": "⚡",
+          "effect": "对范围内3个敌人同时放电",
+          "cost": 28,
+          "type": "AOE",
+          "unlocked": false
+        },
+        {
+          "en": "Mage Tower",
+          "zh": "法师塔",
+          "emoji": "🔮",
+          "effect": "自动释放奥术飞弹",
+          "cost": 32,
+          "type": "法术",
+          "unlocked": false
+        },
+        {
+          "en": "Saw Blade",
+          "zh": "旋转锯刃",
+          "emoji": "🪚",
+          "effect": "持续旋转对接触敌人高频伤害",
+          "cost": 24,
+          "type": "近战",
+          "unlocked": false
+        },
+        {
+          "en": "War Drum",
+          "zh": "战鼓",
+          "emoji": "🥁",
+          "effect": "提升友方攻速和攻击力",
+          "cost": 18,
+          "type": "辅助",
+          "unlocked": false
+        },
+        {
+          "en": "Turret",
+          "zh": "自动炮台",
+          "emoji": "🔫",
+          "effect": "自动瞄准扫射",
+          "cost": 28,
+          "type": "炮台",
+          "unlocked": false
+        },
+        {
+          "en": "Flamethrower",
+          "zh": "火焰喷射器",
+          "emoji": "🔥",
+          "effect": "前方扇形持续喷火",
+          "cost": 35,
+          "type": "元素",
+          "unlocked": false
+        },
+        {
+          "en": "Magnet Tower",
+          "zh": "磁力塔",
+          "emoji": "🧲",
+          "effect": "拖拽金属护甲敌人",
+          "cost": 20,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Freeze Cannon",
+          "zh": "冷冻炮",
+          "emoji": "🧊",
+          "effect": "每次攻击叠加减速",
+          "cost": 30,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Mirror Tower",
+          "zh": "镜像塔",
+          "emoji": "🎪",
+          "effect": "不攻击但复制友方攻击力",
+          "cost": 25,
+          "type": "特殊",
+          "unlocked": false
+        },
+        {
+          "en": "Resonance Bell",
+          "zh": "共鸣钟",
+          "emoji": "🔔",
+          "effect": "周期性音波脉冲减速",
+          "cost": 22,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Arrow Tower",
+          "zh": "箭塔",
+          "emoji": "🏹",
+          "effect": "高速射击的自动箭塔",
+          "cost": 24,
+          "type": "炮台",
+          "unlocked": false
+        },
+        {
+          "en": "Boulder Tower",
+          "zh": "滚石塔",
+          "emoji": "🪨",
+          "effect": "近距离投石造成重击",
+          "cost": 30,
+          "type": "炮台",
+          "unlocked": false
+        },
+        {
+          "en": "Lightning Rod",
+          "zh": "避雷针",
+          "emoji": "⚡",
+          "effect": "暴风雨天气下伤害翻倍",
+          "cost": 26,
+          "type": "元素",
+          "unlocked": false
+        },
+        {
+          "en": "Inferno Tower",
+          "zh": "地狱火塔",
+          "emoji": "🔥",
+          "effect": "扇形持续超高火焰伤害",
+          "cost": 38,
+          "type": "元素",
+          "unlocked": false
+        },
+        {
+          "en": "Cryo Tower",
+          "zh": "极寒塔",
+          "emoji": "🧊",
+          "effect": "每4击冻结敌人3秒",
+          "cost": 32,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Mortar",
+          "zh": "迫击炮",
+          "emoji": "💣",
+          "effect": "最远射程但精度较低的轰炸",
+          "cost": 36,
+          "type": "攻城",
+          "unlocked": false
+        },
+        {
+          "en": "Buzz Saw",
+          "zh": "电锯",
+          "emoji": "🪚",
+          "effect": "超高持续接触伤害的电锯",
+          "cost": 28,
+          "type": "近战",
+          "unlocked": false
+        },
+        {
+          "en": "Prism Tower",
+          "zh": "棱镜塔",
+          "emoji": "🔮",
+          "effect": "攻击额外弹射2个目标",
+          "cost": 30,
+          "type": "法术",
+          "unlocked": false
+        },
+        {
+          "en": "Clockwork Turret",
+          "zh": "发条炮台",
+          "emoji": "⚙️",
+          "effect": "部署后逐渐加速至双倍攻速",
+          "cost": 22,
+          "type": "炮台",
+          "unlocked": false
+        },
+        {
+          "en": "Repulsor Tower",
+          "zh": "斥力塔",
+          "emoji": "🧲",
+          "effect": "每3秒击退周围敌人一次",
+          "cost": 24,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Gatling Gun",
+          "zh": "加特林",
+          "emoji": "🔫",
+          "effect": "每秒5发的极速机关枪",
+          "cost": 35,
+          "type": "炮台",
+          "unlocked": false
+        },
+        {
+          "en": "Wind Turbine",
+          "zh": "风力机",
+          "emoji": "💨",
+          "effect": "每5秒产出1点能量",
+          "cost": 14,
+          "type": "经济",
+          "unlocked": false
+        },
+        {
+          "en": "Scorch Tower",
+          "zh": "灼热之塔",
+          "emoji": "🔥",
+          "effect": "持续聚焦同一个敌人伤害递增",
+          "cost": 28,
+          "type": "元素",
+          "unlocked": false
+        },
+        {
+          "en": "Homing Turret",
+          "zh": "追踪炮台",
+          "emoji": "🎯",
+          "effect": "追踪弹必中且优先攻击最强敌人",
+          "cost": 30,
+          "type": "炮台",
+          "unlocked": false
+        },
+        {
+          "en": "Chime Tower",
+          "zh": "钟塔",
+          "emoji": "🔔",
+          "effect": "每6秒为全体友方提供攻速加成",
+          "cost": 20,
+          "type": "辅助",
+          "unlocked": false
+        },
+        {
+          "en": "Alchemist Tower",
+          "zh": "炼金塔",
+          "emoji": "🧪",
+          "effect": "每8秒产出2金币",
+          "cost": 20,
+          "type": "经济",
+          "unlocked": false
+        },
+        {
+          "en": "Snow Cannon",
+          "zh": "雪炮",
+          "emoji": "❄️",
+          "effect": "发射减速雪球的宽范围炮台",
+          "cost": 22,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Demolition Tower",
+          "zh": "爆破塔",
+          "emoji": "💥",
+          "effect": "超慢攻速但每发都是毁灭性AOE",
+          "cost": 38,
+          "type": "攻城",
+          "unlocked": false
+        },
+        {
+          "en": "Decoy Tower",
+          "zh": "诱饵塔",
+          "emoji": "🎪",
+          "effect": "吸引敌人攻击的诱饵塔",
+          "cost": 18,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Storm Tower",
+          "zh": "风暴塔",
+          "emoji": "🌩️",
+          "effect": "每个其他风暴塔为其+5%攻击",
+          "cost": 28,
+          "type": "元素",
+          "unlocked": false
+        }
+      ]
+    },
+    {
+      "key": "hexes",
+      "emoji": "💀",
+      "title": "诅咒减益",
+      "sub": "Hexes & Debuffs",
+      "desc": "削弱敌人的负面效果",
+      "words": [
+        {
+          "en": "Slow Field",
+          "zh": "迟缓领域",
+          "emoji": "🐌",
+          "effect": "区域内敌人移速大幅降低",
+          "cost": 14,
+          "type": "减速",
+          "unlocked": false
+        },
+        {
+          "en": "Confusion",
+          "zh": "混乱术",
+          "emoji": "😵",
+          "effect": "敌人反向行走",
+          "cost": 22,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Weakness",
+          "zh": "虚弱诅咒",
+          "emoji": "💔",
+          "effect": "降低目标攻击力一半",
+          "cost": 18,
+          "type": "减攻",
+          "unlocked": false
+        },
+        {
+          "en": "Blind",
+          "zh": "致盲术",
+          "emoji": "🦯",
+          "effect": "敌人概率攻击落空",
+          "cost": 14,
+          "type": "减益",
+          "unlocked": false
+        },
+        {
+          "en": "Bleed",
+          "zh": "流血",
+          "emoji": "🩸",
+          "effect": "敌人移动时额外受伤",
+          "cost": 18,
+          "type": "DOT",
+          "unlocked": false
+        },
+        {
+          "en": "Doom",
+          "zh": "末日印记",
+          "emoji": "💀",
+          "effect": "标记敌人10秒后扣血",
+          "cost": 48,
+          "type": "斩杀",
+          "unlocked": false
+        },
+        {
+          "en": "Silence",
+          "zh": "沉默术",
+          "emoji": "🔇",
+          "effect": "封禁敌人特殊技能",
+          "cost": 20,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Brittle",
+          "zh": "脆弱诅咒",
+          "emoji": "🦴",
+          "effect": "敌人受伤增加50%",
+          "cost": 16,
+          "type": "增伤",
+          "unlocked": false
+        },
+        {
+          "en": "Curse of Flames",
+          "zh": "烈焰诅咒",
+          "emoji": "🔥",
+          "effect": "持续灼烧+降低治疗效果",
+          "cost": 22,
+          "type": "DOT",
+          "unlocked": false
+        },
+        {
+          "en": "Frostbite",
+          "zh": "冻伤诅咒",
+          "emoji": "🧊",
+          "effect": "双维度削弱",
+          "cost": 18,
+          "type": "减益",
+          "unlocked": false
+        },
+        {
+          "en": "Terror",
+          "zh": "恐惧术",
+          "emoji": "🕷️",
+          "effect": "敌人恐惧逃跑",
+          "cost": 25,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Rust",
+          "zh": "锈蚀术",
+          "emoji": "🧪",
+          "effect": "大幅削减金属护甲",
+          "cost": 16,
+          "type": "减甲",
+          "unlocked": false
+        },
+        {
+          "en": "Hex of Frailty",
+          "zh": "脆弱咒",
+          "emoji": "😈",
+          "effect": "永久降低敌人最大生命值",
+          "cost": 24,
+          "type": "诅咒",
+          "unlocked": false
+        },
+        {
+          "en": "Agony",
+          "zh": "痛苦术",
+          "emoji": "🔥",
+          "effect": "敌人每次攻击自身受到伤害",
+          "cost": 20,
+          "type": "反伤",
+          "unlocked": false
+        },
+        {
+          "en": "Curse of Greed",
+          "zh": "贪婪诅咒",
+          "emoji": "👁️",
+          "effect": "根据携带金币数量增加伤害",
+          "cost": 16,
+          "type": "诅咒",
+          "unlocked": false
+        },
+        {
+          "en": "Soul Leak",
+          "zh": "灵魂泄漏",
+          "emoji": "🕯️",
+          "effect": "从敌人身上偷取能量",
+          "cost": 18,
+          "type": "诅咒",
+          "unlocked": false
+        },
+        {
+          "en": "Hypothermia",
+          "zh": "低温症",
+          "emoji": "🧊",
+          "effect": "减速叠加最终冻结",
+          "cost": 20,
+          "type": "诅咒",
+          "unlocked": false
+        },
+        {
+          "en": "Mortality",
+          "zh": "死亡标记",
+          "emoji": "💀",
+          "effect": "每秒流失3%最大生命值",
+          "cost": 30,
+          "type": "诅咒",
+          "unlocked": false
+        },
+        {
+          "en": "Curse of Fumbling",
+          "zh": "失手诅咒",
+          "emoji": "🦯",
+          "effect": "敌人攻击力大幅下降",
+          "cost": 16,
+          "type": "减攻",
+          "unlocked": false
+        },
+        {
+          "en": "Petrify",
+          "zh": "石化术",
+          "emoji": "🐌",
+          "effect": "石化敌人使其定身并受到双倍伤害",
+          "cost": 28,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Curse of Darkness",
+          "zh": "黑暗诅咒",
+          "emoji": "🌑",
+          "effect": "敌人失去方向随机游走",
+          "cost": 22,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Heartbreak",
+          "zh": "心碎术",
+          "emoji": "💔",
+          "effect": "目标受到的所有伤害翻倍",
+          "cost": 32,
+          "type": "诅咒",
+          "unlocked": false
+        },
+        {
+          "en": "Decay",
+          "zh": "腐朽术",
+          "emoji": "🦴",
+          "effect": "每秒持续降低敌人护甲无上限",
+          "cost": 22,
+          "type": "诅咒",
+          "unlocked": false
+        },
+        {
+          "en": "Curse of Undeath",
+          "zh": "不死诅咒",
+          "emoji": "🧟",
+          "effect": "被诅咒的敌人死亡后变为友方骷髅",
+          "cost": 35,
+          "type": "诅咒",
+          "unlocked": false
+        },
+        {
+          "en": "Nightmare",
+          "zh": "噩梦术",
+          "emoji": "😱",
+          "effect": "敌人恐惧高速逃跑",
+          "cost": 24,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Chain Curse",
+          "zh": "连锁诅咒",
+          "emoji": "🔗",
+          "effect": "将减益效果传播给相邻敌人",
+          "cost": 22,
+          "type": "诅咒",
+          "unlocked": false
+        },
+        {
+          "en": "Curse of Greed",
+          "zh": "钻石诅咒",
+          "emoji": "💎",
+          "effect": "被诅咒敌人死亡时爆炸造成AOE",
+          "cost": 22,
+          "type": "诅咒",
+          "unlocked": false
+        },
+        {
+          "en": "Parasite",
+          "zh": "寄生虫",
+          "emoji": "🕸️",
+          "effect": "宿主死亡后寄生虫跳到临近敌人",
+          "cost": 24,
+          "type": "DOT",
+          "unlocked": false
+        },
+        {
+          "en": "Spore Infection",
+          "zh": "孢子感染",
+          "emoji": "🍄",
+          "effect": "感染敌人死亡时释放毒雾",
+          "cost": 20,
+          "type": "DOT",
+          "unlocked": false
+        },
+        {
+          "en": "Arcane Mark",
+          "zh": "奥术印记",
+          "emoji": "🔮",
+          "effect": "标记目标受到魔法伤害+30%",
+          "cost": 16,
+          "type": "增伤",
+          "unlocked": false
+        },
+        {
+          "en": "Static Curse",
+          "zh": "静电诅咒",
+          "emoji": "⚡",
+          "effect": "诅咒敌人周期性电击周围友军",
+          "cost": 20,
+          "type": "诅咒",
+          "unlocked": false
+        },
+        {
+          "en": "Brain Freeze",
+          "zh": "脑冻术",
+          "emoji": "🧊",
+          "effect": "敌人呆滞原地不动3秒",
+          "cost": 18,
+          "type": "控制",
+          "unlocked": false
+        }
+      ]
+    },
+    {
+      "key": "beasts",
+      "emoji": "🐺",
+      "title": "召唤野兽",
+      "sub": "Beasts & Creatures",
+      "desc": "野性生物为你作战",
+      "words": [
+        {
+          "en": "Wolf",
+          "zh": "狼",
+          "emoji": "🐺",
+          "effect": "狼群数量越多攻击越高",
+          "cost": 20,
+          "type": "近战",
+          "unlocked": false
+        },
+        {
+          "en": "Bear",
+          "zh": "熊",
+          "emoji": "🐻",
+          "effect": "厚血高攻附带眩晕",
+          "cost": 35,
+          "type": "坦克",
+          "unlocked": false
+        },
+        {
+          "en": "Eagle",
+          "zh": "鹰",
+          "emoji": "🦅",
+          "effect": "飞行不受地面陷阱影响",
+          "cost": 22,
+          "type": "飞行",
+          "unlocked": false
+        },
+        {
+          "en": "Serpent",
+          "zh": "毒蛇",
+          "emoji": "🐍",
+          "effect": "攻击附带持续毒伤",
+          "cost": 18,
+          "type": "DOT",
+          "unlocked": false
+        },
+        {
+          "en": "Scorpion",
+          "zh": "蝎子",
+          "emoji": "🦂",
+          "effect": "高暴击高爆发",
+          "cost": 24,
+          "type": "刺客",
+          "unlocked": false
+        },
+        {
+          "en": "Boar",
+          "zh": "野猪",
+          "emoji": "🐗",
+          "effect": "直线冲锋穿透",
+          "cost": 26,
+          "type": "突击",
+          "unlocked": false
+        },
+        {
+          "en": "Bat Swarm",
+          "zh": "蝙蝠群",
+          "emoji": "🦇",
+          "effect": "伤害转回血",
+          "cost": 18,
+          "type": "飞行",
+          "unlocked": false
+        },
+        {
+          "en": "Tiger",
+          "zh": "虎",
+          "emoji": "🐯",
+          "effect": "高攻高暴脆皮",
+          "cost": 30,
+          "type": "刺客",
+          "unlocked": false
+        },
+        {
+          "en": "Fox",
+          "zh": "狐狸",
+          "emoji": "🦊",
+          "effect": "高闪避远程骚扰",
+          "cost": 16,
+          "type": "灵巧",
+          "unlocked": false
+        },
+        {
+          "en": "Elephant",
+          "zh": "大象",
+          "emoji": "🐘",
+          "effect": "超高血量践踏",
+          "cost": 42,
+          "type": "巨兽",
+          "unlocked": false
+        },
+        {
+          "en": "Stag",
+          "zh": "牡鹿",
+          "emoji": "🦌",
+          "effect": "鹿角冲撞击退",
+          "cost": 22,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Crocodile",
+          "zh": "鳄鱼",
+          "emoji": "🐊",
+          "effect": "咬住定身+持续伤害",
+          "cost": 28,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Lion",
+          "zh": "狮子",
+          "emoji": "🦁",
+          "effect": "咆哮为所有野兽提供+15%攻击",
+          "cost": 30,
+          "type": "辅助",
+          "unlocked": false
+        },
+        {
+          "en": "Dire Wolf",
+          "zh": "恐狼",
+          "emoji": "🐺",
+          "effect": "强化版巨狼属性翻倍",
+          "cost": 35,
+          "type": "近战",
+          "unlocked": false
+        },
+        {
+          "en": "Gorilla",
+          "zh": "大猩猩",
+          "emoji": "🦍",
+          "effect": "每4次攻击触发AOE地震",
+          "cost": 32,
+          "type": "坦克",
+          "unlocked": false
+        },
+        {
+          "en": "Panther",
+          "zh": "黑豹",
+          "emoji": "🐆",
+          "effect": "攻速最快的陆地野兽",
+          "cost": 26,
+          "type": "刺客",
+          "unlocked": false
+        },
+        {
+          "en": "Owl",
+          "zh": "猫头鹰",
+          "emoji": "🦉",
+          "effect": "飞行侦察可发现隐身敌人",
+          "cost": 14,
+          "type": "飞行",
+          "unlocked": false
+        },
+        {
+          "en": "Python",
+          "zh": "巨蟒",
+          "emoji": "🐍",
+          "effect": "缠绕单个敌人持续4秒造成巨量伤害",
+          "cost": 28,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Falcon",
+          "zh": "猎鹰",
+          "emoji": "🦅",
+          "effect": "俯冲第一击伤害双倍",
+          "cost": 24,
+          "type": "飞行",
+          "unlocked": false
+        },
+        {
+          "en": "Polar Bear",
+          "zh": "北极熊",
+          "emoji": "🐻‍❄️",
+          "effect": "免疫冰冻且攻击附带减速",
+          "cost": 36,
+          "type": "坦克",
+          "unlocked": false
+        },
+        {
+          "en": "Raptor",
+          "zh": "迅猛龙",
+          "emoji": "🦖",
+          "effect": "3只以上群体攻击暴击率+20%",
+          "cost": 28,
+          "type": "刺客",
+          "unlocked": false
+        },
+        {
+          "en": "Buffalo",
+          "zh": "水牛",
+          "emoji": "🐃",
+          "effect": "冲锋践踏一条直线的敌人",
+          "cost": 28,
+          "type": "突击",
+          "unlocked": false
+        },
+        {
+          "en": "Chameleon",
+          "zh": "变色龙",
+          "emoji": "🦎",
+          "effect": "攻击间隔隐身不可被选中",
+          "cost": 24,
+          "type": "刺客",
+          "unlocked": false
+        },
+        {
+          "en": "Hornet Swarm",
+          "zh": "黄蜂群",
+          "emoji": "🐝",
+          "effect": "同时攻击3个敌人的飞行群体",
+          "cost": 22,
+          "type": "飞行",
+          "unlocked": false
+        },
+        {
+          "en": "Shark",
+          "zh": "鲨鱼",
+          "emoji": "🦈",
+          "effect": "对流血敌人额外伤害",
+          "cost": 30,
+          "type": "近战",
+          "unlocked": false
+        },
+        {
+          "en": "Wyrm",
+          "zh": "蛟龙",
+          "emoji": "🐲",
+          "effect": "潜地后从敌群中钻出造成AOE",
+          "cost": 35,
+          "type": "AOE",
+          "unlocked": false
+        },
+        {
+          "en": "Parrot",
+          "zh": "鹦鹉",
+          "emoji": "🦜",
+          "effect": "复制上次施放的法术(威力减半)",
+          "cost": 20,
+          "type": "特殊",
+          "unlocked": false
+        },
+        {
+          "en": "Ant Colony",
+          "zh": "蚁群",
+          "emoji": "🐜",
+          "effect": "每5秒繁殖一只蚂蚁最多10只",
+          "cost": 28,
+          "type": "召唤",
+          "unlocked": false
+        },
+        {
+          "en": "Hedgehog",
+          "zh": "刺猬",
+          "emoji": "🦔",
+          "effect": "反弹40%近战伤害",
+          "cost": 20,
+          "type": "反伤",
+          "unlocked": false
+        },
+        {
+          "en": "Mountain Goat",
+          "zh": "山羊",
+          "emoji": "🐐",
+          "effect": "可部署在任何地形上",
+          "cost": 20,
+          "type": "特殊",
+          "unlocked": false
+        },
+        {
+          "en": "Dodo",
+          "zh": "渡渡鸟",
+          "emoji": "🦤",
+          "effect": "超便宜，敌人看到会愣住1秒",
+          "cost": 8,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Drake",
+          "zh": "小龙",
+          "emoji": "🐉",
+          "effect": "小龙每5秒喷出锥形火焰",
+          "cost": 32,
+          "type": "元素",
+          "unlocked": false
+        }
+      ]
+    },
+    {
+      "key": "potions",
+      "emoji": "🧪",
+      "title": "炼金药剂",
+      "sub": "Potions & Elixirs",
+      "desc": "消耗性道具即时效果",
+      "words": [
+        {
+          "en": "Health Potion",
+          "zh": "生命药水",
+          "emoji": "❤️",
+          "effect": "立即回复基地5点生命值",
+          "cost": 8,
+          "type": "回复",
+          "unlocked": false
+        },
+        {
+          "en": "Energy Potion",
+          "zh": "能量药水",
+          "emoji": "⚡",
+          "effect": "立即回复30点能量",
+          "cost": 6,
+          "type": "回复",
+          "unlocked": false
+        },
+        {
+          "en": "Strength Elixir",
+          "zh": "力量灵药",
+          "emoji": "💪",
+          "effect": "范围内友方攻击力+30%",
+          "cost": 12,
+          "type": "增益",
+          "unlocked": false
+        },
+        {
+          "en": "Iron Skin Tonic",
+          "zh": "铁肤药剂",
+          "emoji": "🛡️",
+          "effect": "范围内友方护甲+50%",
+          "cost": 10,
+          "type": "增益",
+          "unlocked": false
+        },
+        {
+          "en": "Acid Flask",
+          "zh": "酸液瓶",
+          "emoji": "💣",
+          "effect": "投掷酸液造成伤害并溶解护甲",
+          "cost": 14,
+          "type": "投掷",
+          "unlocked": false
+        },
+        {
+          "en": "Sticky Goo",
+          "zh": "粘胶瓶",
+          "emoji": "🧪",
+          "effect": "投掷粘胶减速60%持续4秒",
+          "cost": 10,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Nitro Bomb",
+          "zh": "硝基炸药",
+          "emoji": "💥",
+          "effect": "投掷炸药造成巨大范围伤害",
+          "cost": 20,
+          "type": "爆炸",
+          "unlocked": false
+        },
+        {
+          "en": "Smoke Bomb",
+          "zh": "烟雾弹",
+          "emoji": "⚗️",
+          "effect": "烟雾区域敌人全部致盲",
+          "cost": 8,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Stimulant",
+          "zh": "兴奋剂",
+          "emoji": "🌿",
+          "effect": "范围内友方攻速+50%",
+          "cost": 10,
+          "type": "增益",
+          "unlocked": false
+        },
+        {
+          "en": "Freeze Flask",
+          "zh": "冰冻瓶",
+          "emoji": "🧊",
+          "effect": "投掷液氮冻结范围内敌人",
+          "cost": 16,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Oil Flask",
+          "zh": "油瓶",
+          "emoji": "🔥",
+          "effect": "地面油渍减速，可被点燃",
+          "cost": 8,
+          "type": "辅助",
+          "unlocked": false
+        },
+        {
+          "en": "Lucky Charm",
+          "zh": "幸运符",
+          "emoji": "✨",
+          "effect": "暴击率+25%持续10秒",
+          "cost": 15,
+          "type": "增益",
+          "unlocked": false
+        },
+        {
+          "en": "Elixir of Speed",
+          "zh": "速度灵药",
+          "emoji": "🧪",
+          "effect": "提升移动速度应对紧急情况",
+          "cost": 10,
+          "type": "增益",
+          "unlocked": false
+        },
+        {
+          "en": "Fire Resistance Potion",
+          "zh": "防火药水",
+          "emoji": "🔥",
+          "effect": "免疫火焰伤害6秒",
+          "cost": 12,
+          "type": "防护",
+          "unlocked": false
+        },
+        {
+          "en": "Berserker Brew",
+          "zh": "狂暴药剂",
+          "emoji": "💪",
+          "effect": "高攻低防的双刃剑",
+          "cost": 14,
+          "type": "增益",
+          "unlocked": false
+        },
+        {
+          "en": "Antifreeze",
+          "zh": "防冻剂",
+          "emoji": "🧊",
+          "effect": "免疫冰冻和冰系减速",
+          "cost": 10,
+          "type": "防护",
+          "unlocked": false
+        },
+        {
+          "en": "Truesight Potion",
+          "zh": "真视药水",
+          "emoji": "👁️",
+          "effect": "揭示所有隐身敌人",
+          "cost": 10,
+          "type": "反隐",
+          "unlocked": false
+        },
+        {
+          "en": "Regeneration Potion",
+          "zh": "再生药水",
+          "emoji": "💚",
+          "effect": "持续12秒的缓慢回血",
+          "cost": 14,
+          "type": "回复",
+          "unlocked": false
+        },
+        {
+          "en": "Magnet Potion",
+          "zh": "磁力药水",
+          "emoji": "🧲",
+          "effect": "将敌方弹道吸向喝药者",
+          "cost": 12,
+          "type": "防护",
+          "unlocked": false
+        },
+        {
+          "en": "Energy Surge",
+          "zh": "能量激增",
+          "emoji": "⚡",
+          "effect": "立即回复50点能量的大补药",
+          "cost": 8,
+          "type": "回复",
+          "unlocked": false
+        },
+        {
+          "en": "Phasing Potion",
+          "zh": "相位药水",
+          "emoji": "🛡️",
+          "effect": "让一个单位无敌3秒",
+          "cost": 18,
+          "type": "终极",
+          "unlocked": false
+        },
+        {
+          "en": "Venom Extract",
+          "zh": "毒液提取物",
+          "emoji": "💀",
+          "effect": "武器附加毒伤持续8秒",
+          "cost": 14,
+          "type": "增益",
+          "unlocked": false
+        },
+        {
+          "en": "Herbal Remedy",
+          "zh": "草药",
+          "emoji": "🌿",
+          "effect": "移除友方单位所有持续伤害效果",
+          "cost": 8,
+          "type": "回复",
+          "unlocked": false
+        },
+        {
+          "en": "Gem Dust",
+          "zh": "宝石粉尘",
+          "emoji": "💎",
+          "effect": "范围内友方法术伤害+25%",
+          "cost": 16,
+          "type": "增益",
+          "unlocked": false
+        },
+        {
+          "en": "Volatile Mixture",
+          "zh": "不稳定混合物",
+          "emoji": "⚗️",
+          "effect": "6秒内爆炸3次",
+          "cost": 18,
+          "type": "爆炸",
+          "unlocked": false
+        },
+        {
+          "en": "Growth Potion",
+          "zh": "生长药水",
+          "emoji": "🧪",
+          "effect": "体型和属性全面+50%",
+          "cost": 20,
+          "type": "增益",
+          "unlocked": false
+        },
+        {
+          "en": "Moonshine",
+          "zh": "月光酒",
+          "emoji": "🌙",
+          "effect": "黑暗/夜晚时攻击力+30%",
+          "cost": 12,
+          "type": "增益",
+          "unlocked": false
+        },
+        {
+          "en": "Soul Essence",
+          "zh": "灵魂精华",
+          "emoji": "🕯️",
+          "effect": "牺牲基地5点生命换取80能量",
+          "cost": 5,
+          "type": "特殊",
+          "unlocked": false
+        },
+        {
+          "en": "Ink Flask",
+          "zh": "墨水瓶",
+          "emoji": "🧴",
+          "effect": "水中制造墨汁致盲6秒",
+          "cost": 10,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Thermite Paste",
+          "zh": "铝热膏",
+          "emoji": "🔥",
+          "effect": "让屏障获得接触火焰伤害",
+          "cost": 16,
+          "type": "增益",
+          "unlocked": false
+        },
+        {
+          "en": "Cooling Gel",
+          "zh": "冷却凝胶",
+          "emoji": "🧊",
+          "effect": "短时间火焰免疫",
+          "cost": 8,
+          "type": "防护",
+          "unlocked": false
+        },
+        {
+          "en": "Stardust",
+          "zh": "星尘",
+          "emoji": "💫",
+          "effect": "范围内友方+20%闪避",
+          "cost": 14,
+          "type": "增益",
+          "unlocked": false
+        }
+      ]
+    },
+    {
+      "key": "nature",
+      "emoji": "🌿",
+      "title": "自然之力",
+      "sub": "Nature & Plants",
+      "desc": "植物的缠绕与生长",
+      "words": [
+        {
+          "en": "Thorn Bush",
+          "zh": "荆棘丛",
+          "emoji": "🌱",
+          "effect": "荆棘持续伤害接触敌人",
+          "cost": 14,
+          "type": "植物",
+          "unlocked": false
+        },
+        {
+          "en": "Sunflower",
+          "zh": "向日葵",
+          "emoji": "🌻",
+          "effect": "不攻击但持续产出能量",
+          "cost": 12,
+          "type": "经济",
+          "unlocked": false
+        },
+        {
+          "en": "Ent",
+          "zh": "树人",
+          "emoji": "🌲",
+          "effect": "超高血量植物坦克",
+          "cost": 35,
+          "type": "坦克",
+          "unlocked": false
+        },
+        {
+          "en": "Spore Shroom",
+          "zh": "孢子菇",
+          "emoji": "🍄",
+          "effect": "发射孢子让敌人中毒",
+          "cost": 18,
+          "type": "DOT",
+          "unlocked": false
+        },
+        {
+          "en": "Vine",
+          "zh": "藤蔓",
+          "emoji": "🌿",
+          "effect": "藤蔓缠绕靠近的敌人",
+          "cost": 16,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Healing Blossom",
+          "zh": "治愈花",
+          "emoji": "🌸",
+          "effect": "持续治疗范围内友方",
+          "cost": 20,
+          "type": "回复",
+          "unlocked": false
+        },
+        {
+          "en": "Cactus",
+          "zh": "仙人掌",
+          "emoji": "🌵",
+          "effect": "远程发射刺针+反弹",
+          "cost": 16,
+          "type": "植物",
+          "unlocked": false
+        },
+        {
+          "en": "Razor Leaf",
+          "zh": "飞叶快刀",
+          "emoji": "🍃",
+          "effect": "发射锋利叶片穿透弹射",
+          "cost": 22,
+          "type": "远程",
+          "unlocked": false
+        },
+        {
+          "en": "Bamboo Spears",
+          "zh": "竹枪阵",
+          "emoji": "🎋",
+          "effect": "竹子从地面穿出一排",
+          "cost": 24,
+          "type": "陷阱",
+          "unlocked": false
+        },
+        {
+          "en": "Carnivore Plant",
+          "zh": "食人花",
+          "emoji": "🌺",
+          "effect": "一口吞掉小型敌人",
+          "cost": 28,
+          "type": "即死",
+          "unlocked": false
+        },
+        {
+          "en": "Wheat Field",
+          "zh": "麦田",
+          "emoji": "🌾",
+          "effect": "茂密麦田阻碍敌人",
+          "cost": 8,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Autumn Leaves",
+          "zh": "秋叶旋风",
+          "emoji": "🍂",
+          "effect": "秋叶旋风遮挡视线",
+          "cost": 16,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Oak Tree",
+          "zh": "橡树",
+          "emoji": "🌳",
+          "effect": "随时间成长到超高血量的巨树",
+          "cost": 30,
+          "type": "植物",
+          "unlocked": false
+        },
+        {
+          "en": "Clover Patch",
+          "zh": "四叶草",
+          "emoji": "🍀",
+          "effect": "为附近友方提供暴击率加成",
+          "cost": 14,
+          "type": "辅助",
+          "unlocked": false
+        },
+        {
+          "en": "Poison Ivy",
+          "zh": "毒藤",
+          "emoji": "🌿",
+          "effect": "每5秒自动向空位扩展的毒藤",
+          "cost": 20,
+          "type": "DOT",
+          "unlocked": false
+        },
+        {
+          "en": "Bamboo Grove",
+          "zh": "竹林",
+          "emoji": "🎍",
+          "effect": "持续繁殖新竹子的竹林",
+          "cost": 24,
+          "type": "植物",
+          "unlocked": false
+        },
+        {
+          "en": "Barrel Cactus",
+          "zh": "桶形仙人掌",
+          "emoji": "🌵",
+          "effect": "被摧毁时喷水击退敌人",
+          "cost": 18,
+          "type": "植物",
+          "unlocked": false
+        },
+        {
+          "en": "Glowshroom",
+          "zh": "发光菇",
+          "emoji": "🍄",
+          "effect": "发光照出范围内隐身敌人",
+          "cost": 14,
+          "type": "辅助",
+          "unlocked": false
+        },
+        {
+          "en": "Corpse Flower",
+          "zh": "尸花",
+          "emoji": "🌺",
+          "effect": "附近每死一个敌人永久+5攻击",
+          "cost": 28,
+          "type": "植物",
+          "unlocked": false
+        },
+        {
+          "en": "Rice Paddy",
+          "zh": "稻田",
+          "emoji": "🌾",
+          "effect": "最便宜的经济作物",
+          "cost": 8,
+          "type": "经济",
+          "unlocked": false
+        },
+        {
+          "en": "Lucky Bamboo",
+          "zh": "幸运竹",
+          "emoji": "🎋",
+          "effect": "30%概率击杀获得双倍金币",
+          "cost": 16,
+          "type": "经济",
+          "unlocked": false
+        },
+        {
+          "en": "Mint",
+          "zh": "薄荷",
+          "emoji": "🍃",
+          "effect": "降低附近友方技能冷却时间",
+          "cost": 14,
+          "type": "辅助",
+          "unlocked": false
+        },
+        {
+          "en": "Kudzu",
+          "zh": "葛藤",
+          "emoji": "🌱",
+          "effect": "8秒内覆盖所有空位的蔓延植物",
+          "cost": 22,
+          "type": "植物",
+          "unlocked": false
+        },
+        {
+          "en": "Giant Sunflower",
+          "zh": "巨型向日葵",
+          "emoji": "🌻",
+          "effect": "巨型向日葵产量是普通的3倍",
+          "cost": 28,
+          "type": "经济",
+          "unlocked": false
+        },
+        {
+          "en": "Marigold",
+          "zh": "万寿菊",
+          "emoji": "🏵️",
+          "effect": "驱退亡灵使其无法靠近",
+          "cost": 14,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Palm Tree",
+          "zh": "棕榈树",
+          "emoji": "🌴",
+          "effect": "每5秒掉落椰子造成伤害",
+          "cost": 22,
+          "type": "远程",
+          "unlocked": false
+        },
+        {
+          "en": "Cherry Blossom",
+          "zh": "樱花树",
+          "emoji": "🌸",
+          "effect": "飘落花瓣持续治疗友方",
+          "cost": 24,
+          "type": "回复",
+          "unlocked": false
+        },
+        {
+          "en": "Catnip",
+          "zh": "猫薄荷",
+          "emoji": "🌿",
+          "effect": "野兽友方攻速大幅提升",
+          "cost": 16,
+          "type": "辅助",
+          "unlocked": false
+        },
+        {
+          "en": "Pine Tree",
+          "zh": "松树",
+          "emoji": "🎄",
+          "effect": "免疫冰冻和冰系减速",
+          "cost": 20,
+          "type": "植物",
+          "unlocked": false
+        },
+        {
+          "en": "Grape Vine",
+          "zh": "葡萄藤",
+          "emoji": "🍇",
+          "effect": "每6秒产出1个治疗果实(回5HP)",
+          "cost": 18,
+          "type": "回复",
+          "unlocked": false
+        },
+        {
+          "en": "Prickly Pear",
+          "zh": "刺梨仙人掌",
+          "emoji": "🌵",
+          "effect": "同时向四个方向发射刺针",
+          "cost": 22,
+          "type": "远程",
+          "unlocked": false
+        },
+        {
+          "en": "Wither Weed",
+          "zh": "凋零草",
+          "emoji": "🍂",
+          "effect": "按百分比扣血的凋零植物",
+          "cost": 28,
+          "type": "DOT",
+          "unlocked": false
+        }
+      ]
+    },
+    {
+      "key": "gadgets",
+      "emoji": "⚙️",
+      "title": "机械装置",
+      "sub": "Gadgets & Devices",
+      "desc": "精密机械为你工作",
+      "words": [
+        {
+          "en": "Clockwork Bomb",
+          "zh": "发条炸弹",
+          "emoji": "⏰",
+          "effect": "部署后3秒爆炸",
+          "cost": 18,
+          "type": "爆炸",
+          "unlocked": false
+        },
+        {
+          "en": "Razor Wire",
+          "zh": "铁丝网",
+          "emoji": "🪒",
+          "effect": "铁丝网持续割伤+减速",
+          "cost": 12,
+          "type": "物理",
+          "unlocked": false
+        },
+        {
+          "en": "Repair Bot",
+          "zh": "修理机器人",
+          "emoji": "🔧",
+          "effect": "自动修理受损构造体",
+          "cost": 16,
+          "type": "辅助",
+          "unlocked": false
+        },
+        {
+          "en": "Steam Engine",
+          "zh": "蒸汽机",
+          "emoji": "🚂",
+          "effect": "友方+15%移速攻速",
+          "cost": 25,
+          "type": "辅助",
+          "unlocked": false
+        },
+        {
+          "en": "Hot Air Balloon",
+          "zh": "热气球",
+          "emoji": "🎈",
+          "effect": "飞行单位从空中投弹",
+          "cost": 28,
+          "type": "飞行",
+          "unlocked": false
+        },
+        {
+          "en": "Grappling Hook",
+          "zh": "抓钩装置",
+          "emoji": "🪝",
+          "effect": "发射抓钩拉拽敌人",
+          "cost": 14,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Gear Golem",
+          "zh": "齿轮魔像",
+          "emoji": "⚙️",
+          "effect": "免疫减速中毒流血",
+          "cost": 40,
+          "type": "机械",
+          "unlocked": false
+        },
+        {
+          "en": "Spring Trap",
+          "zh": "弹簧陷阱",
+          "emoji": "🔩",
+          "effect": "将敌人向后弹飞",
+          "cost": 10,
+          "type": "位移",
+          "unlocked": false
+        },
+        {
+          "en": "Spotlight",
+          "zh": "探照灯",
+          "emoji": "💡",
+          "effect": "照出隐身单位并标记",
+          "cost": 12,
+          "type": "辅助",
+          "unlocked": false
+        },
+        {
+          "en": "Boomerang Turret",
+          "zh": "回旋镖塔",
+          "emoji": "🪃",
+          "effect": "回旋镖飞去飞回",
+          "cost": 22,
+          "type": "炮台",
+          "unlocked": false
+        },
+        {
+          "en": "Electromagnet",
+          "zh": "电磁铁",
+          "emoji": "🧲",
+          "effect": "强力磁场拖拽金属敌人",
+          "cost": 20,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Firework Cannon",
+          "zh": "烟花炮",
+          "emoji": "🎆",
+          "effect": "烟花散射+致盲",
+          "cost": 24,
+          "type": "AOE",
+          "unlocked": false
+        },
+        {
+          "en": "Auto-Turret",
+          "zh": "自动哨戒炮",
+          "emoji": "🤖",
+          "effect": "自动锁定最强敌人攻击",
+          "cost": 30,
+          "type": "炮台",
+          "unlocked": false
+        },
+        {
+          "en": "Drone",
+          "zh": "无人机",
+          "emoji": "🚁",
+          "effect": "可随时免费调整位置的飞行单位",
+          "cost": 24,
+          "type": "飞行",
+          "unlocked": false
+        },
+        {
+          "en": "Radar Dish",
+          "zh": "雷达天线",
+          "emoji": "📡",
+          "effect": "放置时全图扫描3秒",
+          "cost": 16,
+          "type": "辅助",
+          "unlocked": false
+        },
+        {
+          "en": "Dispenser",
+          "zh": "药剂分配器",
+          "emoji": "🧪",
+          "effect": "自动对友方使用背包中的药剂",
+          "cost": 22,
+          "type": "辅助",
+          "unlocked": false
+        },
+        {
+          "en": "Conveyor Belt",
+          "zh": "传送带",
+          "emoji": "⚙️",
+          "effect": "缓慢移动站在上面的单位",
+          "cost": 12,
+          "type": "特殊",
+          "unlocked": false
+        },
+        {
+          "en": "Battery",
+          "zh": "电池",
+          "emoji": "🔋",
+          "effect": "储存最多30点能量备用",
+          "cost": 10,
+          "type": "辅助",
+          "unlocked": false
+        },
+        {
+          "en": "Amplifier",
+          "zh": "放大器",
+          "emoji": "🎛️",
+          "effect": "为相邻构造体增加2格射程",
+          "cost": 20,
+          "type": "辅助",
+          "unlocked": false
+        },
+        {
+          "en": "Sonic Emitter",
+          "zh": "声波发射器",
+          "emoji": "📻",
+          "effect": "声波锥形范围眩晕",
+          "cost": 26,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Tractor Beam",
+          "zh": "牵引光束",
+          "emoji": "🧲",
+          "effect": "持续定身单个目标",
+          "cost": 22,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Chronometer",
+          "zh": "计时器",
+          "emoji": "⏱️",
+          "effect": "范围内友方所有动作加速25%",
+          "cost": 24,
+          "type": "辅助",
+          "unlocked": false
+        },
+        {
+          "en": "Laser Pointer",
+          "zh": "激光指示器",
+          "emoji": "🔦",
+          "effect": "标记目标使其受到伤害+40%",
+          "cost": 16,
+          "type": "辅助",
+          "unlocked": false
+        },
+        {
+          "en": "Gas Dispenser",
+          "zh": "毒气释放器",
+          "emoji": "⚗️",
+          "effect": "持续释放3x3毒气8秒",
+          "cost": 24,
+          "type": "DOT",
+          "unlocked": false
+        },
+        {
+          "en": "Satellite",
+          "zh": "卫星",
+          "emoji": "🛰️",
+          "effect": "全图视野+每15秒轨道打击",
+          "cost": 40,
+          "type": "终极",
+          "unlocked": false
+        },
+        {
+          "en": "Wrench Bot",
+          "zh": "扳手机器人",
+          "emoji": "🔧",
+          "effect": "专门修理机械类单位",
+          "cost": 14,
+          "type": "辅助",
+          "unlocked": false
+        },
+        {
+          "en": "Holoprojector",
+          "zh": "全息投影仪",
+          "emoji": "🎪",
+          "effect": "制造3个诱饵幻象分散敌人火力",
+          "cost": 20,
+          "type": "特殊",
+          "unlocked": false
+        },
+        {
+          "en": "Nanite Cloud",
+          "zh": "纳米云",
+          "emoji": "🧪",
+          "effect": "全屏持续治疗所有友方单位",
+          "cost": 30,
+          "type": "回复",
+          "unlocked": false
+        },
+        {
+          "en": "Horn",
+          "zh": "号角",
+          "emoji": "📯",
+          "effect": "全屏友方攻击和速度+20%",
+          "cost": 22,
+          "type": "辅助",
+          "unlocked": false
+        },
+        {
+          "en": "Fuel Tank",
+          "zh": "油箱",
+          "emoji": "⛽",
+          "effect": "被摧毁时造成巨大AOE爆炸",
+          "cost": 14,
+          "type": "爆炸",
+          "unlocked": false
+        },
+        {
+          "en": "Power Cable",
+          "zh": "电缆",
+          "emoji": "🔌",
+          "effect": "连接单位共享能量回复",
+          "cost": 8,
+          "type": "辅助",
+          "unlocked": false
+        },
+        {
+          "en": "Targeting Computer",
+          "zh": "瞄准计算机",
+          "emoji": "🎯",
+          "effect": "范围内友方命中率+30%",
+          "cost": 18,
+          "type": "辅助",
+          "unlocked": false
+        }
+      ]
+    },
+    {
+      "key": "radiance",
+      "emoji": "🌟",
+      "title": "圣光之力",
+      "sub": "Radiance & Light",
+      "desc": "神圣光明的庇护",
+      "words": [
+        {
+          "en": "Holy Light",
+          "zh": "圣光术",
+          "emoji": "✨",
+          "effect": "圣光照耀对亡灵双倍伤害",
+          "cost": 20,
+          "type": "神圣",
+          "unlocked": false
+        },
+        {
+          "en": "Blessed Shield",
+          "zh": "祝福护盾",
+          "emoji": "🛡️",
+          "effect": "给友方套神圣护盾",
+          "cost": 18,
+          "type": "防护",
+          "unlocked": false
+        },
+        {
+          "en": "Sunbeam",
+          "zh": "日光束",
+          "emoji": "☀️",
+          "effect": "日光持续照射",
+          "cost": 30,
+          "type": "伤害",
+          "unlocked": false
+        },
+        {
+          "en": "Guardian Angel",
+          "zh": "守护天使",
+          "emoji": "🕊️",
+          "effect": "血量归零复活友方",
+          "cost": 45,
+          "type": "终极",
+          "unlocked": false
+        },
+        {
+          "en": "Divine Blessing",
+          "zh": "神圣祝福",
+          "emoji": "💫",
+          "effect": "友方全属性+15%",
+          "cost": 22,
+          "type": "增益",
+          "unlocked": false
+        },
+        {
+          "en": "Sanctuary Bell",
+          "zh": "圣域之钟",
+          "emoji": "🔔",
+          "effect": "周期性圣光治疗波",
+          "cost": 28,
+          "type": "回复",
+          "unlocked": false
+        },
+        {
+          "en": "Holy Symbol",
+          "zh": "圣徽",
+          "emoji": "⚜️",
+          "effect": "低等亡灵自动恐惧",
+          "cost": 12,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Purifying Fire",
+          "zh": "净化之火",
+          "emoji": "🔥",
+          "effect": "神圣火焰清除敌方增益",
+          "cost": 24,
+          "type": "驱散",
+          "unlocked": false
+        },
+        {
+          "en": "Rainbow Bridge",
+          "zh": "彩虹桥",
+          "emoji": "🌈",
+          "effect": "架起彩虹桥传送",
+          "cost": 18,
+          "type": "位移",
+          "unlocked": false
+        },
+        {
+          "en": "Starlight",
+          "zh": "星光术",
+          "emoji": "⭐",
+          "effect": "星光洒落照出隐身",
+          "cost": 14,
+          "type": "反隐",
+          "unlocked": false
+        },
+        {
+          "en": "Wings of Light",
+          "zh": "光之翼",
+          "emoji": "🪽",
+          "effect": "赋予光之翼提速闪避",
+          "cost": 20,
+          "type": "增益",
+          "unlocked": false
+        },
+        {
+          "en": "Judgment",
+          "zh": "审判",
+          "emoji": "🏆",
+          "effect": "最终审判巨额神圣伤害",
+          "cost": 50,
+          "type": "终极",
+          "unlocked": false
+        },
+        {
+          "en": "Solar Flare",
+          "zh": "太阳耀斑",
+          "emoji": "☀️",
+          "effect": "全屏伤害+致盲3秒",
+          "cost": 32,
+          "type": "神圣",
+          "unlocked": false
+        },
+        {
+          "en": "Dove of Peace",
+          "zh": "和平鸽",
+          "emoji": "🕊️",
+          "effect": "所有敌人停战3秒",
+          "cost": 24,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Blessing of Fortitude",
+          "zh": "坚韧祝福",
+          "emoji": "🙏",
+          "effect": "所有友方最大生命+30%",
+          "cost": 24,
+          "type": "增益",
+          "unlocked": false
+        },
+        {
+          "en": "Starlight Burst",
+          "zh": "星光爆发",
+          "emoji": "✨",
+          "effect": "造成伤害并照出所有隐身敌人",
+          "cost": 22,
+          "type": "反隐",
+          "unlocked": false
+        },
+        {
+          "en": "Aura of Protection",
+          "zh": "保护光环",
+          "emoji": "🛡️",
+          "effect": "范围内友方受到伤害-25%",
+          "cost": 28,
+          "type": "防护",
+          "unlocked": false
+        },
+        {
+          "en": "Sacred Ground",
+          "zh": "圣地",
+          "emoji": "⚜️",
+          "effect": "亡灵敌人无法进入圣地",
+          "cost": 26,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Heavenly Light",
+          "zh": "天国之光",
+          "emoji": "💫",
+          "effect": "同时治疗友方和伤害敌人",
+          "cost": 35,
+          "type": "神圣",
+          "unlocked": false
+        },
+        {
+          "en": "Seraphim",
+          "zh": "炽天使",
+          "emoji": "🪽",
+          "effect": "超高属性的终极神圣战士",
+          "cost": 50,
+          "type": "终极",
+          "unlocked": false
+        },
+        {
+          "en": "Guiding Star",
+          "zh": "指引之星",
+          "emoji": "🌟",
+          "effect": "显示最佳布防位置",
+          "cost": 12,
+          "type": "辅助",
+          "unlocked": false
+        },
+        {
+          "en": "Eternal Flame",
+          "zh": "永恒之火",
+          "emoji": "🕯️",
+          "effect": "永不熄灭不可摧毁的圣火",
+          "cost": 40,
+          "type": "神话",
+          "unlocked": false
+        },
+        {
+          "en": "Hymn of Valor",
+          "zh": "勇气圣歌",
+          "emoji": "🎵",
+          "effect": "全屏友方全属性+20%",
+          "cost": 30,
+          "type": "增益",
+          "unlocked": false
+        },
+        {
+          "en": "Divine Bell",
+          "zh": "圣钟",
+          "emoji": "🔔",
+          "effect": "全屏对亡灵/暗属性造成60伤害",
+          "cost": 36,
+          "type": "神圣",
+          "unlocked": false
+        },
+        {
+          "en": "Dawn",
+          "zh": "黎明术",
+          "emoji": "☀️",
+          "effect": "驱散所有致盲效果并治疗友方",
+          "cost": 24,
+          "type": "神圣",
+          "unlocked": false
+        },
+        {
+          "en": "Crystal of Truth",
+          "zh": "真理水晶",
+          "emoji": "💎",
+          "effect": "揭露所有隐身和伪装的敌人",
+          "cost": 18,
+          "type": "反隐",
+          "unlocked": false
+        },
+        {
+          "en": "Covenant Arc",
+          "zh": "圣约之虹",
+          "emoji": "🌈",
+          "effect": "创造5秒不可逾越的彩虹屏障",
+          "cost": 34,
+          "type": "终极",
+          "unlocked": false
+        },
+        {
+          "en": "Wings of Mercy",
+          "zh": "慈悲之翼",
+          "emoji": "🕊️",
+          "effect": "将濒死友方单位完全治愈",
+          "cost": 20,
+          "type": "回复",
+          "unlocked": false
+        },
+        {
+          "en": "Luminous Spark",
+          "zh": "光之火花",
+          "emoji": "✨",
+          "effect": "最便宜的光系单位用于照亮",
+          "cost": 6,
+          "type": "基础",
+          "unlocked": false
+        },
+        {
+          "en": "Exalted Champion",
+          "zh": "崇高斗士",
+          "emoji": "🏆",
+          "effect": "天生全属性+30%的神圣战士",
+          "cost": 44,
+          "type": "神圣",
+          "unlocked": false
+        },
+        {
+          "en": "Heavenly Bolt",
+          "zh": "天雷",
+          "emoji": "⚡",
+          "effect": "精准打击最强敌人",
+          "cost": 30,
+          "type": "神圣",
+          "unlocked": false
+        },
+        {
+          "en": "Radiance Aura",
+          "zh": "光辉光环",
+          "emoji": "🌟",
+          "effect": "持续治疗友方并照出隐身敌人",
+          "cost": 22,
+          "type": "辅助",
+          "unlocked": false
+        }
+      ]
+    },
+    {
+      "key": "umbra",
+      "emoji": "🌑",
+      "title": "暗影之力",
+      "sub": "Umbra & Shadow",
+      "desc": "黑暗虚空的操控",
+      "words": [
+        {
+          "en": "Shadow Bolt",
+          "zh": "暗影弹",
+          "emoji": "🌑",
+          "effect": "黑暗能量弹穿透一排",
+          "cost": 18,
+          "type": "伤害",
+          "unlocked": false
+        },
+        {
+          "en": "Shadow Clone",
+          "zh": "暗影分身",
+          "emoji": "👤",
+          "effect": "创造暗影分身自动战斗",
+          "cost": 25,
+          "type": "分身",
+          "unlocked": false
+        },
+        {
+          "en": "Void Rift",
+          "zh": "虚空裂隙",
+          "emoji": "🕳️",
+          "effect": "在地面开启裂隙吸入",
+          "cost": 35,
+          "type": "即死",
+          "unlocked": false
+        },
+        {
+          "en": "Nightfall",
+          "zh": "夜幕降临",
+          "emoji": "🌙",
+          "effect": "全战场陷入黑暗致盲",
+          "cost": 28,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Life Drain",
+          "zh": "生命吸取",
+          "emoji": "💀",
+          "effect": "吸取敌人生命值",
+          "cost": 24,
+          "type": "DOT",
+          "unlocked": false
+        },
+        {
+          "en": "Vampiric Aura",
+          "zh": "吸血光环",
+          "emoji": "🦇",
+          "effect": "范围内友方攻击吸血",
+          "cost": 22,
+          "type": "增益",
+          "unlocked": false
+        },
+        {
+          "en": "Evil Eye",
+          "zh": "邪眼",
+          "emoji": "👁️",
+          "effect": "自动攻击+恐惧低等敌人",
+          "cost": 18,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Dark Pact",
+          "zh": "暗黑契约",
+          "emoji": "🌑",
+          "effect": "牺牲血量换攻击",
+          "cost": 15,
+          "type": "增益",
+          "unlocked": false
+        },
+        {
+          "en": "Soul Lantern",
+          "zh": "灵魂灯笼",
+          "emoji": "🕯️",
+          "effect": "击杀收集灵魂换能量",
+          "cost": 20,
+          "type": "辅助",
+          "unlocked": false
+        },
+        {
+          "en": "Web of Shadows",
+          "zh": "暗影之网",
+          "emoji": "🕸️",
+          "effect": "暗影蛛网缠绕+沉默",
+          "cost": 16,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Wraith",
+          "zh": "幽灵",
+          "emoji": "👻",
+          "effect": "免疫物理伤害",
+          "cost": 28,
+          "type": "灵体",
+          "unlocked": false
+        },
+        {
+          "en": "Death Mark",
+          "zh": "死亡标记",
+          "emoji": "⚰️",
+          "effect": "标记8秒后直接死亡",
+          "cost": 35,
+          "type": "终极",
+          "unlocked": false
+        },
+        {
+          "en": "Black Hole",
+          "zh": "黑洞",
+          "emoji": "🖤",
+          "effect": "持续4秒将一切拉向中心并毁灭",
+          "cost": 40,
+          "type": "终极",
+          "unlocked": false
+        },
+        {
+          "en": "Doppelganger",
+          "zh": "二重身",
+          "emoji": "👥",
+          "effect": "复制目标敌人的分身",
+          "cost": 30,
+          "type": "分身",
+          "unlocked": false
+        },
+        {
+          "en": "Shadow Spider",
+          "zh": "暗影蜘蛛",
+          "emoji": "🕷️",
+          "effect": "在暗处自动隐身",
+          "cost": 22,
+          "type": "刺客",
+          "unlocked": false
+        },
+        {
+          "en": "Eclipse",
+          "zh": "日蚀术",
+          "emoji": "🌑",
+          "effect": "全屏黑暗强化暗影单位",
+          "cost": 35,
+          "type": "增益",
+          "unlocked": false
+        },
+        {
+          "en": "Soul Reaper",
+          "zh": "灵魂收割者",
+          "emoji": "💀",
+          "effect": "每击杀一个敌人永久+5攻击",
+          "cost": 38,
+          "type": "近战",
+          "unlocked": false
+        },
+        {
+          "en": "Poltergeist",
+          "zh": "恶作剧鬼",
+          "emoji": "👻",
+          "effect": "投掷杂物造成随机伤害",
+          "cost": 18,
+          "type": "特殊",
+          "unlocked": false
+        },
+        {
+          "en": "Abyss Portal",
+          "zh": "深渊之门",
+          "emoji": "🕳️",
+          "effect": "每8秒召唤随机暗影单位",
+          "cost": 35,
+          "type": "召唤",
+          "unlocked": false
+        },
+        {
+          "en": "Lunar Curse",
+          "zh": "月之诅咒",
+          "emoji": "🌙",
+          "effect": "将敌人变成不受控的野兽",
+          "cost": 24,
+          "type": "诅咒",
+          "unlocked": false
+        },
+        {
+          "en": "Blood Ritual",
+          "zh": "血祭",
+          "emoji": "🩸",
+          "effect": "牺牲基地HP换取大量能量",
+          "cost": 3,
+          "type": "特殊",
+          "unlocked": false
+        },
+        {
+          "en": "All-Seeing Eye",
+          "zh": "全视之眼",
+          "emoji": "👁️",
+          "effect": "永久全图视野",
+          "cost": 30,
+          "type": "辅助",
+          "unlocked": false
+        },
+        {
+          "en": "Skeleton Army",
+          "zh": "骷髅军团",
+          "emoji": "🦴",
+          "effect": "每3个击杀召唤1个骷髅",
+          "cost": 32,
+          "type": "召唤",
+          "unlocked": false
+        },
+        {
+          "en": "Dark Prophecy",
+          "zh": "黑暗预言",
+          "emoji": "🔮",
+          "effect": "全屏敌人受到伤害+20%",
+          "cost": 28,
+          "type": "诅咒",
+          "unlocked": false
+        },
+        {
+          "en": "Shadow Step",
+          "zh": "暗影步",
+          "emoji": "👤",
+          "effect": "全图任意位置传送",
+          "cost": 16,
+          "type": "位移",
+          "unlocked": false
+        },
+        {
+          "en": "Masquerade",
+          "zh": "假面舞会",
+          "emoji": "🎭",
+          "effect": "敌人无法分辨敌我",
+          "cost": 26,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Void Walker",
+          "zh": "虚空行者",
+          "emoji": "🖤",
+          "effect": "50%时间不可被选中",
+          "cost": 36,
+          "type": "灵体",
+          "unlocked": false
+        },
+        {
+          "en": "Mind Control",
+          "zh": "心灵控制",
+          "emoji": "💜",
+          "effect": "永久控制一个非BOSS敌人",
+          "cost": 40,
+          "type": "终极",
+          "unlocked": false
+        },
+        {
+          "en": "Shadow Meld",
+          "zh": "暗影融合",
+          "emoji": "🌑",
+          "effect": "所有友方单位隐身4秒",
+          "cost": 24,
+          "type": "辅助",
+          "unlocked": false
+        },
+        {
+          "en": "Vampire Lord",
+          "zh": "吸血鬼领主",
+          "emoji": "🦇",
+          "effect": "50%吸血+强化所有吸血鬼单位",
+          "cost": 45,
+          "type": "终极",
+          "unlocked": false
+        },
+        {
+          "en": "Grave Golem",
+          "zh": "坟墓魔像",
+          "emoji": "⚰️",
+          "effect": "根据全图击杀数提升属性",
+          "cost": 38,
+          "type": "亡灵",
+          "unlocked": false
+        },
+        {
+          "en": "Nether Portal",
+          "zh": "冥界之门",
+          "emoji": "🔮",
+          "effect": "释放毁灭性的冥界能量波",
+          "cost": 45,
+          "type": "终极",
+          "unlocked": false
+        }
+      ]
+    },
+    {
+      "key": "aegis",
+      "emoji": "🛡️",
+      "title": "守护结界",
+      "sub": "Aegis & Wards",
+      "desc": "防护与结界之力",
+      "words": [
+        {
+          "en": "Aegis Ward",
+          "zh": "守护结界",
+          "emoji": "🛡️",
+          "effect": "保护罩吸收伤害",
+          "cost": 22,
+          "type": "防护",
+          "unlocked": false
+        },
+        {
+          "en": "Mana Ward",
+          "zh": "法力结界",
+          "emoji": "🔮",
+          "effect": "结界内召唤消耗-20%",
+          "cost": 16,
+          "type": "辅助",
+          "unlocked": false
+        },
+        {
+          "en": "Shock Ward",
+          "zh": "电击结界",
+          "emoji": "⚡",
+          "effect": "进入结界的敌人受电击",
+          "cost": 24,
+          "type": "伤害",
+          "unlocked": false
+        },
+        {
+          "en": "Fire Ward",
+          "zh": "火焰结界",
+          "emoji": "🔥",
+          "effect": "结界边缘形成火环",
+          "cost": 22,
+          "type": "元素",
+          "unlocked": false
+        },
+        {
+          "en": "Frost Ward",
+          "zh": "冰霜结界",
+          "emoji": "❄️",
+          "effect": "进入结界逐渐冻结",
+          "cost": 20,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Reflect Ward",
+          "zh": "反射结界",
+          "emoji": "🔄",
+          "effect": "结界反弹30%伤害",
+          "cost": 28,
+          "type": "防护",
+          "unlocked": false
+        },
+        {
+          "en": "Regen Ward",
+          "zh": "再生结界",
+          "emoji": "💚",
+          "effect": "结界内友方持续回血",
+          "cost": 18,
+          "type": "回复",
+          "unlocked": false
+        },
+        {
+          "en": "Anti-Magic Ward",
+          "zh": "反魔结界",
+          "emoji": "🛡️",
+          "effect": "结界内免疫魔法",
+          "cost": 25,
+          "type": "防护",
+          "unlocked": false
+        },
+        {
+          "en": "War Banner",
+          "zh": "战旗",
+          "emoji": "⚔️",
+          "effect": "插战旗提升攻击力",
+          "cost": 20,
+          "type": "增益",
+          "unlocked": false
+        },
+        {
+          "en": "White Flag",
+          "zh": "白旗",
+          "emoji": "🏳️",
+          "effect": "低等敌人概率停战",
+          "cost": 8,
+          "type": "特殊",
+          "unlocked": false
+        },
+        {
+          "en": "Protection Totem",
+          "zh": "防护图腾",
+          "emoji": "🧿",
+          "effect": "图腾承受30%伤害",
+          "cost": 18,
+          "type": "防护",
+          "unlocked": false
+        },
+        {
+          "en": "Barrier Rune",
+          "zh": "屏障符文",
+          "emoji": "✨",
+          "effect": "生成临时符文屏障",
+          "cost": 14,
+          "type": "防护",
+          "unlocked": false
+        },
+        {
+          "en": "Fortress Ward",
+          "zh": "堡垒结界",
+          "emoji": "🛡️",
+          "effect": "终极防御结界吸收大量伤害",
+          "cost": 35,
+          "type": "防护",
+          "unlocked": false
+        },
+        {
+          "en": "Storm Ward",
+          "zh": "风暴结界",
+          "emoji": "⚡",
+          "effect": "每2秒雷击范围内敌人",
+          "cost": 24,
+          "type": "元素",
+          "unlocked": false
+        },
+        {
+          "en": "Nature Ward",
+          "zh": "自然结界",
+          "emoji": "🌿",
+          "effect": "范围内植物生长速度翻倍",
+          "cost": 18,
+          "type": "辅助",
+          "unlocked": false
+        },
+        {
+          "en": "Arcane Ward",
+          "zh": "奥术结界",
+          "emoji": "🔮",
+          "effect": "范围内法伤+25%",
+          "cost": 24,
+          "type": "辅助",
+          "unlocked": false
+        },
+        {
+          "en": "Ward of Hope",
+          "zh": "希望结界",
+          "emoji": "🕯️",
+          "effect": "友方受伤越重攻击越高",
+          "cost": 20,
+          "type": "增益",
+          "unlocked": false
+        },
+        {
+          "en": "Glacier Ward",
+          "zh": "冰川结界",
+          "emoji": "🧊",
+          "effect": "极强减速结界",
+          "cost": 26,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Death Ward",
+          "zh": "死亡结界",
+          "emoji": "💀",
+          "effect": "按百分比扣血的致命结界",
+          "cost": 30,
+          "type": "诅咒",
+          "unlocked": false
+        },
+        {
+          "en": "Prism Ward",
+          "zh": "棱镜结界",
+          "emoji": "🌈",
+          "effect": "将20%受到伤害转化为治疗",
+          "cost": 26,
+          "type": "防护",
+          "unlocked": false
+        },
+        {
+          "en": "Web Ward",
+          "zh": "蛛网结界",
+          "emoji": "🕸️",
+          "effect": "飞行敌人进入后被拉到地面",
+          "cost": 20,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Harmony Ward",
+          "zh": "和谐结界",
+          "emoji": "🎵",
+          "effect": "结界内敌人攻速降低",
+          "cost": 20,
+          "type": "减益",
+          "unlocked": false
+        },
+        {
+          "en": "War Ward",
+          "zh": "战争结界",
+          "emoji": "⚔️",
+          "effect": "范围内友方伤害+30%",
+          "cost": 24,
+          "type": "增益",
+          "unlocked": false
+        },
+        {
+          "en": "Sun Ward",
+          "zh": "太阳结界",
+          "emoji": "🔆",
+          "effect": "消除所有黑暗和暗影效果",
+          "cost": 20,
+          "type": "辅助",
+          "unlocked": false
+        },
+        {
+          "en": "Ward of Chaos",
+          "zh": "混沌结界",
+          "emoji": "🌀",
+          "effect": "每3秒随机增益或减益",
+          "cost": 22,
+          "type": "特殊",
+          "unlocked": false
+        },
+        {
+          "en": "Ward of Sacrifice",
+          "zh": "牺牲结界",
+          "emoji": "🛡️",
+          "effect": "替友方承担所有伤害",
+          "cost": 28,
+          "type": "防护",
+          "unlocked": false
+        },
+        {
+          "en": "Heart Ward",
+          "zh": "心灵结界",
+          "emoji": "❤️",
+          "effect": "敌人越多治疗越多",
+          "cost": 20,
+          "type": "回复",
+          "unlocked": false
+        },
+        {
+          "en": "Noble Ward",
+          "zh": "贵族结界",
+          "emoji": "⚜️",
+          "effect": "精英/传说单位获得双倍加成",
+          "cost": 24,
+          "type": "辅助",
+          "unlocked": false
+        },
+        {
+          "en": "Tidal Ward",
+          "zh": "潮汐结界",
+          "emoji": "🌊",
+          "effect": "每5秒击退敌人2格",
+          "cost": 22,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Mirror Ward",
+          "zh": "镜面结界",
+          "emoji": "🪞",
+          "effect": "反弹远程攻击给攻击者",
+          "cost": 26,
+          "type": "防护",
+          "unlocked": false
+        },
+        {
+          "en": "Starlight Ward",
+          "zh": "星光结界",
+          "emoji": "✨",
+          "effect": "结界内能量回复翻倍",
+          "cost": 22,
+          "type": "辅助",
+          "unlocked": false
+        },
+        {
+          "en": "Citadel Ward",
+          "zh": "城堡结界",
+          "emoji": "🏰",
+          "effect": "包含所有基础结界效果(各减半)",
+          "cost": 40,
+          "type": "终极",
+          "unlocked": false
+        }
+      ]
+    },
+    {
+      "key": "tempest",
+      "emoji": "💨",
+      "title": "风暴元素",
+      "sub": "Tempest & Elements",
+      "desc": "驾驭风雷水火",
+      "words": [
+        {
+          "en": "Cyclone",
+          "zh": "飓风",
+          "emoji": "🌪️",
+          "effect": "飓风卷起敌人抛飞",
+          "cost": 30,
+          "type": "位移",
+          "unlocked": false
+        },
+        {
+          "en": "Tidal Wave",
+          "zh": "巨浪",
+          "emoji": "🌊",
+          "effect": "巨浪全场击退",
+          "cost": 35,
+          "type": "位移",
+          "unlocked": false
+        },
+        {
+          "en": "Thunderstorm",
+          "zh": "雷暴",
+          "emoji": "⚡",
+          "effect": "持续6秒随机落雷",
+          "cost": 38,
+          "type": "AOE",
+          "unlocked": false
+        },
+        {
+          "en": "Inferno",
+          "zh": "地狱火",
+          "emoji": "🔥",
+          "effect": "超高温火焰灼烧一切",
+          "cost": 40,
+          "type": "伤害",
+          "unlocked": false
+        },
+        {
+          "en": "Blizzard",
+          "zh": "极寒风暴",
+          "emoji": "❄️",
+          "effect": "暴风雪全屏减速",
+          "cost": 32,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Earthquake",
+          "zh": "地震术",
+          "emoji": "🗿",
+          "effect": "地震打断眩晕",
+          "cost": 36,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Fog Bank",
+          "zh": "浓雾",
+          "emoji": "🌫️",
+          "effect": "浓雾致盲5秒",
+          "cost": 12,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Comet",
+          "zh": "彗星",
+          "emoji": "☄️",
+          "effect": "彗星贯穿灼烧",
+          "cost": 45,
+          "type": "终极",
+          "unlocked": false
+        },
+        {
+          "en": "Gust",
+          "zh": "阵风",
+          "emoji": "💨",
+          "effect": "阵风轻推敌人",
+          "cost": 10,
+          "type": "位移",
+          "unlocked": false
+        },
+        {
+          "en": "Storm Cloud",
+          "zh": "雷云",
+          "emoji": "🌩️",
+          "effect": "雷云自动雷击",
+          "cost": 28,
+          "type": "召唤",
+          "unlocked": false
+        },
+        {
+          "en": "Lava Pool",
+          "zh": "熔岩池",
+          "emoji": "🔥",
+          "effect": "地面变熔岩持续伤害",
+          "cost": 34,
+          "type": "地形",
+          "unlocked": false
+        },
+        {
+          "en": "Crystal Storm",
+          "zh": "晶石风暴",
+          "emoji": "💎",
+          "effect": "水晶碎片旋转切割",
+          "cost": 26,
+          "type": "物理",
+          "unlocked": false
+        },
+        {
+          "en": "Dust Storm",
+          "zh": "沙尘暴",
+          "emoji": "🌪️",
+          "effect": "沙尘暴致盲并侵蚀敌人护甲",
+          "cost": 22,
+          "type": "元素",
+          "unlocked": false
+        },
+        {
+          "en": "Volt Shock",
+          "zh": "伏特冲击",
+          "emoji": "⚡",
+          "effect": "单体电击+短暂眩晕",
+          "cost": 16,
+          "type": "元素",
+          "unlocked": false
+        },
+        {
+          "en": "Riptide",
+          "zh": "激流",
+          "emoji": "🌊",
+          "effect": "将所有敌人向指定方向拉拽3格",
+          "cost": 24,
+          "type": "位移",
+          "unlocked": false
+        },
+        {
+          "en": "Heat Wave",
+          "zh": "热浪",
+          "emoji": "🔥",
+          "effect": "超大面积热浪持续伤害",
+          "cost": 28,
+          "type": "元素",
+          "unlocked": false
+        },
+        {
+          "en": "Snowstorm",
+          "zh": "暴雪",
+          "emoji": "❄️",
+          "effect": "全屏减速+伤害的暴雪",
+          "cost": 26,
+          "type": "元素",
+          "unlocked": false
+        },
+        {
+          "en": "Lightning Storm",
+          "zh": "闪电风暴",
+          "emoji": "🌩️",
+          "effect": "4秒内8次快速雷击",
+          "cost": 34,
+          "type": "元素",
+          "unlocked": false
+        },
+        {
+          "en": "Eruption",
+          "zh": "火山喷发",
+          "emoji": "🗻",
+          "effect": "喷发造成AOE并留下熔岩池",
+          "cost": 40,
+          "type": "终极",
+          "unlocked": false
+        },
+        {
+          "en": "Jet Stream",
+          "zh": "急流",
+          "emoji": "💨",
+          "effect": "顺风方向友方移速+40%",
+          "cost": 16,
+          "type": "增益",
+          "unlocked": false
+        },
+        {
+          "en": "Flash Freeze",
+          "zh": "急冻术",
+          "emoji": "🧊",
+          "effect": "瞬间冻结水中所有敌人",
+          "cost": 28,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Mist",
+          "zh": "薄雾",
+          "emoji": "💧",
+          "effect": "最便宜的减命中效果",
+          "cost": 8,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Derecho",
+          "zh": "德雷乔风暴",
+          "emoji": "🌪️",
+          "effect": "宽范围直线风暴伤害",
+          "cost": 36,
+          "type": "元素",
+          "unlocked": false
+        },
+        {
+          "en": "Wildfire",
+          "zh": "野火",
+          "emoji": "🔥",
+          "effect": "火焰在敌人间传播伤害递增",
+          "cost": 30,
+          "type": "元素",
+          "unlocked": false
+        },
+        {
+          "en": "Monsoon",
+          "zh": "季风",
+          "emoji": "🌊",
+          "effect": "持续6秒的季风雨",
+          "cost": 30,
+          "type": "元素",
+          "unlocked": false
+        },
+        {
+          "en": "Ice Age",
+          "zh": "冰河时代",
+          "emoji": "❄️",
+          "effect": "全屏冻结4秒的终极冰系法术",
+          "cost": 45,
+          "type": "终极",
+          "unlocked": false
+        },
+        {
+          "en": "Ball Lightning",
+          "zh": "球状闪电",
+          "emoji": "⚡",
+          "effect": "缓慢移动造成接触伤害",
+          "cost": 28,
+          "type": "元素",
+          "unlocked": false
+        },
+        {
+          "en": "Wind Shear",
+          "zh": "风切变",
+          "emoji": "💨",
+          "effect": "锋利风刃无视护甲",
+          "cost": 22,
+          "type": "物理",
+          "unlocked": false
+        },
+        {
+          "en": "Landslide",
+          "zh": "山体滑坡",
+          "emoji": "🗻",
+          "effect": "滑坡造成AOE伤害+眩晕",
+          "cost": 34,
+          "type": "物理",
+          "unlocked": false
+        },
+        {
+          "en": "Fire Whirl",
+          "zh": "火焰旋风",
+          "emoji": "🔥",
+          "effect": "火焰+龙卷风的组合效果",
+          "cost": 35,
+          "type": "元素",
+          "unlocked": false
+        },
+        {
+          "en": "Haze",
+          "zh": "霾",
+          "emoji": "🌫️",
+          "effect": "持续伤害并有概率让敌人混乱",
+          "cost": 20,
+          "type": "元素",
+          "unlocked": false
+        },
+        {
+          "en": "Tempest",
+          "zh": "暴风雨",
+          "emoji": "🌀",
+          "effect": "结合所有元素的终极风暴",
+          "cost": 50,
+          "type": "终极",
+          "unlocked": false
+        }
+      ]
+    },
+    {
+      "key": "relics",
+      "emoji": "🎪",
+      "title": "传说圣物",
+      "sub": "Relics & Artifacts",
+      "desc": "独一无二的传奇召唤",
+      "words": [
+        {
+          "en": "Excalibur",
+          "zh": "王者之剑",
+          "emoji": "🗡️",
+          "effect": "传说之剑全属性极高",
+          "cost": 60,
+          "type": "神话",
+          "unlocked": false
+        },
+        {
+          "en": "Pandora Box",
+          "zh": "潘多拉魔盒",
+          "emoji": "🏺",
+          "effect": "打开释放随机效果",
+          "cost": 40,
+          "type": "随机",
+          "unlocked": false
+        },
+        {
+          "en": "Crown of Thorns",
+          "zh": "荆棘王冠",
+          "emoji": "👑",
+          "effect": "范围内友方反伤",
+          "cost": 35,
+          "type": "神话",
+          "unlocked": false
+        },
+        {
+          "en": "Elder Scroll",
+          "zh": "上古卷轴",
+          "emoji": "📜",
+          "effect": "时间停止3秒",
+          "cost": 30,
+          "type": "终极",
+          "unlocked": false
+        },
+        {
+          "en": "Orb of Destiny",
+          "zh": "命运之球",
+          "emoji": "🔮",
+          "effect": "每次攻击随机元素",
+          "cost": 50,
+          "type": "神话",
+          "unlocked": false
+        },
+        {
+          "en": "Philosopher Stone",
+          "zh": "贤者之石",
+          "emoji": "💎",
+          "effect": "持续产出大量金币",
+          "cost": 55,
+          "type": "神话",
+          "unlocked": false
+        },
+        {
+          "en": "Holy Grail",
+          "zh": "圣杯",
+          "emoji": "⚜️",
+          "effect": "友方血量不低于1",
+          "cost": 45,
+          "type": "神话",
+          "unlocked": false
+        },
+        {
+          "en": "Moai Statue",
+          "zh": "摩艾石像",
+          "emoji": "🗿",
+          "effect": "全屏敌人移速-20%",
+          "cost": 42,
+          "type": "神话",
+          "unlocked": false
+        },
+        {
+          "en": "Mask of Chaos",
+          "zh": "混沌面具",
+          "emoji": "🎭",
+          "effect": "敌人互相攻击5秒",
+          "cost": 38,
+          "type": "特殊",
+          "unlocked": false
+        },
+        {
+          "en": "Mjolnir",
+          "zh": "雷神之锤",
+          "emoji": "⚡",
+          "effect": "雷神之锤雷击AOE",
+          "cost": 50,
+          "type": "神话",
+          "unlocked": false
+        },
+        {
+          "en": "Phoenix Feather",
+          "zh": "凤凰羽毛",
+          "emoji": "🪶",
+          "effect": "复活范围内所有被摧毁的友方",
+          "cost": 40,
+          "type": "神话",
+          "unlocked": false
+        },
+        {
+          "en": "Cosmic Rune",
+          "zh": "宇宙符文",
+          "emoji": "🌌",
+          "effect": "全屏伤害+清除负面",
+          "cost": 60,
+          "type": "神话",
+          "unlocked": false
+        },
+        {
+          "en": "Skeleton Key",
+          "zh": "万能钥匙",
+          "emoji": "🗝️",
+          "effect": "永久增加1个召唤槽位",
+          "cost": 30,
+          "type": "神话",
+          "unlocked": false
+        },
+        {
+          "en": "Prayer Beads",
+          "zh": "念珠",
+          "emoji": "📿",
+          "effect": "每20秒治疗基地1HP",
+          "cost": 20,
+          "type": "神话",
+          "unlocked": false
+        },
+        {
+          "en": "Genie Lamp",
+          "zh": "神灯",
+          "emoji": "🏺",
+          "effect": "给予3个随机强力效果",
+          "cost": 35,
+          "type": "随机",
+          "unlocked": false
+        },
+        {
+          "en": "Loaded Dice",
+          "zh": "灌铅骰子",
+          "emoji": "🎲",
+          "effect": "控制下一次随机结果为最优",
+          "cost": 20,
+          "type": "特殊",
+          "unlocked": false
+        },
+        {
+          "en": "Magic Mirror",
+          "zh": "魔镜",
+          "emoji": "🪞",
+          "effect": "查看下一波敌人组成",
+          "cost": 18,
+          "type": "辅助",
+          "unlocked": false
+        },
+        {
+          "en": "Urn of Souls",
+          "zh": "灵魂瓮",
+          "emoji": "⚱️",
+          "effect": "一次性获得150能量",
+          "cost": 25,
+          "type": "特殊",
+          "unlocked": false
+        },
+        {
+          "en": "Treasure Map",
+          "zh": "藏宝图",
+          "emoji": "🗺️",
+          "effect": "在地图上生成3堆50金币",
+          "cost": 20,
+          "type": "经济",
+          "unlocked": false
+        },
+        {
+          "en": "Flute of Summoning",
+          "zh": "召唤之笛",
+          "emoji": "🪈",
+          "effect": "免费随机召唤一个单位",
+          "cost": 15,
+          "type": "特殊",
+          "unlocked": false
+        },
+        {
+          "en": "Amulet of Warding",
+          "zh": "结界护符",
+          "emoji": "🧿",
+          "effect": "全屏友方+30%魔法抗性",
+          "cost": 28,
+          "type": "神话",
+          "unlocked": false
+        },
+        {
+          "en": "Talisman of Power",
+          "zh": "力量护符",
+          "emoji": "🪬",
+          "effect": "永久提升所有友方10%属性",
+          "cost": 40,
+          "type": "神话",
+          "unlocked": false
+        },
+        {
+          "en": "Book of the Dead",
+          "zh": "亡灵之书",
+          "emoji": "📖",
+          "effect": "一次性召唤5个骷髅战士",
+          "cost": 35,
+          "type": "召唤",
+          "unlocked": false
+        },
+        {
+          "en": "Ring of Power",
+          "zh": "力量之戒",
+          "emoji": "💍",
+          "effect": "英雄亲自攻击造成伤害",
+          "cost": 40,
+          "type": "神话",
+          "unlocked": false
+        },
+        {
+          "en": "Alchemist Stone",
+          "zh": "炼金石",
+          "emoji": "⚗️",
+          "effect": "50金币兑换30能量",
+          "cost": 15,
+          "type": "经济",
+          "unlocked": false
+        },
+        {
+          "en": "Lantern of Truth",
+          "zh": "真知之灯",
+          "emoji": "🏮",
+          "effect": "永久照出所有隐身敌人",
+          "cost": 22,
+          "type": "反隐",
+          "unlocked": false
+        },
+        {
+          "en": "Pocket Watch",
+          "zh": "怀表",
+          "emoji": "🕰️",
+          "effect": "每波可使用1次时停2秒",
+          "cost": 28,
+          "type": "终极",
+          "unlocked": false
+        },
+        {
+          "en": "Mask of Many Faces",
+          "zh": "千面面具",
+          "emoji": "🎭",
+          "effect": "让任何单位伪装成其他单位",
+          "cost": 18,
+          "type": "特殊",
+          "unlocked": false
+        },
+        {
+          "en": "Quill of Destiny",
+          "zh": "命运之笔",
+          "emoji": "🪶",
+          "effect": "重新随机可选单位列表",
+          "cost": 12,
+          "type": "辅助",
+          "unlocked": false
+        },
+        {
+          "en": "Circus Tent",
+          "zh": "马戏团帐篷",
+          "emoji": "🎪",
+          "effect": "持续全屏减速",
+          "cost": 22,
+          "type": "控制",
+          "unlocked": false
+        },
+        {
+          "en": "Champion Belt",
+          "zh": "冠军腰带",
+          "emoji": "🏆",
+          "effect": "最强的一个单位全属性+50%",
+          "cost": 35,
+          "type": "增益",
+          "unlocked": false
+        },
+        {
+          "en": "Nebula Stone",
+          "zh": "星云石",
+          "emoji": "🌌",
+          "effect": "创造持续伤害+减速的星云漩涡",
+          "cost": 45,
+          "type": "神话",
+          "unlocked": false
+        }
+      ]
+    }
+  ],
+  "totalWords": 480
+}
