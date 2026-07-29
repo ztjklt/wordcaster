@@ -1,0 +1,9 @@
+{
+  "idle": {
+    "frames": 1,
+    "frame_time": 0,
+    "loop": false,
+    "trigger": "none",
+    "description": "静态防御建筑，无动画，仅单帧显示。边境瞭望塔作为基础防御模块放置，后续可扩展为箭塔、火焰塔、能量塔、盾牌塔等变体。"
+  }
+}

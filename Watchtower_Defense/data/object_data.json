@@ -1,0 +1,76 @@
+{
+  "name": "Border Watchtower",
+  "name_zh": "边境瞭望防御塔",
+  "type": "defense_tower",
+  "subtype": "base_tower",
+  "perspective": "2D side-view",
+  "description": "纯2D侧视角中世纪像素风瞭望防御塔。石砖底座、木质塔身、顶部瞭望平台、木制护栏、箭孔、老旧旗帜、藤蔓和青苔覆盖、少量古文明符文装饰。适合直接放入2D横版塔防游戏地图。",
+  "hp": 200,
+  "damage": 0,
+  "range": 0,
+  "cooldown": 0,
+  "block": true,
+  "collision": "compound",
+  "animation": "idle",
+  "spell_word": null,
+  "spell_cost": 0,
+  "sprite_size": {
+    "width": 1239,
+    "height": 1846,
+    "unit": "px"
+  },
+  "placement": {
+    "recommended": "defense",
+    "layer": 2,
+    "z_index": 1,
+    "repeatable": true,
+    "ground_snap": true,
+    "grid_size": "2×4",
+    "anchor": "bottom_center"
+  },
+  "collision_layers": [
+    {
+      "name": "StoneBase",
+      "shape": "box",
+      "width_pct": 100,
+      "height_pct": 22,
+      "offset_y_pct": 0,
+      "type": "solid"
+    },
+    {
+      "name": "TowerBody",
+      "shape": "box",
+      "width_pct": 85,
+      "height_pct": 50,
+      "offset_y_pct": 22,
+      "type": "solid"
+    },
+    {
+      "name": "LookoutPlatform",
+      "shape": "box",
+      "width_pct": 100,
+      "height_pct": 6,
+      "offset_y_pct": 72,
+      "type": "platform_one_way"
+    },
+    {
+      "name": "Roof",
+      "shape": "slope",
+      "width_pct": 70,
+      "height_pct": 16,
+      "offset_y_pct": 78,
+      "type": "decoration"
+    }
+  ],
+  "collision_box": {
+    "enabled": true,
+    "type": "compound",
+    "note": "使用复合碰撞体：基座为实心方块，塔身为实心方块，平台为单向平台（可从下方跳上），屋顶为装饰无碰撞。藤蔓和旗帜无碰撞体。"
+  },
+  "extensions": {
+    "arrow_tower": "在瞭望塔基础上加装箭矢发射装置，变为自动攻击箭塔",
+    "fire_tower": "在塔顶安装魔法火盆，变为范围火焰伤害塔",
+    "energy_tower": "注入魔法能量水晶，变为能量增幅塔",
+    "shield_tower": "加装护盾发生器，变为防御护盾塔"
+  }
+}
