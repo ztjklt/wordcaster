@@ -1,0 +1,696 @@
+/**
+ * merchant-shop.css
+ * 图片驱动商城UI - <img> 底图 + 透明交互覆盖层
+ * 不生成卡片/按钮/布局，只在图片对应位置覆盖功能组件
+ *
+ * 参考图 2.png 布局（1376×768）：
+ *   顶部 y=110-145：资源栏（Word Energy / Mastered Words / Level）
+ *   左侧 x=0-600：商人角色区 + 左下角圆形头像框（圆心 x≈27.4%, y≈71.0%）
+ *   右侧 x=859-1243：石质面板 + 2×2 商品格子
+ *     - 上行 y=230-350：左列 859-1003，右列 1098-1243
+ *     - 下行 y=425-595：左列 859-1003，右列 1098-1243
+ */
+
+/* ==================== 基础重置 ==================== */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #0a0a0a;
+  font-family: 'Georgia', 'Times New Roman', serif;
+  overflow: hidden;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  user-select: none;
+}
+
+/* ==================== 游戏场景 ==================== */
+#game-scene {
+  position: relative;
+  width: 95vw;
+  max-width: 1000px;
+  height: 85vh;
+  max-height: 600px;
+  background: radial-gradient(ellipse at 50% 80%, #1a1410 0%, #0d0a06 70%);
+  border: 4px solid #3a2818;
+  box-shadow:
+    0 0 0 2px #1a1008,
+    0 0 0 6px #2a1a0e,
+    0 0 50px rgba(0, 0, 0, 0.8),
+    inset 0 0 120px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+}
+
+#game-scene::before {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 30%;
+  background: linear-gradient(180deg, transparent, rgba(40, 20, 8, 0.2));
+  pointer-events: none; z-index: 1;
+}
+
+/* ==================== 英雄 ==================== */
+#hero {
+  position: absolute;
+  width: 40px; height: 40px;
+  background: linear-gradient(135deg, #4a90d9, #2c5f8a);
+  border: 2px solid #1a3a5c;
+  border-radius: 6px;
+  z-index: 10;
+  box-shadow: 0 0 12px rgba(74, 144, 217, 0.4);
+}
+
+/* ==================== 移动商店图片 ==================== */
+#mobile-shop-img {
+  position: absolute;
+  z-index: 5;
+  pointer-events: none;
+}
+
+/* ==================== NPC ==================== */
+#npc-container {
+  position: absolute; z-index: 8;
+}
+.npc-sprite {
+  display: block; pointer-events: none;
+}
+.npc-interactable .npc-sprite {
+  filter: drop-shadow(0 0 10px rgba(0, 200, 200, 0.5));
+}
+
+/* ==================== 交互按钮 ==================== */
+#interact-btn {
+  position: absolute;
+  display: flex; align-items: center; justify-content: center;
+  gap: 6px;
+  padding: 7px 18px;
+  background: linear-gradient(180deg, #6b4a1a, #3a2010);
+  color: #d4a860;
+  border: 2px solid #8b6914;
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: 14px; font-weight: bold;
+  cursor: pointer; z-index: 20;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 0 10px rgba(0, 180, 200, 0.2);
+  animation: interact-pulse 1.5s ease-in-out infinite;
+  letter-spacing: 2px;
+}
+#interact-btn:hover {
+  background: linear-gradient(180deg, #8b6914, #5a3d0a);
+  color: #e8c878;
+  border-color: #c9a050;
+  box-shadow: 0 0 16px rgba(0, 200, 200, 0.4);
+}
+#interact-btn::before { content: '💬'; font-size: 12px; }
+
+@keyframes interact-pulse {
+  0%, 100% { box-shadow: 0 0 10px rgba(0, 180, 200, 0.2); }
+  50% { box-shadow: 0 0 20px rgba(0, 200, 200, 0.4); }
+}
+
+/* ==================== 操作提示 ==================== */
+#game-hint {
+  position: absolute; bottom: 16px; left: 50%;
+  transform: translateX(-50%);
+  color: rgba(180, 150, 100, 0.5);
+  font-size: 12px;
+  pointer-events: none; z-index: 5;
+  letter-spacing: 1px;
+}
+
+/* ================================================================ */
+/*               商城面板 - 图片驱动UI                                */
+/* ================================================================ */
+
+#shop-panel-container {
+  position: absolute; top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 100;
+  display: none;
+  justify-content: center; align-items: center;
+}
+
+/* 遮罩 */
+.shop-overlay {
+  position: absolute; top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  justify-content: center; align-items: center;
+}
+
+/* 面板容器 */
+.shop-panel {
+  position: relative;
+  width: 90%;
+  max-width: 1024px;
+  aspect-ratio: 16 / 9;
+  max-height: 90vh;
+  animation: panel-fade-in 0.4s ease-out;
+}
+
+@keyframes panel-fade-in {
+  0% { opacity: 0; transform: scale(0.95); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* 底图 - 填满面板（fill 确保与覆盖层完全对齐） */
+.shop-bg-image {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  object-fit: fill;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* 交互覆盖层 - 与底图完全重叠 */
+.shop-interactive-layer {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 1;
+}
+
+/* ================================================================ */
+/*               商人点击区域 - 左侧角色区                            */
+/* ================================================================ */
+
+.merchant-zone {
+  position: absolute;
+  z-index: 15;
+  cursor: pointer;
+  top: 10%;
+  left: 0;
+  width: 40%;
+  height: 82%;
+  border: 1px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.merchant-zone:hover {
+  border-color: rgba(201, 160, 80, 0.4);
+  background: rgba(201, 160, 80, 0.05);
+  box-shadow: inset 0 0 30px rgba(201, 160, 80, 0.1);
+}
+
+/* ================================================================ */
+/*               商人对话弹窗                                         */
+/* ================================================================ */
+
+.merchant-dialogue {
+  position: absolute;
+  z-index: 60;
+  left: 5%;
+  bottom: 8%;
+  width: 30%;
+  max-width: 320px;
+  padding: 14px 16px;
+  background: rgba(245, 235, 210, 0.95);
+  border: 2px solid #8b6b3d;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.6), 0 0 8px rgba(201, 160, 80, 0.15);
+  animation: dialogue-in 0.3s ease-out;
+  pointer-events: auto;
+}
+
+@keyframes dialogue-in {
+  0% { opacity: 0; transform: translateY(12px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.dialogue-text {
+  font-size: clamp(10px, 1.1vw, 13px);
+  color: #000;
+  line-height: 1.6;
+  font-style: italic;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+  text-shadow: 0 0 2px rgba(255, 255, 255, 0.4);
+}
+
+.dialogue-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.dialogue-btn {
+  padding: 5px 14px;
+  background: linear-gradient(180deg, #c9a050, #8b6914);
+  color: #000;
+  border: 1px solid #6b4a1a;
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: 11px;
+  cursor: pointer;
+  letter-spacing: 1px;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.4);
+  transition: all 0.2s;
+}
+
+.dialogue-btn:hover {
+  background: linear-gradient(180deg, #e8d080, #c9a050);
+  color: #000;
+  border-color: #8b6914;
+  box-shadow: 0 0 8px rgba(201, 160, 80, 0.2);
+}
+
+/* ================================================================ */
+/*               资源数值覆盖层                                       */
+/* ================================================================ */
+
+.resource-overlay {
+  position: absolute;
+  pointer-events: none;
+  z-index: 10;
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-weight: bold;
+  color: #000;
+  text-shadow: 0 0 4px rgba(255, 255, 255, 0.7);
+  text-align: center;
+}
+
+/* WORD_ENERGY 数值 - 覆盖在顶部资源栏第一区域（x=118-316, y=110-145） */
+.res-energy {
+  top: 14.5%;
+  left: 8.6%;
+  font-size: clamp(9px, 1.3vw, 15px);
+  width: 14.4%;
+  letter-spacing: 1px;
+}
+
+/* MASTERED_WORDS 数值 - 覆盖在顶部资源栏第二区域（x=338-446, y=110-145） */
+.res-mastered {
+  top: 14.5%;
+  left: 24.6%;
+  font-size: clamp(9px, 1.3vw, 15px);
+  width: 7.8%;
+  letter-spacing: 1px;
+}
+
+/* 能量减少动画 */
+.res-energy.energy-decrease {
+  animation: energy-flash 0.6s ease-out;
+}
+
+@keyframes energy-flash {
+  0% { color: #ff4444; text-shadow: 0 0 12px rgba(255, 68, 68, 0.8); transform: scale(1.3); }
+  100% { color: #000; text-shadow: 0 0 4px rgba(255, 255, 255, 0.7); transform: scale(1); }
+}
+
+/* ================================================================ */
+/*               商品格子 - 透明覆盖层                                 */
+/* ================================================================ */
+
+.item-zone {
+  position: absolute;
+  z-index: 10;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* 悬停：魔法金/蓝光边框 */
+.item-zone:hover {
+  border-color: rgba(201, 160, 80, 0.5);
+  box-shadow:
+    0 0 12px rgba(201, 160, 80, 0.3),
+    inset 0 0 12px rgba(201, 160, 80, 0.08);
+  background: rgba(201, 160, 80, 0.05);
+}
+
+/* 已拥有：灰暗覆盖 */
+.item-zone.owned {
+  cursor: default;
+  background: rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+}
+
+.item-zone.owned:hover {
+  border-color: transparent;
+  box-shadow: none;
+  background: rgba(0, 0, 0, 0.35);
+}
+
+/* 购买闪烁 */
+.item-zone.purchase-glow {
+  animation: zone-glow 0.6s ease-out;
+}
+
+@keyframes zone-glow {
+  0% {
+    border-color: rgba(201, 160, 80, 0.9);
+    box-shadow: 0 0 20px rgba(201, 160, 80, 0.7), 0 0 40px rgba(201, 160, 80, 0.3);
+    background: rgba(201, 160, 80, 0.15);
+  }
+  100% {
+    border-color: transparent;
+    box-shadow: none;
+    background: transparent;
+  }
+}
+
+/* ================================================================ */
+/*       商品图标 - 中世纪魔法风格 SVG                                */
+/* ================================================================ */
+
+.item-icon {
+  pointer-events: none;
+  width: 55%;
+  max-width: 64px;
+  flex-shrink: 0;
+  margin-bottom: 2px;
+  opacity: 0.9;
+  filter: drop-shadow(0 0 3px rgba(201, 160, 80, 0.3));
+  transition: all 0.25s ease;
+}
+
+.item-icon svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.item-zone:hover .item-icon {
+  filter: drop-shadow(0 0 8px rgba(201, 160, 80, 0.6));
+  opacity: 1;
+}
+
+.item-zone.owned .item-icon {
+  opacity: 0.3;
+  filter: grayscale(1) drop-shadow(0 0 2px rgba(100, 100, 100, 0.2));
+}
+
+/* ================================================================ */
+/*       商品文字标签 - 名称 / 描述 / 价格（暖色中世纪风格）           */
+/* ================================================================ */
+
+/* 商品名称 - 纯黑 */
+.item-name {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: clamp(8px, 1.2vw, 14px);
+  font-weight: bold;
+  color: #000;
+  text-align: center;
+  text-shadow: 0 0 4px rgba(255, 255, 255, 0.7);
+  pointer-events: none;
+  line-height: 1.2;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+}
+
+.item-zone.owned .item-name {
+  color: #444;
+  text-decoration: line-through;
+  text-shadow: 0 0 3px rgba(255, 255, 255, 0.4);
+}
+
+/* 效果描述 - 纯黑 */
+.item-description {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: clamp(6px, 0.9vw, 11px);
+  color: #000;
+  text-align: center;
+  pointer-events: none;
+  line-height: 1.3;
+  margin-bottom: 4px;
+  padding: 0 4px;
+  text-shadow: 0 0 3px rgba(255, 255, 255, 0.6);
+}
+
+.item-zone.owned .item-description {
+  color: #444;
+  text-shadow: 0 0 2px rgba(255, 255, 255, 0.3);
+}
+
+/* 价格标签 - 纯黑 */
+.item-price {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: clamp(7px, 1vw, 12px);
+  color: #000;
+  text-align: center;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  text-shadow: 0 0 4px rgba(255, 255, 255, 0.7);
+}
+
+.price-icon {
+  color: #000;
+  text-shadow: 0 0 4px rgba(255, 255, 255, 0.7);
+  font-size: 0.8em;
+}
+
+.item-zone.owned .item-price {
+  color: #444;
+  text-shadow: 0 0 2px rgba(255, 255, 255, 0.3);
+}
+
+/* ================================================================ */
+/*               商品详情弹窗                                         */
+/* ================================================================ */
+
+.item-detail-popup {
+  position: absolute;
+  z-index: 50;
+  padding: 14px 16px;
+  background: rgba(245, 235, 210, 0.95);
+  border: 2px solid #8b6b3d;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.6), 0 0 8px rgba(201, 160, 80, 0.2);
+  min-width: 170px;
+  max-width: 200px;
+  pointer-events: auto;
+  animation: popup-in 0.2s ease-out;
+}
+
+@keyframes popup-in {
+  0% { opacity: 0; transform: translateY(8px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.item-popup-label {
+  font-size: 9px;
+  color: #000;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 2px;
+}
+
+.item-popup-name {
+  font-size: clamp(14px, 2vw, 20px);
+  font-weight: bold;
+  color: #000;
+  text-shadow: 0 0 4px rgba(255, 255, 255, 0.5);
+  margin-bottom: 10px;
+  letter-spacing: 1px;
+}
+
+.item-popup-effect {
+  font-size: clamp(12px, 1.5vw, 16px);
+  color: #000;
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+.item-popup-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #5a3d20, transparent);
+  margin: 8px 0;
+}
+
+.item-popup-price {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #000;
+}
+
+.popup-price-icon {
+  color: #000;
+  text-shadow: 0 0 3px rgba(255, 255, 255, 0.5);
+}
+
+.item-popup-buy-btn {
+  display: block;
+  width: 100%;
+  padding: 6px;
+  background: linear-gradient(180deg, #c9a050, #8b6914);
+  color: #000;
+  border: 1px solid #6b4a1a;
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  letter-spacing: 2px;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.4);
+  transition: all 0.2s;
+}
+
+.item-popup-buy-btn:hover {
+  background: linear-gradient(180deg, #e8d080, #c9a050);
+  color: #000;
+  border-color: #8b6914;
+  box-shadow: 0 0 10px rgba(0, 180, 200, 0.25);
+}
+
+.item-popup-buy-btn.btn-disabled {
+  background: linear-gradient(180deg, #aaa, #888);
+  color: #555;
+  border-color: #777;
+  cursor: not-allowed;
+}
+
+.item-popup-owned {
+  text-align: center;
+  font-size: 11px;
+  color: #000;
+  font-style: italic;
+}
+
+/* ================================================================ */
+/*               商人立绘 - 左下角NPC角色（独立图层，2D RPG立绘风格）  */
+/* ================================================================ */
+
+.merchant-portrait {
+  position: absolute;
+  z-index: 15;
+  /* 左下角立绘，完整上半身，不裁剪 */
+  bottom: 0;
+  left: 8%;
+  width: 28%;
+  height: 72%;
+  overflow: visible;
+  pointer-events: none;
+  animation: portrait-appear 0.6s ease-out;
+}
+
+/* 商人立绘图片 - 完整显示，保持比例 */
+.merchant-portrait-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+  filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.5));
+  transition: transform 0.3s ease;
+}
+
+/* 商城打开 → 立绘淡入 */
+@keyframes portrait-appear {
+  0% {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* 购买成功 → 立绘轻微反馈 */
+.merchant-portrait.purchase-success {
+  animation: portrait-success 0.4s ease-out;
+}
+
+@keyframes portrait-success {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.03); }
+  60% { transform: scale(0.98); }
+  100% { transform: scale(1); }
+}
+
+.merchant-portrait.purchase-success .merchant-portrait-img {
+  animation: portrait-bounce 0.4s ease-out;
+}
+
+@keyframes portrait-bounce {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.04); }
+  60% { transform: scale(0.97); }
+  100% { transform: scale(1); }
+}
+
+/* ================================================================ */
+/*               关闭按钮覆盖层                                       */
+/* ================================================================ */
+
+.close-zone {
+  position: absolute;
+  z-index: 20;
+  cursor: pointer;
+  top: 1.5%;
+  right: 1%;
+  width: 4%;
+  height: 6%;
+  border: 1px solid transparent;
+  transition: all 0.2s;
+}
+
+.close-zone:hover {
+  border-color: rgba(200, 60, 60, 0.5);
+  background: rgba(200, 60, 60, 0.1);
+  box-shadow: 0 0 8px rgba(200, 60, 60, 0.3);
+}
+
+/* ================================================================ */
+/*               购买提示浮层                                         */
+/* ================================================================ */
+
+.purchase-toast {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 200;
+  padding: 12px 24px;
+  background: rgba(245, 235, 210, 0.95);
+  border: 2px solid #8b6b3d;
+  color: #000;
+  font-size: 15px;
+  font-weight: bold;
+  letter-spacing: 2px;
+  text-align: center;
+  font-family: 'Georgia', 'Times New Roman', serif;
+  box-shadow: 0 0 24px rgba(0, 180, 200, 0.3);
+  pointer-events: none;
+  animation: toast-pop 1.5s ease-out forwards;
+  text-transform: uppercase;
+}
+
+@keyframes toast-pop {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+  20% { opacity: 1; transform: translate(-50%, -50%) scale(1.08); }
+  30% { transform: translate(-50%, -50%) scale(1); }
+  80% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -65%) scale(0.9); }
+}
+
+/* ================================================================ */
+/*                      响应式                                       */
+/* ================================================================ */
+
+@media (max-width: 1050px) {
+  #game-scene {
+    width: 100vw; height: 100vh;
+    border: none; max-width: none; max-height: none;
+  }
+  .shop-panel {
+    width: 97%;
+  }
+}
+
+@media (max-width: 600px) {
+  .shop-panel {
+    width: 100%;
+  }
+}
