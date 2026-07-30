@@ -1083,89 +1083,172 @@ kbd {
   font-weight: 900;
 }
 
-.incantation-burst {
+.incantation-feedback {
   --incantation-color: #63f0d4;
   position: absolute;
-  z-index: 37;
-  top: 50%;
+  z-index: 42;
+  top: clamp(92px, 14vh, 132px);
   left: 50%;
   display: grid;
-  width: 220px;
-  height: 120px;
-  place-items: center;
-  transform: translate(-50%, -50%);
+  min-width: min(420px, 72vw);
+  justify-items: center;
+  padding: 6px 20px;
+  transform: translateX(-50%);
   pointer-events: none;
+  isolation: isolate;
+  animation: incantationFeedbackIn 180ms ease-out both;
 }
 
-.incantation-burst::before,
-.incantation-burst::after {
-  position: absolute;
-  border: 3px solid var(--incantation-color);
-  border-radius: 50%;
-  content: "";
-  animation: incantationRing 900ms ease-out both;
-}
-
-.incantation-burst::after {
-  animation-delay: 120ms;
-}
-
-.incantation-burst.failure::before,
-.incantation-burst.failure::after {
-  border-radius: 0;
-  animation-duration: 460ms;
-}
-
-.incantation-burst strong {
-  padding: 7px 13px;
-  border: 2px solid color-mix(in srgb, var(--incantation-color) 76%, white);
-  background: rgba(12, 15, 22, 0.88);
+.incantation-feedback > strong {
+  position: relative;
+  max-width: min(680px, 78vw);
+  overflow: hidden;
   color: #fff7d1;
-  font-size: 12px;
-  letter-spacing: 0.15em;
-  text-shadow: 0 0 12px var(--incantation-color);
-  animation: incantationWord 1.45s ease-out both;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(23px, 3.2vw, 42px);
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  line-height: 1.05;
+  text-align: center;
+  text-indent: 0.16em;
+  text-overflow: ellipsis;
+  text-shadow:
+    0 0 8px rgba(255, 255, 255, 0.38),
+    0 0 20px var(--incantation-color);
+  text-transform: uppercase;
+  white-space: nowrap;
 }
 
-.incantation-burst > i {
+.incantation-feedback.listening > strong {
+  animation: incantationListening 720ms ease-in-out infinite alternate;
+}
+
+.incantation-feedback.processing > strong {
+  animation: incantationProcessing 680ms steps(2, end) infinite;
+}
+
+.incantation-feedback.success {
+  animation: incantationSuccessPanel 1.7s ease-out both;
+}
+
+.incantation-feedback.success > strong {
+  color: color-mix(in srgb, var(--incantation-color) 58%, white);
+  animation: incantationSuccessWord 1.55s ease-out both;
+}
+
+.incantation-feedback.failure {
+  filter: saturate(0.8);
+  animation: incantationFailure 460ms ease-out both;
+}
+
+.incantation-feedback-aura {
   position: absolute;
-  width: 5px;
-  height: 5px;
-  background: var(--incantation-color);
-  box-shadow: 0 0 12px var(--incantation-color);
-  animation: incantationSpark 820ms ease-out both;
+  z-index: -1;
+  top: 50%;
+  left: 50%;
+  width: 290px;
+  height: 112px;
+  transform: translate(-50%, -50%);
 }
 
-.incantation-burst > i:nth-of-type(1) { --spark-x: -92px; --spark-y: -42px; }
-.incantation-burst > i:nth-of-type(2) { --spark-x: 84px; --spark-y: -48px; }
-.incantation-burst > i:nth-of-type(3) { --spark-x: -105px; --spark-y: 28px; }
-.incantation-burst > i:nth-of-type(4) { --spark-x: 101px; --spark-y: 35px; }
-.incantation-burst > i:nth-of-type(5) { --spark-x: -34px; --spark-y: -65px; }
-.incantation-burst > i:nth-of-type(6) { --spark-x: 42px; --spark-y: 66px; }
+.incantation-feedback-aura > i {
+  position: absolute;
+  inset: 0;
+  border: 2px solid var(--incantation-color);
+  border-radius: 50%;
+  opacity: 0;
+}
+
+.incantation-feedback.success .incantation-feedback-aura > i {
+  animation: incantationRing 920ms ease-out both;
+}
+
+.incantation-feedback.success .incantation-feedback-aura > i:nth-child(2) {
+  animation-delay: 100ms;
+}
+
+.incantation-feedback.success .incantation-feedback-aura > i:nth-child(3) {
+  animation-delay: 210ms;
+}
+
+.incantation-particles {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1px;
+  height: 1px;
+}
+
+.incantation-particles > i {
+  --particle-angle: 0deg;
+  --particle-distance: 110px;
+  --particle-delay: 0ms;
+  --particle-size: 4px;
+  position: absolute;
+  width: var(--particle-size);
+  height: var(--particle-size);
+  border-radius: 1px;
+  background: color-mix(in srgb, var(--incantation-color) 72%, white);
+  box-shadow:
+    0 0 6px white,
+    0 0 15px var(--incantation-color);
+  transform: rotate(var(--particle-angle)) translateX(8px);
+  animation: incantationParticle 980ms cubic-bezier(0.12, 0.7, 0.25, 1) var(--particle-delay) both;
+}
+
+@keyframes incantationFeedbackIn {
+  from { opacity: 0; transform: translate(-50%, -8px) scale(0.96); }
+  to { opacity: 1; transform: translate(-50%, 0) scale(1); }
+}
+
+@keyframes incantationListening {
+  from { color: #fff7d1; text-shadow: 0 0 8px rgba(255, 255, 255, 0.2), 0 0 14px var(--incantation-color); }
+  to { color: white; text-shadow: 0 0 12px white, 0 0 27px var(--incantation-color); }
+}
+
+@keyframes incantationProcessing {
+  50% { opacity: 0.62; }
+}
+
+@keyframes incantationSuccessPanel {
+  0% { opacity: 0; transform: translate(-50%, -5px) scale(0.82); filter: brightness(1); }
+  12% { opacity: 1; transform: translate(-50%, 0) scale(1.09); filter: brightness(1.9); }
+  28% { transform: translate(-50%, 0) scale(1); filter: brightness(1.25); }
+  82% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -8px) scale(1.02); filter: brightness(1); }
+}
+
+@keyframes incantationSuccessWord {
+  0% { opacity: 0; transform: scale(0.62); filter: blur(5px) brightness(1); }
+  14% { opacity: 1; transform: scale(1.16); filter: blur(0) brightness(2.2); }
+  32% { transform: scale(0.98); filter: brightness(1.35); }
+  48% { transform: scale(1.03); }
+  100% { opacity: 1; transform: scale(1); filter: brightness(1.1); }
+}
+
+@keyframes incantationFailure {
+  0%, 100% { transform: translateX(-50%); }
+  22% { transform: translateX(calc(-50% - 8px)); }
+  48% { transform: translateX(calc(-50% + 7px)); }
+  72% { transform: translateX(calc(-50% - 4px)); }
+}
 
 @keyframes incantationRing {
-  from {
-    width: 8px;
-    height: 8px;
-    opacity: 1;
-  }
-  to {
-    width: 190px;
-    height: 96px;
+  0% { opacity: 0.95; transform: scale(0.18); }
+  100% { opacity: 0; transform: scale(1.35); }
+}
+
+@keyframes incantationParticle {
+  0% {
     opacity: 0;
+    transform: rotate(var(--particle-angle)) translateX(8px) scale(0.2);
   }
-}
-
-@keyframes incantationWord {
-  0% { opacity: 0; transform: scale(0.68); filter: brightness(1); }
-  18% { opacity: 1; transform: scale(1.12); filter: brightness(1.6); }
-  72% { opacity: 1; transform: scale(1); }
-  100% { opacity: 0; transform: translateY(-10px); }
-}
-
-@keyframes incantationSpark {
-  from { opacity: 1; transform: translate(0, 0) scale(0.5); }
-  to { opacity: 0; transform: translate(var(--spark-x), var(--spark-y)) scale(1.4); }
+  12% { opacity: 1; }
+  72% { opacity: 0.9; }
+  100% {
+    opacity: 0;
+    transform: rotate(var(--particle-angle)) translateX(var(--particle-distance)) scale(0.1);
+  }
 }
 
 .codex-header {

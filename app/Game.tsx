@@ -143,6 +143,13 @@ const SOUND_SETTINGS: Record<
   lose: { frequency: 64, duration: 0.75, type: "sawtooth", volume: 0.055 },
 };
 
+const INCANTATION_PARTICLES = Array.from({ length: 28 }, (_, index) => ({
+  angle: `${Math.round((360 / 28) * index + (index % 3) * 4)}deg`,
+  distance: `${86 + (index % 5) * 17}px`,
+  delay: `${(index % 7) * 18}ms`,
+  size: `${3 + (index % 4)}px`,
+}));
+
 const QUALITY_NAMES: Record<VoiceQuality, string> = {
   basic: "基础词",
   standard: "完整指令",
@@ -433,6 +440,15 @@ export default function Game() {
               ? `${voiceMatchMessage(action, resolution.intent)} · 请在战场确认位置`
               : voiceMatchMessage(action, resolution.intent),
         });
+        if (command.status === "blueprint-ready") {
+          voiceController?.playSuccess({
+            wordId: action.id,
+            label: action.english,
+            color: action.color,
+            soundProfile: actionSoundProfile(action),
+          });
+          playIncantationEffect(true, action);
+        }
         return;
       }
       if (resolution.kind === "begin-wave") {
@@ -1195,20 +1211,52 @@ export default function Game() {
             </form>
           ) : null}
 
-          {incantationEffect ? (
+          {incantationEffect ||
+          voice.state === "listening" ||
+          voice.state === "processing" ? (
             <div
-              className={`incantation-burst ${
-                incantationEffect.success ? "success" : "failure"
+              className={`incantation-feedback ${
+                incantationEffect
+                  ? incantationEffect.success
+                    ? "success"
+                    : "failure"
+                  : voice.state
               }`}
               style={
                 {
-                  "--incantation-color": incantationEffect.color,
+                  "--incantation-color":
+                    incantationEffect?.color ?? "#f2d47c",
                 } as React.CSSProperties
               }
-              aria-hidden="true"
+              role="status"
+              aria-live="assertive"
             >
-              <i /><i /><i /><i /><i /><i />
-              <strong>{incantationEffect.label}</strong>
+              <div className="incantation-feedback-aura" aria-hidden="true">
+                <i />
+                <i />
+                <i />
+              </div>
+              <strong>
+                {incantationEffect?.label ??
+                  (voice.transcript.trim() || "…")}
+              </strong>
+              {incantationEffect?.success ? (
+                <div className="incantation-particles" aria-hidden="true">
+                  {INCANTATION_PARTICLES.map((particle, index) => (
+                    <i
+                      key={index}
+                      style={
+                        {
+                          "--particle-angle": particle.angle,
+                          "--particle-distance": particle.distance,
+                          "--particle-delay": particle.delay,
+                          "--particle-size": particle.size,
+                        } as React.CSSProperties
+                      }
+                    />
+                  ))}
+                </div>
+              ) : null}
             </div>
           ) : null}
 
