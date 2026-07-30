@@ -62,8 +62,8 @@ test("locks the 20-pixel one-line world and recommended camera scale", () => {
 });
 
 test("defines the campaign actions, including the supplied defenders, across six tiers", () => {
-  assert.equal(ACTION_ORDER.length, 25);
-  assert.equal(new Set(ACTION_ORDER).size, 25);
+  assert.equal(ACTION_ORDER.length, 34);
+  assert.equal(new Set(ACTION_ORDER).size, 34);
   assert.deepEqual(ACTION_ORDER.slice(0, 5), [
     "tower",
     "archer",
@@ -79,7 +79,7 @@ test("defines the campaign actions, including the supplied defenders, across six
     Array.from({ length: 6 }, (_, tier) =>
       ACTION_ORDER.filter((id) => CODEX_ACTIONS[id].tier === tier).length,
     ),
-    [9, 3, 3, 3, 3, 4],
+    [9, 12, 3, 3, 3, 4],
   );
 });
 
@@ -90,7 +90,7 @@ test("campaign learning uses the first-three-days and day-four groups", () => {
   const late = ACTION_ORDER.filter(
     (id) => CODEX_ACTIONS[id].availableFromDay === 4,
   );
-  assert.equal(early.length, 15);
+  assert.equal(early.length, 24);
   assert.equal(late.length, 10);
   assert.ok(early.includes("knight"));
   assert.ok(late.includes("healing-ward"));
@@ -101,6 +101,57 @@ test("campaign learning uses the first-three-days and day-four groups", () => {
   for (const id of late) {
     assert.equal(canLearnCampaignAction(id, 2), false);
     assert.equal(canLearnCampaignAction(id, 3), true);
+  }
+});
+
+test("throwable supplies split into ally-healing foods and self-use drinks", () => {
+  const apple = CODEX_ACTIONS.apple;
+  const coffee = CODEX_ACTIONS.coffee;
+  assert.equal(apple.kind, "food");
+  assert.equal(coffee.kind, "food");
+  assert.equal(apple.effect.type, "food");
+  assert.equal(coffee.effect.type, "food");
+  if (apple.effect.type === "food" && coffee.effect.type === "food") {
+    assert.equal(apple.effect.emoji, "🍎");
+    assert.equal(coffee.effect.emoji, "☕");
+    assert.equal(apple.effect.supplyType, "food");
+    assert.equal(coffee.effect.supplyType, "drink");
+    if (
+      apple.effect.supplyType === "food" &&
+      coffee.effect.supplyType === "drink"
+    ) {
+      assert.equal(apple.effect.healing, 28);
+      assert.equal(coffee.effect.nightInkRegen, 0.18);
+      assert.equal(coffee.effect.duration, 45);
+    }
+  }
+  assert.deepEqual(
+    [
+      "apple",
+      "bread",
+      "mushroom",
+      "cheese",
+      "fish",
+      "meat",
+    ].map((id) => CODEX_ACTIONS[id as keyof typeof CODEX_ACTIONS].effect.type),
+    Array(6).fill("food"),
+  );
+  assert.deepEqual(
+    ["coffee", "tea", "juice"].map((id) => {
+      const effect = CODEX_ACTIONS[id as keyof typeof CODEX_ACTIONS].effect;
+      return effect.type === "food" ? effect.supplyType : null;
+    }),
+    ["drink", "drink", "drink"],
+  );
+  const appleIntent = resolveVoiceIntent("Give an apple", 0);
+  assert.equal(appleIntent.kind, "action");
+  if (appleIntent.kind === "action") {
+    assert.equal(appleIntent.intent.actionId, "apple");
+  }
+  const coffeeIntent = resolveVoiceIntent("Coffee", 0);
+  assert.equal(coffeeIntent.kind, "action");
+  if (coffeeIntent.kind === "action") {
+    assert.equal(coffeeIntent.intent.actionId, "coffee");
   }
 });
 

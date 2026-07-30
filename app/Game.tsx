@@ -76,6 +76,8 @@ const EMPTY_HUD: HudSnapshot = {
   coreMaxHealth: 600,
   ink: STARTING_INK,
   maxInk: MAX_INK,
+  nightInkRegenBonus: 0,
+  nightInkRegenRemaining: 0,
   unlockedTier: 0,
   daylight: true,
   learnedActions: {},
@@ -109,6 +111,7 @@ const LEGACY_MUTE_KEY = "duskwood-defense-muted";
 function actionSoundProfile(action: CodexActionDefinition): IncantationSoundProfile {
   if (action.kind === "structure" || action.kind === "trap") return "metal";
   if (action.kind === "unit") return "nature";
+  if (action.kind === "food") return "food";
   if (action.id.includes("lightning")) return "electric";
   if (action.id.includes("frost") || action.id.includes("freeze")) return "water";
   if (action.id === "health-potion") return "food";
@@ -188,6 +191,8 @@ function phaseName(phase: GamePhase): string {
 }
 
 function ActionGlyph({ action }: { action: CodexActionDefinition }) {
+  const foodEmoji =
+    action.effect.type === "food" ? action.effect.emoji : null;
   const letters = action.english
     .split(" ")
     .map((part) => part[0])
@@ -199,7 +204,7 @@ function ActionGlyph({ action }: { action: CodexActionDefinition }) {
       style={{ "--action-color": action.color } as React.CSSProperties}
       aria-hidden="true"
     >
-      {letters}
+      {foodEmoji ?? letters}
     </span>
   );
 }
@@ -232,6 +237,14 @@ function ActionCard({
     effect.type === "structure"
       ? `${effect.footprint.width}×${effect.footprint.height}格`
       : null;
+  const healing =
+    effect.type === "food" && effect.supplyType === "food"
+      ? effect.healing
+      : null;
+  const drinkBoost =
+    effect.type === "food" && effect.supplyType === "drink"
+      ? `夜晚 +${effect.nightInkRegen.toFixed(2)}墨/秒 · ${effect.duration}秒`
+      : null;
   return (
     <article className="spell-entry">
       <div className="spell-entry-head">
@@ -244,8 +257,16 @@ function ActionCard({
       </div>
       <p>{action.description}</p>
       <div className="spell-stats">
-        <span>{action.kind === "structure" || action.kind === "trap" ? "建造" : "言灵"}</span>
+        <span>
+          {action.kind === "structure" || action.kind === "trap"
+            ? "建造"
+            : action.kind === "food"
+              ? "投掷补给"
+              : "言灵"}
+        </span>
         {footprint ? <span>{footprint}</span> : null}
+        {healing ? <span>治疗 {healing}</span> : null}
+        {drinkBoost ? <span>{drinkBoost}</span> : null}
         <span>使用 {mastery?.uses ?? 0}</span>
       </div>
       <blockquote>{action.example}</blockquote>
@@ -813,7 +834,12 @@ export default function Game() {
       event.preventDefault();
       pointerPosition(event);
       unlockAudio();
-      if (event.pointerType === "touch") return;
+      if (event.pointerType === "touch") {
+        if (engineRef.current?.canInteractWithFood()) {
+          engineRef.current.pointerDown(0);
+        }
+        return;
+      }
       engineRef.current?.pointerDown(event.button);
     },
     [pointerPosition, unlockAudio],
@@ -1183,6 +1209,11 @@ export default function Game() {
             <div>
               <span>INK</span>
               <strong>{hud.ink}<small>/{hud.maxInk}</small></strong>
+              {hud.nightInkRegenBonus > 0 ? (
+                <small className="ink-regen">
+                  ☕ +{hud.nightInkRegenBonus.toFixed(2)}/秒 · {Math.ceil(hud.nightInkRegenRemaining)}秒
+                </small>
+              ) : null}
             </div>
           </section>
 

@@ -50,6 +50,15 @@ export type ActionId =
   | "palisade"
   | "fireball"
   | "health-potion"
+  | "apple"
+  | "bread"
+  | "mushroom"
+  | "cheese"
+  | "fish"
+  | "meat"
+  | "coffee"
+  | "tea"
+  | "juice"
   | "stone-wall"
   | "ballista"
   | "web-trap"
@@ -92,7 +101,33 @@ export type UnitActionId = Extract<
   ActionId,
   "archer" | "swordsman" | "spearman" | "knight"
 >;
-export type SpellActionId = Exclude<ActionId, StructureActionId | UnitActionId>;
+export type FoodActionId = Extract<
+  ActionId,
+  | "apple"
+  | "bread"
+  | "mushroom"
+  | "cheese"
+  | "fish"
+  | "meat"
+  | "coffee"
+  | "tea"
+  | "juice"
+>;
+export const FOOD_ACTION_IDS = [
+  "apple",
+  "bread",
+  "mushroom",
+  "cheese",
+  "fish",
+  "meat",
+  "coffee",
+  "tea",
+  "juice",
+] as const satisfies readonly FoodActionId[];
+export type SpellActionId = Exclude<
+  ActionId,
+  StructureActionId | UnitActionId | FoodActionId
+>;
 
 export type EnemyKind =
   | "walker"
@@ -170,19 +205,38 @@ export interface SpellEffectDefinition {
   duration: number;
 }
 
+export type FoodEffectDefinition =
+  | {
+      type: "food";
+      supplyType: "food";
+      emoji: "🍎" | "🍞" | "🍄" | "🧀" | "🐟" | "🍖";
+      healing: number;
+    }
+  | {
+      type: "food";
+      supplyType: "drink";
+      emoji: "☕" | "🍵" | "🧃";
+      nightInkRegen: number;
+      duration: number;
+    };
+
 export interface CodexActionDefinition {
   id: ActionId;
   english: string;
   chinese: string;
   tier: 0 | 1 | 2 | 3 | 4 | 5;
   availableFromDay: 1 | 4;
-  kind: "structure" | "trap" | "unit" | "spell" | "consumable";
+  kind: "structure" | "trap" | "unit" | "spell" | "consumable" | "food";
   inkCost: number;
   description: string;
   example: string;
   color: string;
   aliases: string[];
-  effect: StructureEffectDefinition | UnitEffectDefinition | SpellEffectDefinition;
+  effect:
+    | StructureEffectDefinition
+    | UnitEffectDefinition
+    | SpellEffectDefinition
+    | FoodEffectDefinition;
 }
 
 const structure = (
@@ -219,6 +273,28 @@ const spell = (
   role,
   power,
   radiusTiles,
+  duration,
+});
+
+const food = (
+  emoji: Extract<FoodEffectDefinition, { supplyType: "food" }>["emoji"],
+  healing: number,
+): FoodEffectDefinition => ({
+  type: "food",
+  supplyType: "food",
+  emoji,
+  healing,
+});
+
+const drink = (
+  emoji: Extract<FoodEffectDefinition, { supplyType: "drink" }>["emoji"],
+  nightInkRegen: number,
+  duration: number,
+): FoodEffectDefinition => ({
+  type: "food",
+  supplyType: "drink",
+  emoji,
+  nightInkRegen,
   duration,
 });
 
@@ -407,6 +483,132 @@ export const CODEX_ACTIONS: Record<ActionId, CodexActionDefinition> = {
     color: "#ef6f76",
     aliases: ["potion", "heal me"],
     effect: spell("heal-player", 30, 0, 0, "consumable"),
+  },
+  apple: {
+    id: "apple",
+    english: "Apple",
+    chinese: "苹果",
+    tier: 1,
+    availableFromDay: 1,
+    kind: "food",
+    inkCost: 3,
+    description: "召唤后跟随鼠标或手指；投放到我方单位身上可恢复28点生命。",
+    example: "Give an apple to the knight.",
+    color: "#f16d67",
+    aliases: ["red apple"],
+    effect: food("🍎", 28),
+  },
+  bread: {
+    id: "bread",
+    english: "Bread",
+    chinese: "面包",
+    tier: 1,
+    availableFromDay: 1,
+    kind: "food",
+    inkCost: 4,
+    description: "投放到我方单位身上可恢复34点生命。",
+    example: "Give bread to the spearman.",
+    color: "#d7a76d",
+    aliases: ["loaf", "loaf of bread"],
+    effect: food("🍞", 34),
+  },
+  mushroom: {
+    id: "mushroom",
+    english: "Mushroom",
+    chinese: "蘑菇",
+    tier: 1,
+    availableFromDay: 1,
+    kind: "food",
+    inkCost: 4,
+    description: "投放到我方单位身上可恢复30点生命。",
+    example: "Give a mushroom to the swordsman.",
+    color: "#ef8d72",
+    aliases: ["red mushroom"],
+    effect: food("🍄", 30),
+  },
+  cheese: {
+    id: "cheese",
+    english: "Cheese",
+    chinese: "奶酪",
+    tier: 1,
+    availableFromDay: 1,
+    kind: "food",
+    inkCost: 5,
+    description: "投放到我方单位身上可恢复42点生命。",
+    example: "Give cheese to the knight.",
+    color: "#f0c85c",
+    aliases: ["cheese wedge"],
+    effect: food("🧀", 42),
+  },
+  fish: {
+    id: "fish",
+    english: "Fish",
+    chinese: "鱼",
+    tier: 1,
+    availableFromDay: 1,
+    kind: "food",
+    inkCost: 6,
+    description: "投放到我方单位身上可恢复48点生命。",
+    example: "Give the fish to the archer.",
+    color: "#76b8d8",
+    aliases: ["blue fish"],
+    effect: food("🐟", 48),
+  },
+  meat: {
+    id: "meat",
+    english: "Meat",
+    chinese: "肉",
+    tier: 1,
+    availableFromDay: 1,
+    kind: "food",
+    inkCost: 7,
+    description: "投放到我方单位身上可恢复56点生命。",
+    example: "Give meat to the knight.",
+    color: "#cd776d",
+    aliases: ["meat on bone"],
+    effect: food("🍖", 56),
+  },
+  coffee: {
+    id: "coffee",
+    english: "Coffee",
+    chinese: "咖啡",
+    tier: 1,
+    availableFromDay: 1,
+    kind: "food",
+    inkCost: 4,
+    description: "投放到玩家自身后，夜晚每秒额外恢复0.18墨水，持续45秒。",
+    example: "Drink coffee before nightfall.",
+    color: "#c99565",
+    aliases: ["cup of coffee"],
+    effect: drink("☕", 0.18, 45),
+  },
+  tea: {
+    id: "tea",
+    english: "Tea",
+    chinese: "茶",
+    tier: 1,
+    availableFromDay: 1,
+    kind: "food",
+    inkCost: 4,
+    description: "投放到玩家自身后，夜晚每秒额外恢复0.12墨水，持续60秒。",
+    example: "Drink tea before the next wave.",
+    color: "#8fbd75",
+    aliases: ["green tea", "cup of tea"],
+    effect: drink("🍵", 0.12, 60),
+  },
+  juice: {
+    id: "juice",
+    english: "Juice",
+    chinese: "果汁",
+    tier: 1,
+    availableFromDay: 1,
+    kind: "food",
+    inkCost: 3,
+    description: "投放到玩家自身后，夜晚每秒额外恢复0.10墨水，持续75秒。",
+    example: "Drink some juice.",
+    color: "#f1a35c",
+    aliases: ["juice box", "fruit juice"],
+    effect: drink("🧃", 0.1, 75),
   },
   "stone-wall": {
     id: "stone-wall",
@@ -605,6 +807,15 @@ export const ACTION_ORDER: ActionId[] = [
   "palisade",
   "fireball",
   "health-potion",
+  "apple",
+  "bread",
+  "mushroom",
+  "cheese",
+  "fish",
+  "meat",
+  "coffee",
+  "tea",
+  "juice",
   "stone-wall",
   "ballista",
   "web-trap",
@@ -1266,6 +1477,19 @@ export interface InkDropState {
   age: number;
 }
 
+export interface FoodState {
+  id: number;
+  actionId: FoodActionId;
+  x: number;
+  y: number;
+  power: number;
+}
+
+export interface HeldFoodState {
+  actionId: FoodActionId;
+  power: number;
+}
+
 export interface ArcherState {
   id: number;
   /** Missing in older V2 saves; those entries are treated as archers. */
@@ -1345,6 +1569,11 @@ export interface SaveGameV2 {
   archers?: ArcherState[];
   enemies: EnemyState[];
   inkDrops: InkDropState[];
+  foods?: FoodState[];
+  heldFood?: HeldFoodState | null;
+  nightInkRegenBonus?: number;
+  nightInkRegenRemaining?: number;
+  nightInkRegenAccumulator?: number;
   wordMastery: Partial<Record<ActionId, WordMastery>>;
   learnedActions?: Partial<Record<ActionId, number>>;
   learningRevision?: number;

@@ -6,6 +6,7 @@ import {
   DAILY_LESSON_LIMIT,
   ENEMY_WALL_ROWS,
   ENEMY_DEFINITIONS,
+  FOOD_ACTION_IDS,
   LEARNING_REVISION,
   LEGACY_MIGRATION_MARKER,
   LEGACY_V2_SAVE_KEY,
@@ -43,11 +44,16 @@ import {
   type EnemyKind,
   type EnemyResistance,
   type EnemyState,
+  type FoodActionId,
+  type FoodEffectDefinition,
+  type FoodState,
+  type HeldFoodState,
   type GamePhase,
   type InkDropState,
   type LearningDayState,
   type PlayerState,
   type SaveGameV2,
+  type SpellActionId,
   type SpawnDirection,
   type SpawnInstruction,
   type SpellEffectDefinition,
@@ -90,6 +96,7 @@ const SOLDIER_WIDTH = 24;
 const SOLDIER_HEIGHT = 40;
 const SOLDIER_RENDER_WIDTH = 28;
 const TOWER_ARCHER_VISIBLE_HEIGHT = 14;
+const MAX_NIGHT_INK_REGEN_BONUS = 0.5;
 
 export type SoundKind =
   | "swing"
@@ -121,6 +128,8 @@ export interface HudSnapshot {
   coreMaxHealth: number;
   ink: number;
   maxInk: number;
+  nightInkRegenBonus: number;
+  nightInkRegenRemaining: number;
   unlockedTier: number;
   daylight: boolean;
   learnedActions: Partial<Record<ActionId, number>>;
@@ -296,6 +305,19 @@ function isUnitAction(
   return definition.effect.type === "unit";
 }
 
+function isFoodAction(
+  definition: CodexActionDefinition,
+): definition is CodexActionDefinition & { effect: FoodEffectDefinition } {
+  return definition.effect.type === "food";
+}
+
+function isFoodActionId(value: unknown): value is FoodActionId {
+  return (
+    typeof value === "string" &&
+    (FOOD_ACTION_IDS as readonly string[]).includes(value)
+  );
+}
+
 export class GameEngine {
   player: PlayerState;
   phase: GamePhase = "prep";
@@ -309,6 +331,11 @@ export class GameEngine {
   private readonly callbacks: EngineCallbacks;
   private seed = 731_204;
   private terrain: TerrainProfile = createTerrainProfile(this.seed);
+  private backgroundImages: Array<HTMLImageElement | null> = Array(6).fill(
+    null,
+  );
+  private cloudImages: Array<HTMLImageElement | null> = Array(6).fill(null);
+  private sunImage: HTMLImageElement | null = null;
   private groundImage: HTMLImageElement | null = null;
   private towerImage: HTMLImageElement | null = null;
   private archerArrowImage: HTMLImageElement | null = null;
@@ -419,6 +446,11 @@ export class GameEngine {
   private structures: StructureState[] = [];
   private archers: ArcherState[] = [];
   private inkDrops: InkDropState[] = [];
+  private foods: FoodState[] = [];
+  private heldFood: HeldFoodState | null = null;
+  private nightInkRegenBonus = 0;
+  private nightInkRegenRemaining = 0;
+  private nightInkRegenAccumulator = 0;
   private particles: Particle[] = [];
   private projectiles: ProjectileVisual[] = [];
   private warnings: WarningVisual[] = [];
@@ -487,6 +519,30 @@ export class GameEngine {
           }
         }
       };
+      const backgroundPaths = [
+        "./game/background/normal/sky.png",
+        "./game/background/normal/castle.png",
+        "./game/background/normal/layer-4.png",
+        "./game/background/normal/layer-3.png",
+        "./game/background/normal/layer-2.png",
+        "./game/background/normal/layer-1.png",
+      ];
+      for (let index = 0; index < backgroundPaths.length; index += 1) {
+        loadImage(backgroundPaths[index], (image) => {
+          this.backgroundImages[index] = image;
+        });
+      }
+      for (let index = 0; index < this.cloudImages.length; index += 1) {
+        loadImage(
+          `./game/background/atmosphere/cloud-${index + 1}.png`,
+          (image) => {
+            this.cloudImages[index] = image;
+          },
+        );
+      }
+      loadImage("./game/background/atmosphere/sun.png", (image) => {
+        this.sunImage = image;
+      });
       loadImage("./game/terrain/grass.png", (image) => {
         this.groundImage = image;
       });
@@ -698,6 +754,11 @@ export class GameEngine {
     this.structures = [];
     this.archers = [];
     this.inkDrops = [];
+    this.foods = [];
+    this.heldFood = null;
+    this.nightInkRegenBonus = 0;
+    this.nightInkRegenRemaining = 0;
+    this.nightInkRegenAccumulator = 0;
     this.particles = [];
     this.projectiles = [];
     this.warnings = [];
@@ -746,6 +807,11 @@ export class GameEngine {
     this.structures = [];
     this.archers = [];
     this.inkDrops = [];
+    this.foods = [];
+    this.heldFood = null;
+    this.nightInkRegenBonus = 0;
+    this.nightInkRegenRemaining = 0;
+    this.nightInkRegenAccumulator = 0;
     this.particles = [];
     this.projectiles = [];
     this.warnings = [];
@@ -953,6 +1019,30 @@ export class GameEngine {
     this.waveIndex = Math.max(0, Math.min(5, save.waveIndex));
     this.unlockedTier = Math.max(0, Math.min(5, save.unlockedTier));
     this.ink = Math.max(0, Math.min(MAX_INK, save.ink));
+    this.nightInkRegenBonus = Math.max(
+      0,
+      Math.min(
+        MAX_NIGHT_INK_REGEN_BONUS,
+        Number.isFinite(save.nightInkRegenBonus)
+          ? (save.nightInkRegenBonus ?? 0)
+          : 0,
+      ),
+    );
+    this.nightInkRegenRemaining = Math.max(
+      0,
+      Number.isFinite(save.nightInkRegenRemaining)
+        ? (save.nightInkRegenRemaining ?? 0)
+        : 0,
+    );
+    this.nightInkRegenAccumulator = Math.max(
+      0,
+      Math.min(
+        0.999,
+        Number.isFinite(save.nightInkRegenAccumulator)
+          ? (save.nightInkRegenAccumulator ?? 0)
+          : 0,
+      ),
+    );
     this.coreHealth = Math.max(0, Math.min(CORE_MAX_HEALTH, save.coreHealth));
     this.phaseTimer = Math.max(0, save.phaseTimer);
     this.waveElapsed = Math.max(0, save.waveElapsed);
@@ -1086,6 +1176,29 @@ export class GameEngine {
       if (drop.y >= GROUND_Y - 10 || drop.y > ground) drop.y = ground;
       return drop;
     });
+    this.foods = (save.foods ?? [])
+      .filter(
+        (entry): entry is FoodState =>
+          isFoodActionId(entry.actionId),
+      )
+      .map((entry) => ({
+        ...entry,
+        x: Math.max(10, Math.min(WORLD_WIDTH * TILE_SIZE - 10, entry.x)),
+        y: this.groundAt(entry.x) - 12,
+        power: Math.max(1, Number.isFinite(entry.power) ? entry.power : 1),
+      }));
+    this.heldFood =
+      save.heldFood && isFoodActionId(save.heldFood.actionId)
+        ? {
+            actionId: save.heldFood.actionId,
+            power: Math.max(
+              1,
+              Number.isFinite(save.heldFood.power)
+                ? save.heldFood.power
+                : 1,
+            ),
+          }
+        : null;
     this.mastery = cloneMastery(save.wordMastery);
     const savedLearnedActions = save.learnedActions
       ? cloneLearnedActions(save.learnedActions)
@@ -1129,6 +1242,7 @@ export class GameEngine {
       ...this.archers.map((entry) => entry.id),
       ...this.enemies.map((entry) => entry.id),
       ...this.inkDrops.map((entry) => entry.id),
+      ...this.foods.map((entry) => entry.id),
     ];
     this.nextEntityId = Math.max(1, ...ids) + 1;
     this.activeActionId = null;
@@ -1199,6 +1313,11 @@ export class GameEngine {
       archers: this.archers.map((entry) => ({ ...entry })),
       enemies: this.enemies.map((entry) => ({ ...entry })),
       inkDrops: this.inkDrops.map((entry) => ({ ...entry })),
+      foods: this.foods.map((entry) => ({ ...entry })),
+      heldFood: this.heldFood ? { ...this.heldFood } : null,
+      nightInkRegenBonus: this.nightInkRegenBonus,
+      nightInkRegenRemaining: this.nightInkRegenRemaining,
+      nightInkRegenAccumulator: this.nightInkRegenAccumulator,
       wordMastery: cloneMastery(this.mastery),
       learnedActions: cloneLearnedActions(this.learnedActions),
       learningRevision: LEARNING_REVISION,
@@ -1244,9 +1363,16 @@ export class GameEngine {
   }
 
   cancelPlacement(): boolean {
-    if (!this.activeActionId) return false;
-    this.activeActionId = null;
-    this.setToast("已取消当前言灵蓝图。", 2);
+    if (this.activeActionId) {
+      this.activeActionId = null;
+      this.setToast("已取消当前言灵蓝图。", 2);
+      this.emitHud(true);
+      return true;
+    }
+    if (!this.heldFood) return false;
+    this.placeHeldFoodOnGround();
+    this.setToast("食物已经放在地上。", 2);
+    this.save();
     this.emitHud(true);
     return true;
   }
@@ -1258,10 +1384,16 @@ export class GameEngine {
     this.pointer.worldY = this.cameraY + screenY / CAMERA_ZOOM;
   }
 
+  canInteractWithFood(): boolean {
+    return this.heldFood !== null || this.foodAtPointer() !== undefined;
+  }
+
   pointerDown(button: number): void {
     if (!this.started || this.paused || this.player.respawnTimer > 0) return;
     if (button === 0) {
       this.pointer.left = true;
+      if (this.heldFood) return;
+      if (this.pickUpFood()) return;
       if (this.player.tool === "blade") this.tryMeleeAttack();
       else this.tryDismantle();
     }
@@ -1272,7 +1404,10 @@ export class GameEngine {
   }
 
   pointerUp(button: number): void {
-    if (button === 0) this.pointer.left = false;
+    if (button === 0) {
+      if (this.pointer.left && this.heldFood) this.releaseHeldFood();
+      this.pointer.left = false;
+    }
     if (button === 2) this.pointer.rightPressed = false;
   }
 
@@ -1359,6 +1494,21 @@ export class GameEngine {
         resolution,
       };
     }
+    if (isFoodAction(definition)) {
+      const position = this.summonFood(
+        actionId as FoodActionId,
+        quality,
+        source,
+      );
+      return {
+        status: "executed",
+        actionId,
+        transcript,
+        quality,
+        resolution,
+        effectPosition: position,
+      };
+    }
     if (isUnitAction(definition)) {
       const position = this.summonUnit(
         actionId as UnitActionId,
@@ -1375,7 +1525,7 @@ export class GameEngine {
       };
     }
     const position = this.castSpell(
-      actionId as Exclude<ActionId, StructureActionId | UnitActionId>,
+      actionId as SpellActionId,
       quality,
       source,
     );
@@ -1548,6 +1698,184 @@ export class GameEngine {
     this.emitHud(true);
   }
 
+  private summonFood(
+    actionId: FoodActionId,
+    quality: VoiceQuality,
+    source: VoiceSource,
+  ): { x: number; y: number } {
+    const definition = CODEX_ACTIONS[actionId];
+    if (!isFoodAction(definition)) {
+      return { x: this.pointer.worldX, y: this.pointer.worldY };
+    }
+    if (this.heldFood) this.placeHeldFoodOnGround();
+    const cost = effectiveInkCost(actionId, quality, source);
+    this.heldFood = {
+      actionId,
+      power: qualityPower(quality, source),
+    };
+    this.ink -= cost;
+    this.recordMastery(actionId, quality, source);
+    this.callbacks.onSound("cast");
+    this.setToast(
+      `${definition.effect.emoji} ${definition.english} 已召唤 · 移动后点击或触碰屏幕投放`,
+      4,
+    );
+    this.callbacks.onCastEffect?.({
+      actionId,
+      x: this.pointer.worldX,
+      y: this.pointer.worldY,
+      source,
+    });
+    this.save();
+    this.emitHud(true);
+    return { x: this.pointer.worldX, y: this.pointer.worldY };
+  }
+
+  private foodAtPointer(): FoodState | undefined {
+    let closest: FoodState | undefined;
+    let closestDistance = Number.POSITIVE_INFINITY;
+    for (const food of this.foods) {
+      const dx = food.x - this.pointer.worldX;
+      const dy = food.y - this.pointer.worldY;
+      const distance = dx * dx + dy * dy;
+      if (distance > 18 * 18 || distance >= closestDistance) continue;
+      closest = food;
+      closestDistance = distance;
+    }
+    return closest;
+  }
+
+  private pickUpFood(): boolean {
+    const food = this.foodAtPointer();
+    if (!food) return false;
+    this.foods = this.foods.filter((entry) => entry.id !== food.id);
+    this.heldFood = {
+      actionId: food.actionId,
+      power: food.power,
+    };
+    const definition = CODEX_ACTIONS[food.actionId];
+    this.setToast(
+      `${definition.chinese}已拿起 · ${
+        isFoodAction(definition) && definition.effect.supplyType === "drink"
+          ? "移到玩家身上后松开"
+          : "移到受伤单位上方后松开"
+      }`,
+      3,
+    );
+    this.save();
+    this.emitHud(true);
+    return true;
+  }
+
+  private placeHeldFoodOnGround(): void {
+    if (!this.heldFood) return;
+    const x = Math.max(
+      10,
+      Math.min(WORLD_WIDTH * TILE_SIZE - 10, this.pointer.worldX),
+    );
+    this.foods.push({
+      id: this.nextEntityId++,
+      actionId: this.heldFood.actionId,
+      x,
+      y: this.groundAt(x) - 11,
+      power: this.heldFood.power,
+    });
+    this.heldFood = null;
+  }
+
+  private releaseHeldFood(): void {
+    if (!this.heldFood) return;
+    const held = this.heldFood;
+    const foodRect = {
+      x: this.pointer.worldX - 12,
+      y: this.pointer.worldY - 12,
+      width: 24,
+      height: 24,
+    };
+    const target = this.archers
+      .filter((unit) =>
+        rectsOverlap(foodRect, {
+          x: unit.x - 4,
+          y: unit.y - 4,
+          width: this.unitWidth(unit) + 8,
+          height: this.unitHeight(unit) + 8,
+        }),
+      )
+      .sort(
+        (left, right) =>
+          left.health / left.maxHealth - right.health / right.maxHealth,
+      )[0];
+    const definition = CODEX_ACTIONS[held.actionId];
+    const playerTargeted = rectsOverlap(foodRect, {
+      x: this.player.x - 6,
+      y: this.player.y - 6,
+      width: PLAYER_WIDTH + 12,
+      height: PLAYER_HEIGHT + 12,
+    });
+    if (
+      isFoodAction(definition) &&
+      definition.effect.supplyType === "drink" &&
+      playerTargeted
+    ) {
+      const addedBonus = Math.min(
+        MAX_NIGHT_INK_REGEN_BONUS - this.nightInkRegenBonus,
+        definition.effect.nightInkRegen * held.power,
+      );
+      this.nightInkRegenBonus = Math.min(
+        MAX_NIGHT_INK_REGEN_BONUS,
+        this.nightInkRegenBonus +
+          definition.effect.nightInkRegen * held.power,
+      );
+      this.nightInkRegenRemaining = Math.max(
+        this.nightInkRegenRemaining,
+        definition.effect.duration,
+      );
+      this.heldFood = null;
+      const centerX = this.player.x + PLAYER_WIDTH / 2;
+      const centerY = this.player.y + PLAYER_HEIGHT / 2;
+      this.callbacks.onSound("pickup");
+      this.burst(centerX, centerY, "#c9a7ff", 16);
+      this.setToast(
+        addedBonus > 0.005
+          ? `${definition.effect.emoji} 夜晚回墨 +${addedBonus.toFixed(2)}/秒 · ${Math.ceil(this.nightInkRegenRemaining)}秒`
+          : `${definition.effect.emoji} 夜晚回墨已达上限 · 持续时间已刷新`,
+        4,
+      );
+    } else if (
+      target &&
+      target.health < target.maxHealth &&
+      isFoodAction(definition) &&
+      definition.effect.supplyType === "food"
+    ) {
+      const healing = Math.min(
+        target.maxHealth - target.health,
+        Math.round(definition.effect.healing * held.power),
+      );
+      target.health += healing;
+      this.heldFood = null;
+      const centerX = target.x + this.unitWidth(target) / 2;
+      const centerY = target.y + this.unitHeight(target) / 2;
+      this.callbacks.onSound("pickup");
+      this.burst(centerX, centerY, "#8ff0ad", 12);
+      this.setToast(
+        `${definition.effect.emoji} ${CODEX_ACTIONS[this.unitAction(target)].chinese}恢复 ${healing} 点生命`,
+        3,
+      );
+    } else {
+      this.placeHeldFoodOnGround();
+      this.setToast(
+        isFoodAction(definition) && definition.effect.supplyType === "drink"
+          ? "饮品需投给玩家自身 · 已放在地上，可再次拿起"
+          : target
+            ? "这个单位生命已满 · 食物已经放在地上"
+            : "食物已经放在地上 · 点击可再次拿起",
+        3,
+      );
+    }
+    this.save();
+    this.emitHud(true);
+  }
+
   private summonUnit(
     actionId: UnitActionId,
     quality: VoiceQuality,
@@ -1670,6 +1998,7 @@ export class GameEngine {
       this.spawnDueEnemies();
     }
 
+    this.updateNightInkRegeneration(dt);
     this.updatePlayer(dt);
     this.updateStructures(dt);
     this.updateArchers(dt);
@@ -1710,6 +2039,36 @@ export class GameEngine {
     if (!this.terminalEmitted && this.phase === "defeat") {
       this.terminalEmitted = true;
       this.callbacks.onLose();
+    }
+  }
+
+  private updateNightInkRegeneration(dt: number): void {
+    if (
+      this.phase !== "wave" ||
+      this.nightInkRegenBonus <= 0 ||
+      this.nightInkRegenRemaining <= 0
+    ) {
+      return;
+    }
+    const activeSeconds = Math.min(dt, this.nightInkRegenRemaining);
+    this.nightInkRegenRemaining = Math.max(
+      0,
+      this.nightInkRegenRemaining - activeSeconds,
+    );
+    if (this.ink < MAX_INK) {
+      this.nightInkRegenAccumulator +=
+        this.nightInkRegenBonus * activeSeconds;
+      const restored = Math.floor(this.nightInkRegenAccumulator);
+      if (restored > 0) {
+        this.ink = Math.min(MAX_INK, this.ink + restored);
+        this.nightInkRegenAccumulator -= restored;
+      }
+    } else {
+      this.nightInkRegenAccumulator = 0;
+    }
+    if (this.nightInkRegenRemaining <= 0) {
+      this.nightInkRegenBonus = 0;
+      this.nightInkRegenAccumulator = 0;
     }
   }
 
@@ -3495,6 +3854,8 @@ export class GameEngine {
       coreMaxHealth: CORE_MAX_HEALTH,
       ink: Math.round(this.ink),
       maxInk: MAX_INK,
+      nightInkRegenBonus: this.nightInkRegenBonus,
+      nightInkRegenRemaining: this.nightInkRegenRemaining,
       unlockedTier: this.unlockedTier,
       daylight: this.phase === "prep" || this.phase === "intermission",
       learnedActions: cloneLearnedActions(this.learnedActions),
@@ -3586,6 +3947,7 @@ export class GameEngine {
     this.drawCore(context);
     this.drawStructures(context);
     this.drawArchers(context);
+    this.drawFoods(context);
     this.drawInkDrops(context);
     this.drawEnemyDeaths(context);
     this.drawEnemies(context);
@@ -3607,6 +3969,7 @@ export class GameEngine {
     const danger = isNight
       ? Math.min(1, 0.52 + this.waveIndex * 0.09)
       : Math.min(0.18, 0.04 + this.waveIndex * 0.018);
+    const horizon = Math.round(this.coreGround() - this.cameraY);
     const top = this.mixColor("#73b6c7", "#201936", danger);
     const bottom = this.mixColor("#d9d79d", "#5a3651", danger);
     const gradient = context.createLinearGradient(0, 0, 0, height);
@@ -3614,38 +3977,127 @@ export class GameEngine {
     gradient.addColorStop(1, bottom);
     context.fillStyle = gradient;
     context.fillRect(0, 0, width, height);
-    context.fillStyle = isNight
-      ? "rgba(222,225,245,0.72)"
-      : `rgba(247, 226, 157, ${0.78 - danger * 0.2})`;
-    context.fillRect(width - 96, 34, 28, 28);
+
+    const sceneScale = Math.max(
+      width / 1024,
+      (Math.max(160, horizon) + 20) / 346,
+    );
+    const sceneWidth = 1024 * sceneScale;
+    const sceneHeight = 346 * sceneScale;
+    const sceneY = horizon + 20 - sceneHeight;
+    const drawRepeatedLayer = (
+      image: HTMLImageElement | null,
+      parallax: number,
+    ) => {
+      if (!image) return;
+      const offset =
+        -(((this.cameraX * parallax) % sceneWidth) + sceneWidth) %
+        sceneWidth;
+      for (let x = offset - sceneWidth; x < width + sceneWidth; x += sceneWidth) {
+        context.drawImage(
+          image,
+          Math.round(x),
+          Math.round(sceneY),
+          Math.ceil(sceneWidth),
+          Math.ceil(sceneHeight),
+        );
+      }
+    };
+
+    drawRepeatedLayer(this.backgroundImages[0], 0.01);
+
+    if (!isNight && this.sunImage) {
+      const sunSize = Math.max(26, Math.round(34 * sceneScale));
+      context.save();
+      context.globalAlpha = 0.94;
+      context.drawImage(
+        this.sunImage,
+        Math.round(width * 0.78 - sunSize / 2),
+        Math.max(18, Math.round(sceneY + sceneHeight * 0.14)),
+        sunSize,
+        sunSize,
+      );
+      context.restore();
+    }
+
+    context.save();
+    context.globalAlpha = isNight ? 0.18 : 0.66;
+    for (let index = 0; index < this.cloudImages.length; index += 1) {
+      const image = this.cloudImages[index];
+      if (!image) continue;
+      const cloudScale = (0.72 + (index % 3) * 0.16) * sceneScale;
+      const cloudWidth = image.width * cloudScale;
+      const cloudHeight = image.height * cloudScale;
+      const travelWidth = width + cloudWidth + 100;
+      const drift =
+        index % 2 === 0 ? this.elapsed * (1.2 + index * 0.12) : -this.elapsed;
+      const rawX =
+        index * 181 + drift - this.cameraX * (0.018 + index * 0.002);
+      const x =
+        ((rawX % travelWidth) + travelWidth) % travelWidth -
+        cloudWidth -
+        50;
+      const y = Math.max(
+        12,
+        sceneY + 22 + ((index * 29) % Math.max(44, sceneHeight * 0.31)),
+      );
+      context.drawImage(
+        image,
+        Math.round(x),
+        Math.round(y),
+        Math.max(1, Math.round(cloudWidth)),
+        Math.max(1, Math.round(cloudHeight)),
+      );
+    }
+    context.restore();
+
+    const castle = this.backgroundImages[1];
+    if (castle) {
+      const castleFocus =
+        width / 2 +
+        (CORE_X - (this.cameraX + width / 2)) * 0.12;
+      context.drawImage(
+        castle,
+        Math.round(castleFocus - 319 * sceneScale),
+        Math.round(sceneY),
+        Math.ceil(sceneWidth),
+        Math.ceil(sceneHeight),
+      );
+    }
+
+    drawRepeatedLayer(this.backgroundImages[2], 0.045);
+    drawRepeatedLayer(this.backgroundImages[3], 0.08);
+    drawRepeatedLayer(this.backgroundImages[4], 0.14);
+    drawRepeatedLayer(this.backgroundImages[5], 0.22);
+
+    if (this.backgroundImages.slice(2).every((image) => image === null)) {
+      context.fillStyle = this.mixColor("#527a63", "#27263e", danger);
+      context.beginPath();
+      context.moveTo(0, horizon);
+      for (let x = 0; x <= width + 40; x += 40) {
+        const worldX = x + this.cameraX * 0.18;
+        context.lineTo(x, horizon - 40 - Math.sin(worldX / 95) * 18);
+      }
+      context.lineTo(width, horizon);
+      context.closePath();
+      context.fill();
+    }
+
     if (isNight) {
-      context.fillStyle = top;
-      context.fillRect(width - 88, 30, 22, 22);
+      context.fillStyle = `rgba(20, 14, 46, ${0.5 + danger * 0.18})`;
+      context.fillRect(0, 0, width, height);
+      context.fillStyle = "rgba(222,225,245,0.84)";
+      context.fillRect(width - 88, 30, 28, 28);
+      context.fillStyle = "rgba(28, 23, 52, 0.96)";
+      context.fillRect(width - 79, 26, 23, 23);
+      context.fillStyle = "rgba(255,255,230,0.72)";
+      for (let index = 0; index < 22; index += 1) {
+        const x = (index * 97 + this.waveIndex * 31) % width;
+        const y = 18 + ((index * 47) % Math.max(40, height * 0.55));
+        context.fillRect(x, y, index % 4 === 0 ? 2 : 1, 1);
+      }
     }
-    context.fillStyle = "rgba(255,255,230,0.65)";
-    for (let index = 0; index < 22; index += 1) {
-      const x = (index * 97 + this.waveIndex * 31) % width;
-      const y = 18 + ((index * 47) % Math.max(40, height * 0.55));
-      context.fillRect(x, y, index % 4 === 0 ? 2 : 1, 1);
-    }
-    const horizon = Math.round(this.coreGround() - this.cameraY);
-    context.fillStyle = this.mixColor("#527a63", "#27263e", danger);
-    context.beginPath();
-    context.moveTo(0, horizon);
-    for (let x = 0; x <= width + 40; x += 40) {
-      const worldX = x + this.cameraX * 0.18;
-      context.lineTo(x, horizon - 40 - Math.sin(worldX / 95) * 18);
-    }
-    context.lineTo(width, horizon);
-    context.closePath();
-    context.fill();
-    context.fillStyle = this.mixColor("#315448", "#1c2033", danger);
-    for (let x = -30; x < width + 40; x += 46) {
-      const offset = ((x + this.cameraX * 0.35) % 62 + 62) % 62;
-      context.fillRect(x - offset, horizon - 48, 7, 48);
-      context.fillRect(x - offset - 11, horizon - 58, 28, 18);
-      context.fillRect(x - offset - 18, horizon - 49, 40, 16);
-    }
+
     if (isNight) {
       this.drawEnemyPortalBackdrop(context, width, horizon);
     }
@@ -4219,6 +4671,37 @@ export class GameEngine {
     }
   }
 
+  private drawFoods(context: CanvasRenderingContext2D): void {
+    const drawFood = (
+      actionId: FoodActionId,
+      x: number,
+      y: number,
+      held = false,
+    ) => {
+      const definition = CODEX_ACTIONS[actionId];
+      if (!isFoodAction(definition)) return;
+      context.save();
+      context.globalAlpha = held ? 0.92 : 1;
+      context.font =
+        `${held ? 24 : 20}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif`;
+      context.textAlign = "center";
+      context.textBaseline = "middle";
+      context.fillText(definition.effect.emoji, Math.round(x), Math.round(y));
+      context.restore();
+    };
+    for (const food of this.foods) {
+      drawFood(food.actionId, food.x, food.y);
+    }
+    if (this.heldFood) {
+      drawFood(
+        this.heldFood.actionId,
+        this.pointer.worldX,
+        this.pointer.worldY - 18,
+        true,
+      );
+    }
+  }
+
   private drawEnemyBody(
     context: CanvasRenderingContext2D,
     enemy: EnemyState,
@@ -4736,6 +5219,7 @@ export class GameEngine {
   }
 
   private drawCursor(context: CanvasRenderingContext2D): void {
+    if (this.heldFood) return;
     const x = Math.round(this.pointer.screenX / CAMERA_ZOOM);
     const y = Math.round(this.pointer.screenY / CAMERA_ZOOM);
     context.strokeStyle = this.activeActionId ? "#d9ffd6" : "#f5e4b4";
