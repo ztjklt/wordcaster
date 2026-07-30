@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Incantation Voice Kit Demo</title>
+    <link rel="stylesheet" href="../dist/incantation-voice-kit.css">
+    <link rel="stylesheet" href="./example.css">
+  </head>
+  <body>
+    <main class="demo-stage">
+      <header>
+        <small>STANDALONE BROWSER PACKAGE</small>
+        <h1>言灵语音反馈独立包</h1>
+        <p>点击“言灵”后说出下方任意英文单词，或点击“念写”进行无麦克风测试。</p>
+      </header>
+
+      <section class="word-grid" aria-label="示例言灵">
+        <article data-word-id="sword"><b>SWORD</b><span>剑 · metal</span></article>
+        <article data-word-id="shield"><b>SHIELD</b><span>盾 · metal</span></article>
+        <article data-word-id="lantern"><b>LANTERN</b><span>灯笼 · mystic</span></article>
+        <article data-word-id="bamboo"><b>BAMBOO</b><span>竹子 · nature</span></article>
+        <article data-word-id="apple"><b>APPLE</b><span>苹果 · food</span></article>
+        <article data-word-id="coin"><b>COIN</b><span>硬币 · metal</span></article>
+      </section>
+
+      <section class="demo-tools">
+        <button id="simulate-success" type="button">模拟说出 APPLE</button>
+        <button id="simulate-failure" type="button">模拟失败反馈</button>
+        <label>音量 <input id="volume" type="range" min="0" max="1" step="0.05" value="0.75"></label>
+      </section>
+
+      <output id="event-log">等待言灵输入</output>
+      <div id="voice-layer"></div>
+    </main>
+
+    <script type="module" src="./example.js"></script>
+  </body>
+</html>

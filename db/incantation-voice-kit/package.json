@@ -1,0 +1,38 @@
+{
+  "name": "incantation-voice-kit",
+  "version": "1.0.0",
+  "description": "Framework-free browser word recognition with the original Speak to Fight incantation feedback.",
+  "type": "module",
+  "private": false,
+  "license": "UNLICENSED",
+  "main": "./dist/incantation-voice-kit.es.js",
+  "module": "./dist/incantation-voice-kit.es.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/incantation-voice-kit.es.js",
+      "default": "./dist/incantation-voice-kit.es.js"
+    },
+    "./style.css": "./dist/incantation-voice-kit.css",
+    "./iife": "./dist/incantation-voice-kit.iife.js",
+    "./assets/*": "./dist/assets/*"
+  },
+  "files": [
+    "dist",
+    "examples",
+    "README.md",
+    "LICENSE-KENNEY.txt"
+  ],
+  "scripts": {
+    "build": "vite build && tsc -p tsconfig.types.json && node scripts/copy-static.mjs && node scripts/verify-package.mjs",
+    "test": "vitest run",
+    "example": "vite --host 0.0.0.0 --open /examples/",
+    "pack:tgz": "npm pack"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.2",
+    "vite": "^7.0.5",
+    "vitest": "^3.2.4"
+  }
+}

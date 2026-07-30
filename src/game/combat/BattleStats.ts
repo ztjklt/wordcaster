@@ -1,2 +1,0 @@
-export interface BattleStats { won: boolean; durationSeconds: number; damageDealt: number; damageTaken: number; voiceUses: number; correctExpressions: number; wrongSummons: number; retries: number; hintsUsed: number; independentExpressions: number; lastMistake?: string; rewardCoins: number; rewardXp: number; }
-export const createBattleStats = (): BattleStats => ({ won: false, durationSeconds: 0, damageDealt: 0, damageTaken: 0, voiceUses: 0, correctExpressions: 0, wrongSummons: 0, retries: 0, hintsUsed: 0, independentExpressions: 0, rewardCoins: 0, rewardXp: 0 });

@@ -1,1 +1,0 @@
-[{"id":"item_shield","name":"Shield","type":"equipment","spriteKey":"shield","mass":3,"health":100,"damage":0,"defense":40,"duration":12,"behaviors":["equip","block"]},{"id":"item_ship","name":"Ship","type":"wrong_summon","spriteKey":"ship","mass":18,"health":80,"damage":20,"defense":0,"duration":10,"behaviors":["drop","obstacle"]}]

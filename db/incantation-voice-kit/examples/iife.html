@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Incantation Voice Kit IIFE Smoke Test</title>
+    <link rel="stylesheet" href="../dist/incantation-voice-kit.css">
+    <style>
+      html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: #07101f; color: white; font-family: sans-serif; }
+      #mount { position: absolute; inset: 0; }
+      #target { position: absolute; top: 45%; left: 50%; padding: 25px 55px; border: 2px solid #63f0d4; background: #10243a; transform: translate(-50%, -50%); }
+      #test { position: absolute; top: 62%; left: 50%; z-index: 1000; transform: translateX(-50%); }
+    </style>
+  </head>
+  <body>
+    <div id="target">APPLE</div>
+    <button id="test" type="button">IIFE 模拟 APPLE</button>
+    <div id="mount"></div>
+    <script src="../dist/incantation-voice-kit.iife.js"></script>
+    <script>
+      const voice = IncantationVoiceKit.createIncantationVoice({
+        target: '#mount',
+        words: [{ id: 'apple', word: 'apple', color: '#ff6b7b', soundProfile: 'food' }],
+        onMatch(result) {
+          IncantationVoiceKit.playWordFlash(document.querySelector('#target'), { color: result.word.color });
+        }
+      });
+      document.querySelector('#test').addEventListener('click', () => voice.submitText('apple'));
+    </script>
+  </body>
+</html>
