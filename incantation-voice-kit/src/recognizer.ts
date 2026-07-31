@@ -1,7 +1,9 @@
 import type {
-  IncantationChannelState,
   IncantationFailureReason,
+  IncantationRecognizer,
+  IncantationRecognizerCallbacks,
 } from './types';
+import { DouyinWordRecognizer } from './tt-recognizer.ts';
 
 interface BrowserRecognitionAlternative {
   transcript: string;
@@ -49,19 +51,6 @@ type SpeechWindow = Window & typeof globalThis & {
   webkitSpeechRecognition?: RecognitionConstructor;
 };
 
-interface FinalRecognition {
-  transcript: string;
-  alternatives: readonly string[];
-  confidence: number | null;
-}
-
-interface BrowserRecognizerCallbacks {
-  onPartial: (transcript: string) => void;
-  onFinal: (result: FinalRecognition) => void;
-  onFailure: (reason: IncantationFailureReason, message: string, fatal: boolean) => void;
-  onState: (state: IncantationChannelState, message: string) => void;
-}
-
 const failureMessage = (reason: string): string => {
   if (reason === 'not-allowed' || reason === 'service-not-allowed') return '麦克风权限被拒绝 · 已切换念写';
   if (reason === 'audio-capture') return '无法访问麦克风 · 已切换念写';
@@ -78,7 +67,8 @@ const publicReason = (reason: string): IncantationFailureReason => {
   return 'unknown';
 };
 
-export class BrowserWordRecognizer {
+export class BrowserWordRecognizer implements IncantationRecognizer {
+  readonly provider = 'browser' as const;
   private recognition?: BrowserSpeechRecognition;
   private restartId?: number;
   private shouldListen = false;
@@ -93,7 +83,7 @@ export class BrowserWordRecognizer {
   constructor(
     private readonly language: string,
     private readonly continuous: boolean,
-    private readonly callbacks: BrowserRecognizerCallbacks,
+    private readonly callbacks: IncantationRecognizerCallbacks,
   ) {}
 
   get supported(): boolean {
@@ -102,6 +92,10 @@ export class BrowserWordRecognizer {
 
   get listening(): boolean {
     return this.shouldListen;
+  }
+
+  get requestingPermission(): boolean {
+    return false;
   }
 
   start(): boolean {
@@ -286,4 +280,14 @@ export class BrowserWordRecognizer {
     const speechWindow = window as SpeechWindow;
     return speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition;
   }
+}
+
+export function createDefaultRecognizer(
+  language: string,
+  continuous: boolean,
+  callbacks: IncantationRecognizerCallbacks,
+): IncantationRecognizer {
+  const douyin = new DouyinWordRecognizer(language, callbacks);
+  if (douyin.supported) return douyin;
+  return new BrowserWordRecognizer(language, continuous, callbacks);
 }

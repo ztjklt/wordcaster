@@ -16,7 +16,7 @@ export interface IncantationWord {
   soundProfile?: IncantationSoundProfile;
 }
 
-export type IncantationProvider = 'browser' | 'text';
+export type IncantationProvider = 'browser' | 'volcengine' | 'text';
 
 export type IncantationFailureReason =
   | 'unknown'
@@ -78,6 +78,41 @@ export interface IncantationTranscriptResult {
   provider: IncantationProvider;
 }
 
+export interface IncantationRecognitionFinal {
+  transcript: string;
+  alternatives: readonly string[];
+  confidence: number | null;
+}
+
+export interface IncantationRecognizerCallbacks {
+  onPartial: (transcript: string) => void;
+  onFinal: (result: IncantationRecognitionFinal) => void;
+  onFailure: (
+    reason: IncantationFailureReason,
+    message: string,
+    fatal: boolean,
+  ) => void;
+  onState: (state: IncantationChannelState, message: string) => void;
+}
+
+export interface IncantationRecognizer {
+  readonly provider: Exclude<IncantationProvider, 'text'>;
+  readonly supported: boolean;
+  readonly listening: boolean;
+  readonly requestingPermission: boolean;
+  start(): boolean;
+  finish(): void;
+  cancel(): void;
+  stop(): void;
+  destroy(): void;
+}
+
+export type IncantationRecognizerFactory = (
+  language: string,
+  continuous: boolean,
+  callbacks: IncantationRecognizerCallbacks,
+) => IncantationRecognizer;
+
 export interface IncantationFeedback {
   wordId?: string;
   label?: string;
@@ -90,6 +125,8 @@ export interface IncantationVoiceOptions {
   words: readonly IncantationWord[];
   language?: string;
   continuous?: boolean;
+  /** Overrides the default Douyin-bridge/browser recognizer. */
+  recognizerFactory?: IncantationRecognizerFactory;
   volume?: number;
   accentColor?: string;
   reducedMotion?: boolean | 'system';

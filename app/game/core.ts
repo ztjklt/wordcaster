@@ -1202,6 +1202,9 @@ export function resolveVoiceIntent(
   transcript: string,
   dayIndex: number,
   learnedActions?: Partial<Record<ActionId, number>>,
+  options: {
+    allowAllCampaignActions?: boolean;
+  } = {},
 ): VoiceResolution {
   const normalized = normalizeTranscript(transcript);
   const compact = compactTranscript(transcript);
@@ -1218,8 +1221,9 @@ export function resolveVoiceIntent(
 
   const unlocked = ACTION_ORDER.filter(
     (id) =>
-      canLearnCampaignAction(id, dayIndex) &&
-      (learnedActions === undefined || (learnedActions[id] ?? 0) > 0),
+      options.allowAllCampaignActions ||
+      (canLearnCampaignAction(id, dayIndex) &&
+        (learnedActions === undefined || (learnedActions[id] ?? 0) > 0)),
   );
   const fullMatches = unlocked
     .map((id) => {

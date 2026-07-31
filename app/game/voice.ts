@@ -76,12 +76,10 @@ export class PushToTalkController {
   readonly supported: boolean;
   private recognition: BrowserRecognition | null = null;
   private timeoutId: number | null = null;
-  private permissionAttempt = 0;
   private permissionState:
-    | "unknown"
     | "requesting"
     | "granted"
-    | "denied" = "unknown";
+    | "denied" = "granted";
   private transcript = "";
   private finalDelivered = false;
   private readonly onSnapshot: (snapshot: VoiceSnapshot) => void;
@@ -112,50 +110,7 @@ export class PushToTalkController {
   startOnKeyDown(): boolean {
     if (!this.supported || this.recognition) return false;
     if (this.permissionState === "requesting") return false;
-    if (
-      this.permissionState !== "granted" &&
-      typeof navigator.mediaDevices?.getUserMedia === "function"
-    ) {
-      this.requestMicrophonePermission();
-      return true;
-    }
     return this.startRecognition();
-  }
-
-  private requestMicrophonePermission(): void {
-    const attempt = ++this.permissionAttempt;
-    this.permissionState = "requesting";
-    this.emit(
-      "requesting-permission",
-      "",
-      "正在请求麦克风权限 · 授权后请再次按住 M",
-    );
-    void navigator.mediaDevices
-      .getUserMedia({ audio: true })
-      .then((stream) => {
-        stream.getTracks().forEach((track) => track.stop());
-        if (
-          attempt !== this.permissionAttempt ||
-          this.permissionState !== "requesting"
-        ) {
-          return;
-        }
-        this.permissionState = "granted";
-        this.emit(
-          "idle",
-          "",
-          "麦克风已启用 · 请再次按住 M 说出英文",
-        );
-      })
-      .catch(() => {
-        if (attempt !== this.permissionAttempt) return;
-        this.permissionState = "denied";
-        this.emit(
-          "unsupported",
-          "",
-          "麦克风权限未开启 · 可重新按 M 授权或使用文字输入",
-        );
-      });
   }
 
   private startRecognition(): boolean {
@@ -247,10 +202,6 @@ export class PushToTalkController {
   }
 
   cancel(): void {
-    this.permissionAttempt += 1;
-    if (this.permissionState === "requesting") {
-      this.permissionState = "unknown";
-    }
     this.clearTimeout();
     const recognition = this.recognition;
     this.recognition = null;

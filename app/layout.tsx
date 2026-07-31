@@ -29,6 +29,11 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
   themeColor: "#182a29",
   colorScheme: "dark",
 };
@@ -40,6 +45,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-CN">
+      <head>
+        <link rel="stylesheet" href="./ui/theme.css" />
+      </head>
       <body>{children}</body>
     </html>
   );

@@ -3,8 +3,10 @@ import test from "node:test";
 
 import {
   CodexLearningTransactions,
+  CodexQuickAccessTransactions,
   WORD_CASTER_CODEX,
   type CodexLearnRequest,
+  type CodexQuickAccessRequest,
 } from "../app/game/codexBridge.ts";
 import {
   DAILY_LESSON_LIMIT,
@@ -76,4 +78,32 @@ test("transactional courses accept two in a row, the eighth, reviews, and reject
   assert.equal(learn(request(9, "Word 9")).accepted, false);
   assert.equal(learn(request(10, "Word 1", false)).accepted, true);
   assert.equal(day.learnedWordKeys.length, 8);
+});
+
+test("quick-access requests enable once when the iframe redelivers a message", () => {
+  const transactions = new CodexQuickAccessTransactions();
+  const request: CodexQuickAccessRequest = {
+    type: WORD_CASTER_CODEX.quickAccessRequest,
+    requestId: "quick-access-1",
+  };
+  let enables = 0;
+  const first = transactions.process(request, () => {
+    enables += 1;
+    return {
+      accepted: true,
+      enabled: true,
+    };
+  });
+  const duplicate = transactions.process(request, () => {
+    enables += 1;
+    return {
+      accepted: false,
+      enabled: false,
+      reason: "should not run",
+    };
+  });
+
+  assert.deepEqual(duplicate, first);
+  assert.equal(enables, 1);
+  assert.equal(first.type, WORD_CASTER_CODEX.quickAccessResult);
 });

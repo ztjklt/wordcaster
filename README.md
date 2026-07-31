@@ -34,12 +34,26 @@ npm run build
 
 运行 `npm run package:share` 会生成 `Word-Caster-分享版` 文件夹。
 
+运行 `npm run package:douyin` 会生成并校验抖音互动空间目录。正式上传文件为
+`word-caster-douyin-volcengine-260428.zip`，ZIP 根目录直接包含 `index.html`。
+
 运行 `npm run package:handoff` 会生成不含 `node_modules` 的
 `Word-Caster-队友交接版` 源码交接文件夹，并自动检查依赖与素材是否完整。
+
+## 火山语音
+
+- 抖音互动空间使用 `tt.getRecorderManager()` 录制 AAC，松开施法键后通过
+  `tt.callAIChatCompletion()` 调用 `doubao-seed-2-0-lite-260428`。
+- 托管网页把录音提交到同源 `/api/transcribe`，由服务端代理调用火山方舟；
+  部署时必须把 `ARK_API_KEY` 配置为服务端 Secret，可按 `.env.example`
+  配置 `ARK_AUDIO_MODEL`。
+- API Key 不进入浏览器代码或抖音 ZIP。服务端限制音频大小、同源请求和调用频率，
+  不落盘保存音频。
+- 语音不可用或权限被拒绝时，仍可使用文字输入完成游戏。
 
 ## 手机与部署
 
 - 手机正式模式为横屏；触控层提供移动、跳跃、近战、放置、工具和暂停。
 - 按住底部“按住施法”按钮等价于电脑按住 `M`。
 - `railway.json` 已配置 `npm ci && npm run build`、`npm start` 与根路径健康检查。
-- 游戏只处理浏览器返回的转写，不保存或上传麦克风音频。
+- 为保护凭据，任何真实 API Key 都不要写入源码、提交记录或静态包。

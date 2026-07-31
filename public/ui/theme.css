@@ -1,0 +1,112 @@
+@font-face {
+  font-family: "Word Caster Display";
+  src: url("./fonts/cinzel-600.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Word Caster Display";
+  src: url("./fonts/cinzel-700.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Word Caster Sans";
+  src: url("./fonts/noto-sans-400.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Word Caster Sans";
+  src: url("./fonts/noto-sans-600.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Word Caster Sans";
+  src: url("./fonts/noto-sans-700.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Word Caster Serif";
+  src: url("./fonts/noto-serif-600.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Word Caster Serif";
+  src: url("./fonts/noto-serif-700.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+
+:root {
+  --wc-obsidian: #0d1318;
+  --wc-forest: #182720;
+  --wc-forest-deep: #101b18;
+  --wc-panel: rgba(17, 28, 26, 0.94);
+  --wc-panel-soft: rgba(26, 40, 36, 0.88);
+  --wc-parchment: #eadbb8;
+  --wc-parchment-bright: #f5e9ca;
+  --wc-parchment-dim: #b9a77e;
+  --wc-brass: #c8a75a;
+  --wc-brass-bright: #efd589;
+  --wc-brass-dark: #6b5228;
+  --wc-arcane: #9874c4;
+  --wc-arcane-bright: #c4a3e8;
+  --wc-aether: #78d0d2;
+  --wc-danger: #d9696f;
+  --wc-success: #73ad78;
+  --wc-ink: #20202b;
+  --wc-border: rgba(224, 197, 122, 0.38);
+  --wc-border-soft: rgba(224, 197, 122, 0.18);
+  --wc-shadow-panel: 0 18px 50px rgba(2, 6, 8, 0.46);
+  --wc-shadow-rune: 0 0 24px rgba(152, 116, 196, 0.28);
+  --wc-radius-sm: 4px;
+  --wc-radius-md: 8px;
+  --wc-radius-lg: 14px;
+  --wc-space-1: 4px;
+  --wc-space-2: 8px;
+  --wc-space-3: 12px;
+  --wc-space-4: 16px;
+  --wc-space-5: 24px;
+  --wc-motion-fast: 160ms;
+  --wc-motion: 200ms;
+  --wc-motion-slow: 280ms;
+  --wc-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --wc-font-display: "Word Caster Display", "Palatino Linotype", serif;
+  --wc-font-serif: "Word Caster Serif", "Songti SC", "STSong", serif;
+  --wc-font-sans: "Word Caster Sans", "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+.game-icon {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  flex: 0 0 auto;
+  overflow: visible;
+  color: currentColor;
+  vertical-align: -0.14em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --wc-motion-fast: 1ms;
+    --wc-motion: 1ms;
+    --wc-motion-slow: 1ms;
+  }
+}

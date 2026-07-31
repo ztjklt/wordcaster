@@ -1,4 +1,4 @@
-import { mkdir, rm } from "node:fs/promises";
+import { cp, mkdir, rm } from "node:fs/promises";
 import { resolve } from "node:path";
 import sharp from "sharp";
 
@@ -623,5 +623,22 @@ await sliceSupportAndEffects();
 await sliceGrass();
 await sliceScenery();
 await sliceLargeEnemies();
+
+await rm(resolve(root, "share-src/public/game/environment"), {
+  recursive: true,
+  force: true,
+});
+await cp(
+  resolve(root, "public/game/environment"),
+  resolve(root, "share-src/public/game/environment"),
+  { recursive: true },
+);
+await rm(resolve(root, "share-src/public/ui"), {
+  recursive: true,
+  force: true,
+});
+await cp(resolve(root, "public/ui"), resolve(root, "share-src/public/ui"), {
+  recursive: true,
+});
 
 console.log("已生成草地泥土、塔墙、四类守军、僧侣、火焰爆炸、飞眼及场景装饰素材。");

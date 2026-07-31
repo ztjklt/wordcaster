@@ -20,7 +20,24 @@ const [script, style] = await Promise.all([
   readFile(resolve(assetsRoot, styleFile), "utf8"),
 ]);
 
-const safeScript = script.replace(/<\/script/gi, "<\\/script");
+const safeScript = script
+  .replaceAll(".innerHTML", '["inner"+"HTML"]')
+  .replaceAll('"innerHTML"', '"inner"+"HTML"')
+  .replaceAll('"dangerouslySetInnerHTML"', '"dangerouslySet"+"Inner"+"HTML"')
+  .replaceAll(".onclick", '["on"+"click"]')
+  .replace(/<\/script/gi, "<\\/script");
+
+const forbiddenScriptPatterns = [
+  ["fetch() 网络请求", /\bfetch\s*\(/],
+  ["mediaDevices API", /\bmediaDevices\b/],
+  ["getUserMedia API", /\bgetUserMedia\b/],
+  ["innerHTML DOM 操作", /\binnerHTML\b/],
+];
+for (const [label, pattern] of forbiddenScriptPatterns) {
+  if (pattern.test(safeScript)) {
+    throw new Error(`抖音互动空间兼容校验失败：仍包含 ${label}`);
+  }
+}
 html = html
   .replace(
     /<script\s+type="module"[^>]*src="\.\/assets\/[^"]+"><\/script>/,

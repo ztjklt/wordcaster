@@ -32,15 +32,24 @@ import {
 import type { VoiceSnapshot } from "./game/voice";
 import {
   CodexLearningTransactions,
+  CodexQuickAccessTransactions,
   WORD_CASTER_CODEX,
   type CodexLearnRequest,
+  type CodexQuickAccessRequest,
 } from "./game/codexBridge";
 import {
+  JOYSTICK_MAX_TRAVEL,
+  resolveJoystickVector,
+  type JoystickKey,
+} from "./game/joystick";
+import {
   createIncantationVoice,
+  type IncantationRecognizerFactory,
   type IncantationSoundProfile,
   type IncantationVoiceInstance,
   type IncantationWord,
 } from "../incantation-voice-kit/src/index";
+import { GameIcon } from "./GameIcon";
 
 type GameMode = "menu" | "playing" | "paused" | "victory" | "defeat";
 type BookTab = number | "index";
@@ -80,6 +89,7 @@ const EMPTY_HUD: HudSnapshot = {
   nightInkRegenRemaining: 0,
   unlockedTier: 0,
   daylight: true,
+  quickVoiceAccessEnabled: false,
   learnedActions: {},
   starterLessonsCompleted: 0,
   starterLessonsTotal: 3,
@@ -104,6 +114,15 @@ const IDLE_VOICE: VoiceSnapshot = {
   transcript: "",
   message: "按住 M 或底部施法按钮说出英文",
 };
+
+function mobileInstruction(value: string): string {
+  return value
+    .replaceAll("按住 M 或底部施法按钮", "按住底部施法按钮")
+    .replaceAll("按住 M", "按住底部施法按钮")
+    .replaceAll("松开 M", "松开施法按钮")
+    .replaceAll("右键", "点按")
+    .replaceAll("Esc", "×");
+}
 
 const MUTE_KEY = "word-caster-muted";
 const LEGACY_MUTE_KEY = "duskwood-defense-muted";
@@ -279,8 +298,13 @@ function ActionCard({
   );
 }
 
-export default function Game() {
+export default function Game({
+  recognizerFactory,
+}: {
+  recognizerFactory?: IncantationRecognizerFactory;
+} = {}) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const gameShellRef = useRef<HTMLElement | null>(null);
   const bookFrameRef = useRef<HTMLIFrameElement | null>(null);
   const voiceKitHostRef = useRef<HTMLDivElement | null>(null);
   const bookReadyRef = useRef(false);
@@ -288,6 +312,9 @@ export default function Game() {
   const engineRef = useRef<GameEngine | null>(null);
   const voiceRef = useRef<IncantationVoiceInstance | null>(null);
   const codexTransactionsRef = useRef(new CodexLearningTransactions());
+  const quickAccessTransactionsRef = useRef(
+    new CodexQuickAccessTransactions(),
+  );
   const audioRef = useRef<AudioContext | null>(null);
   const modeRef = useRef<GameMode>("menu");
   const bookOpenRef = useRef(false);
@@ -305,6 +332,12 @@ export default function Game() {
   const [coarsePointer, setCoarsePointer] = useState(false);
   const [portraitBlocked, setPortraitBlocked] = useState(false);
   const portraitResumeRef = useRef(false);
+  const joystickRef = useRef<HTMLDivElement | null>(null);
+  const joystickPointerRef = useRef<number | null>(null);
+  const joystickKeysRef = useRef(new Set<JoystickKey>());
+  const touchActionPointersRef = useRef(new Map<number, 0 | 2>());
+  const touchCastingPointerRef = useRef<number | null>(null);
+  const canvasFoodPointerRef = useRef<number | null>(null);
   const [incantationEffect, setIncantationEffect] = useState<{
     label: string;
     color: string;
@@ -314,8 +347,12 @@ export default function Game() {
 
   const unlockAudio = useCallback(() => {
     if (mutedRef.current) return null;
-    if (!audioRef.current) audioRef.current = new AudioContext();
-    if (audioRef.current.state === "suspended") void audioRef.current.resume();
+    if (!audioRef.current || audioRef.current.state === "closed") {
+      audioRef.current = new AudioContext();
+    }
+    if (audioRef.current.state === "suspended") {
+      void audioRef.current.resume().catch(() => undefined);
+    }
     return audioRef.current;
   }, []);
 
@@ -371,17 +408,61 @@ export default function Game() {
     [],
   );
 
-  const setBook = useCallback((open: boolean) => {
-    bookOpenRef.current = open;
-    setBookOpen(open);
+  const resetJoystick = useCallback(() => {
+    const engine = engineRef.current;
+    for (const code of joystickKeysRef.current) {
+      engine?.keyUp(code);
+    }
+    joystickKeysRef.current.clear();
+    joystickPointerRef.current = null;
+    if (joystickRef.current) {
+      joystickRef.current.dataset.active = "false";
+      joystickRef.current.style.setProperty("--joystick-x", "0px");
+      joystickRef.current.style.setProperty("--joystick-y", "0px");
+    }
   }, []);
 
-  const changeMode = useCallback((next: GameMode) => {
-    modeRef.current = next;
-    setMode(next);
-    engineRef.current?.setPaused(next !== "playing");
-    if (next !== "playing") voiceRef.current?.cancel();
-  }, []);
+  const releaseTouchControls = useCallback(() => {
+    const engine = engineRef.current;
+    resetJoystick();
+    for (const button of new Set(touchActionPointersRef.current.values())) {
+      if (button === 2) engine?.pointerUp(button);
+    }
+    touchActionPointersRef.current.clear();
+    canvasFoodPointerRef.current = null;
+    if (touchCastingPointerRef.current !== null) {
+      touchCastingPointerRef.current = null;
+      voiceRef.current?.cancel();
+    }
+  }, [resetJoystick]);
+
+  const setBook = useCallback(
+    (open: boolean) => {
+      bookOpenRef.current = open;
+      setBookOpen(open);
+      engineRef.current?.releaseInput();
+      releaseTouchControls();
+      if (!open && modeRef.current === "playing") {
+        window.requestAnimationFrame(() => {
+          gameShellRef.current?.focus({ preventScroll: true });
+        });
+      }
+    },
+    [releaseTouchControls],
+  );
+
+  const changeMode = useCallback(
+    (next: GameMode) => {
+      modeRef.current = next;
+      setMode(next);
+      engineRef.current?.setPaused(next !== "playing");
+      if (next !== "playing") {
+        releaseTouchControls();
+        voiceRef.current?.cancel();
+      }
+    },
+    [releaseTouchControls],
+  );
 
   useEffect(() => {
     const savedMute =
@@ -392,6 +473,8 @@ export default function Game() {
       window.localStorage.setItem(MUTE_KEY, String(savedMute));
     }
     mutedRef.current = savedMute;
+    // Persisted browser state is intentionally hydrated after the client mounts.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMuted(savedMute);
     setHasSave(GameEngine.hasValidSave());
 
@@ -490,6 +573,7 @@ export default function Game() {
       target: voiceKitHostRef.current ?? document.body,
       words: INCANTATION_WORDS,
       language: "en-US",
+      recognizerFactory,
       volume: savedMute ? 0 : 0.72,
       feedbackMode: "manual",
       shortcuts: false,
@@ -507,6 +591,21 @@ export default function Game() {
         if (transcript) reportResolution(transcript);
       },
       onNoMatch: (failure) => {
+        const failureMessage = (() => {
+          if (failure.reason === "permission") {
+            return "麦克风权限未开启 · 请使用文字输入";
+          }
+          if (failure.reason === "audio-capture") {
+            return "无法访问麦克风 · 请检查设备或使用文字输入";
+          }
+          if (failure.reason === "unsupported") {
+            return "当前环境不支持语音识别 · 请使用文字输入";
+          }
+          if (failure.reason === "network") {
+            return "火山语音识别暂时不可用 · 请再试一次";
+          }
+          return "没有听到清晰的英语";
+        })();
         setVoice({
           state:
             failure.reason === "permission" ||
@@ -515,10 +614,7 @@ export default function Game() {
               ? "unsupported"
               : "no-match",
           transcript: failure.transcript,
-          message:
-            failure.reason === "permission"
-              ? "麦克风权限未开启 · 请使用文字输入"
-              : "没有听到清晰的英语",
+          message: failureMessage,
         });
         playIncantationEffect(false);
       },
@@ -625,8 +721,11 @@ export default function Game() {
       }
       engine.keyUp(event.code);
     };
-    const onPointerUp = (event: PointerEvent) => engine.pointerUp(event.button);
+    const onPointerUp = (event: PointerEvent) => {
+      if (event.pointerType !== "touch") engine.pointerUp(event.button);
+    };
     const onBlur = () => {
+      engine.releaseInput();
       /*
        * Focusing the same-origin codex iframe also emits a window blur event in
        * Chromium. Wait until focus settles so entering a lesson is not mistaken
@@ -647,12 +746,24 @@ export default function Game() {
       }, 0);
     };
     const onBeforeUnload = () => engine.save();
+    const onPageHide = () => {
+      releaseTouchControls();
+      engine.save();
+    };
+    const onVisibilityChange = () => {
+      if (document.visibilityState !== "hidden") return;
+      releaseTouchControls();
+      engine.save();
+      if (modeRef.current === "playing") changeMode("paused");
+    };
 
     window.addEventListener("keydown", onKeyDown);
     window.addEventListener("keyup", onKeyUp);
     window.addEventListener("pointerup", onPointerUp);
     window.addEventListener("blur", onBlur);
     window.addEventListener("beforeunload", onBeforeUnload);
+    window.addEventListener("pagehide", onPageHide);
+    document.addEventListener("visibilitychange", onVisibilityChange);
 
     return () => {
       cancelAnimationFrame(frameId);
@@ -663,15 +774,23 @@ export default function Game() {
       window.removeEventListener("pointerup", onPointerUp);
       window.removeEventListener("blur", onBlur);
       window.removeEventListener("beforeunload", onBeforeUnload);
+      window.removeEventListener("pagehide", onPageHide);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
       if (incantationTimerRef.current !== null) {
         window.clearTimeout(incantationTimerRef.current);
       }
-      void audioRef.current?.close();
+      const audio = audioRef.current;
+      audioRef.current = null;
+      if (audio && audio.state !== "closed") {
+        void audio.close().catch(() => undefined);
+      }
     };
   }, [
     changeMode,
     playIncantationEffect,
     playSound,
+    recognizerFactory,
+    releaseTouchControls,
     setBook,
     unlockAudio,
   ]);
@@ -683,10 +802,18 @@ export default function Game() {
         new URLSearchParams(window.location.search).get("touch") === "1";
       const isCoarse =
         coarse.matches || navigator.maxTouchPoints > 0 || touchPreview;
-      const portrait = isCoarse && window.innerHeight > window.innerWidth;
+      const viewportWidth = window.visualViewport?.width ?? window.innerWidth;
+      const viewportHeight =
+        window.visualViewport?.height ?? window.innerHeight;
+      const portrait = isCoarse && viewportHeight > viewportWidth;
+      document.documentElement.style.setProperty(
+        "--app-height",
+        `${Math.round(viewportHeight)}px`,
+      );
       setCoarsePointer(isCoarse);
       setPortraitBlocked(portrait);
       if (portrait) {
+        releaseTouchControls();
         if (modeRef.current === "playing") {
           portraitResumeRef.current = true;
           engineRef.current?.setPaused(true);
@@ -703,15 +830,19 @@ export default function Game() {
     coarse.addEventListener?.("change", refresh);
     window.addEventListener("resize", refresh);
     window.addEventListener("orientationchange", refresh);
+    window.visualViewport?.addEventListener("resize", refresh);
     return () => {
       coarse.removeEventListener?.("change", refresh);
       window.removeEventListener("resize", refresh);
       window.removeEventListener("orientationchange", refresh);
+      window.visualViewport?.removeEventListener("resize", refresh);
     };
-  }, []);
+  }, [releaseTouchControls]);
 
   const startNewGame = useCallback(() => {
     unlockAudio();
+    codexTransactionsRef.current.clear();
+    quickAccessTransactionsRef.current.clear();
     engineRef.current?.newGame();
     setHasSave(true);
     setConfirmReset(false);
@@ -740,6 +871,8 @@ export default function Game() {
 
   const returnToMenu = useCallback(() => {
     engineRef.current?.save();
+    engineRef.current?.disableQuickVoiceAccess();
+    quickAccessTransactionsRef.current.clear();
     setHasSave(GameEngine.hasValidSave());
     setBook(false);
     changeMode("menu");
@@ -765,42 +898,108 @@ export default function Game() {
     [],
   );
 
-  const startTouchKey = useCallback(
-    (event: ReactPointerEvent<HTMLButtonElement>, code: string) => {
-      event.preventDefault();
-      event.currentTarget.setPointerCapture(event.pointerId);
-      unlockAudio();
-      engineRef.current?.keyDown(code);
-    },
-    [unlockAudio],
-  );
+  const syncJoystick = useCallback(
+    (element: HTMLDivElement, clientX: number, clientY: number) => {
+      const rect = element.getBoundingClientRect();
+      const resolved = resolveJoystickVector(
+        clientX - (rect.left + rect.width / 2),
+        clientY - (rect.top + rect.height / 2),
+        JOYSTICK_MAX_TRAVEL,
+      );
+      element.style.setProperty(
+        "--joystick-x",
+        `${resolved.x.toFixed(2)}px`,
+      );
+      element.style.setProperty(
+        "--joystick-y",
+        `${resolved.y.toFixed(2)}px`,
+      );
 
-  const finishTouchKey = useCallback(
-    (event: ReactPointerEvent<HTMLButtonElement>, code: string) => {
-      event.preventDefault();
-      engineRef.current?.keyUp(code);
-      if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-        event.currentTarget.releasePointerCapture(event.pointerId);
+      const nextKeys = new Set(resolved.keys);
+      const engine = engineRef.current;
+      for (const code of joystickKeysRef.current) {
+        if (!nextKeys.has(code)) engine?.keyUp(code);
       }
+      for (const code of nextKeys) {
+        if (!joystickKeysRef.current.has(code)) engine?.keyDown(code);
+      }
+      joystickKeysRef.current = nextKeys;
     },
     [],
+  );
+
+  const startJoystick = useCallback(
+    (event: ReactPointerEvent<HTMLDivElement>) => {
+      event.preventDefault();
+      if (joystickPointerRef.current !== null) return;
+      joystickPointerRef.current = event.pointerId;
+      joystickRef.current = event.currentTarget;
+      event.currentTarget.setPointerCapture(event.pointerId);
+      event.currentTarget.dataset.active = "true";
+      unlockAudio();
+      syncJoystick(event.currentTarget, event.clientX, event.clientY);
+    },
+    [syncJoystick, unlockAudio],
+  );
+
+  const moveJoystick = useCallback(
+    (event: ReactPointerEvent<HTMLDivElement>) => {
+      if (joystickPointerRef.current !== event.pointerId) return;
+      event.preventDefault();
+      syncJoystick(event.currentTarget, event.clientX, event.clientY);
+    },
+    [syncJoystick],
+  );
+
+  const finishJoystick = useCallback(
+    (
+      event: ReactPointerEvent<HTMLDivElement>,
+      releaseCapture = true,
+    ) => {
+      event.preventDefault();
+      if (joystickPointerRef.current !== event.pointerId) return;
+      const element = event.currentTarget;
+      resetJoystick();
+      if (
+        releaseCapture &&
+        element.hasPointerCapture(event.pointerId)
+      ) {
+        element.releasePointerCapture(event.pointerId);
+      }
+    },
+    [resetJoystick],
   );
 
   const startTouchAction = useCallback(
     (event: ReactPointerEvent<HTMLButtonElement>, button: 0 | 2) => {
       event.preventDefault();
+      if (touchActionPointersRef.current.has(event.pointerId)) return;
+      touchActionPointersRef.current.set(event.pointerId, button);
       event.currentTarget.setPointerCapture(event.pointerId);
       unlockAudio();
-      engineRef.current?.pointerDown(button);
+      if (button === 0) {
+        engineRef.current?.triggerMobilePrimaryAction();
+      } else {
+        engineRef.current?.pointerDown(button);
+      }
     },
     [unlockAudio],
   );
 
   const finishTouchAction = useCallback(
-    (event: ReactPointerEvent<HTMLButtonElement>, button: 0 | 2) => {
+    (
+      event: ReactPointerEvent<HTMLButtonElement>,
+      button: 0 | 2,
+      releaseCapture = true,
+    ) => {
       event.preventDefault();
-      engineRef.current?.pointerUp(button);
-      if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      if (touchActionPointersRef.current.get(event.pointerId) !== button) return;
+      touchActionPointersRef.current.delete(event.pointerId);
+      if (button === 2) engineRef.current?.pointerUp(button);
+      if (
+        releaseCapture &&
+        event.currentTarget.hasPointerCapture(event.pointerId)
+      ) {
         event.currentTarget.releasePointerCapture(event.pointerId);
       }
     },
@@ -810,6 +1009,8 @@ export default function Game() {
   const startTouchCasting = useCallback(
     (event: ReactPointerEvent<HTMLButtonElement>) => {
       event.preventDefault();
+      if (touchCastingPointerRef.current !== null) return;
+      touchCastingPointerRef.current = event.pointerId;
       event.currentTarget.setPointerCapture(event.pointerId);
       unlockAudio();
       voiceRef.current?.beginHold();
@@ -818,11 +1019,20 @@ export default function Game() {
   );
 
   const finishTouchCasting = useCallback(
-    (event: ReactPointerEvent<HTMLButtonElement>, cancel = false) => {
+    (
+      event: ReactPointerEvent<HTMLButtonElement>,
+      cancel = false,
+      releaseCapture = true,
+    ) => {
       event.preventDefault();
+      if (touchCastingPointerRef.current !== event.pointerId) return;
+      touchCastingPointerRef.current = null;
       if (cancel) voiceRef.current?.cancel();
       else voiceRef.current?.finishHold();
-      if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      if (
+        releaseCapture &&
+        event.currentTarget.hasPointerCapture(event.pointerId)
+      ) {
         event.currentTarget.releasePointerCapture(event.pointerId);
       }
     },
@@ -835,14 +1045,40 @@ export default function Game() {
       pointerPosition(event);
       unlockAudio();
       if (event.pointerType === "touch") {
-        if (engineRef.current?.canInteractWithFood()) {
-          engineRef.current.pointerDown(0);
+        const engine = engineRef.current;
+        if (engine?.canInteractWithFood()) {
+          canvasFoodPointerRef.current = event.pointerId;
+          event.currentTarget.setPointerCapture(event.pointerId);
+          engine.pointerDown(0);
+        } else if (engine?.hasActivePlacement()) {
+          engine.pointerDown(2);
+          engine.pointerUp(2);
         }
         return;
       }
       engineRef.current?.pointerDown(event.button);
     },
     [pointerPosition, unlockAudio],
+  );
+
+  const finishCanvasPointer = useCallback(
+    (
+      event: ReactPointerEvent<HTMLCanvasElement>,
+      releaseCapture = true,
+    ) => {
+      if (canvasFoodPointerRef.current !== event.pointerId) return;
+      event.preventDefault();
+      pointerPosition(event);
+      canvasFoodPointerRef.current = null;
+      engineRef.current?.pointerUp(0);
+      if (
+        releaseCapture &&
+        event.currentTarget.hasPointerCapture(event.pointerId)
+      ) {
+        event.currentTarget.releasePointerCapture(event.pointerId);
+      }
+    },
+    [pointerPosition],
   );
 
   const submitTextCommand = useCallback(
@@ -896,6 +1132,7 @@ export default function Game() {
         waveIndex: hud.waveIndex,
         currentDay: hud.waveIndex + 1,
         unlockedTier: hud.unlockedTier,
+        quickVoiceAccessEnabled: hud.quickVoiceAccessEnabled,
         starterLessonsCompleted: hud.starterLessonsCompleted,
         starterLessonsTotal: hud.starterLessonsTotal,
         prepTimerStarted: hud.prepTimerStarted,
@@ -913,6 +1150,8 @@ export default function Game() {
           chinese: CODEX_ACTIONS[id].chinese,
           tier: CODEX_ACTIONS[id].tier,
           availableFromDay: CODEX_ACTIONS[id].availableFromDay,
+          inkCost: CODEX_ACTIONS[id].inkCost,
+          kind: CODEX_ACTIONS[id].kind,
           learned: hud.learnedActions[id] ?? 0,
         })),
       },
@@ -925,6 +1164,7 @@ export default function Game() {
     hud.dailyLessonsLearned,
     hud.learnedActions,
     hud.prepTimerStarted,
+    hud.quickVoiceAccessEnabled,
     hud.starterLessonsCompleted,
     hud.starterLessonsTotal,
     hud.unlockedTier,
@@ -970,6 +1210,44 @@ export default function Game() {
       ) {
         engineRef.current?.resetLearnedActions();
         codexTransactionsRef.current.clear();
+        quickAccessTransactionsRef.current.clear();
+        return;
+      }
+      if (
+        data.type === WORD_CASTER_CODEX.quickAccessRequest &&
+        typeof data.requestId === "string"
+      ) {
+        const request: CodexQuickAccessRequest = {
+          type: WORD_CASTER_CODEX.quickAccessRequest,
+          requestId: data.requestId,
+        };
+        const result = quickAccessTransactionsRef.current.process(request, () => {
+          const enabled =
+            engineRef.current?.enableQuickVoiceAccess() ?? false;
+          return {
+            accepted: enabled,
+            enabled,
+            reason: enabled ? undefined : "当前无法开启快速访问",
+          };
+        });
+        bookFrameRef.current?.contentWindow?.postMessage(
+          result,
+          window.location.protocol === "file:" ? "*" : window.location.origin,
+        );
+        if (result.accepted && result.enabled) {
+          setVoice({
+            state: "idle",
+            transcript: "",
+            message: "常用言灵已授权 · 按住 M 念出英文",
+          });
+          setBook(false);
+        } else {
+          setVoice({
+            state: "no-match",
+            transcript: "",
+            message: result.reason ?? "当前无法开启快速访问",
+          });
+        }
         return;
       }
       if (
@@ -1074,6 +1352,8 @@ export default function Game() {
 
   return (
     <main
+      ref={gameShellRef}
+      tabIndex={-1}
       className={`game-shell mode-${mode} ${bookOpen ? "book-is-open" : ""} ${
         coarsePointer ? "touch-enabled" : ""
       }`}
@@ -1085,6 +1365,11 @@ export default function Game() {
         aria-label="Word Caster 言灵守城游戏画面"
         onPointerMove={pointerPosition}
         onPointerDown={handlePointerDown}
+        onPointerUp={(event) => finishCanvasPointer(event)}
+        onPointerCancel={(event) => finishCanvasPointer(event)}
+        onLostPointerCapture={(event) =>
+          finishCanvasPointer(event, false)
+        }
         onContextMenu={(event) => event.preventDefault()}
       />
 
@@ -1092,7 +1377,7 @@ export default function Game() {
         <section className="menu-overlay">
           <div className="menu-moon" aria-hidden="true" />
           <div className="menu-logo" aria-hidden="true">
-            <i />
+            <GameIcon name="book" />
             <b />
             <span>言</span>
           </div>
@@ -1108,7 +1393,7 @@ export default function Game() {
           <div className="menu-actions">
             {hasSave ? (
               <button className="primary-button" type="button" onClick={continueGame}>
-                <strong>继续守城</strong>
+                <strong><GameIcon name="shield" />继续守城</strong>
                 <span>恢复言灵封印前的战役</span>
               </button>
             ) : null}
@@ -1117,17 +1402,28 @@ export default function Game() {
               type="button"
               onClick={requestNewGame}
             >
-              <strong>开始新战役</strong>
+              <strong><GameIcon name="sparkles" />开始新战役</strong>
               <span>六关 · 约二十分钟</span>
             </button>
             <button className="quiet-button" type="button" onClick={toggleMute}>
+              <GameIcon name={muted ? "volume-off" : "volume"} />
               {muted ? "开启声音" : "静音"}
             </button>
           </div>
           <div className="menu-tips">
-            <span><kbd>M</kbd> 按住说话</span>
-            <span><kbd>A D</kbd> 移动</span>
-            <span><kbd>E</kbd> 施法魔典</span>
+            {coarsePointer ? (
+              <>
+                <span><GameIcon name="mic" />按住中间按钮施法</span>
+                <span><GameIcon name="chevron-left" /><GameIcon name="chevron-right" />移动与跳跃</span>
+                <span><GameIcon name="sword" /><GameIcon name="place" />战斗与放置</span>
+              </>
+            ) : (
+              <>
+                <span><kbd>M</kbd> 按住说话</span>
+                <span><kbd>A D</kbd> 移动</span>
+                <span><kbd>E</kbd> 施法魔典</span>
+              </>
+            )}
           </div>
         </section>
       ) : null}
@@ -1137,7 +1433,7 @@ export default function Game() {
           <section className="top-hud" aria-label="战斗状态">
             <div className="status-card player-status">
               <div className="status-title">
-                <span>言灵法师</span>
+                <span><GameIcon name="heart" />言灵法师</span>
                 <strong>{hud.playerHealth}/{hud.playerMaxHealth}</strong>
               </div>
               <Meter value={hud.playerHealth} max={hud.playerMaxHealth} tone="health" />
@@ -1160,10 +1456,13 @@ export default function Game() {
             </div>
 
             <div className="wave-card">
-              <span>{phaseName(hud.phase)} · 第 {hud.waveIndex + 1}/6 关</span>
+              <span>
+                <GameIcon name={hud.daylight ? "sun" : "moon"} />
+                {phaseName(hud.phase)} · 第 {hud.waveIndex + 1}/6 关
+              </span>
               <strong>{hud.waveTitle.replace(/^第.+?·\s*/, "")}</strong>
               <div>
-                <b>{hud.phaseTime}</b>
+                <b><GameIcon name="hourglass" />{hud.phaseTime}</b>
                 <small>
                   敌人 {hud.enemiesActive}
                   {hud.enemiesQueued ? ` ＋ 队列${hud.enemiesQueued}` : ""}
@@ -1173,28 +1472,29 @@ export default function Game() {
 
             <div className="status-card core-status">
               <div className="status-title">
-                <span>言灵封印</span>
+                <span><GameIcon name="shield" />言灵封印</span>
                 <strong>{hud.coreHealth}/{hud.coreMaxHealth}</strong>
               </div>
               <Meter value={hud.coreHealth} max={hud.coreMaxHealth} tone="core" />
-              <p>
-                {hud.waveIndex >= 5 ? "本关" : "下一关"}：生命 ×
-                {(hud.waveIndex >= 5
-                  ? hud.scaling.healthMultiplier
-                  : hud.scaling.healthMultiplier * 1.18
-                ).toFixed(2)}
-                {" · "}攻击 ×
-                {(hud.waveIndex >= 5
-                  ? hud.scaling.damageMultiplier
-                  : hud.scaling.damageMultiplier * 1.12
-                ).toFixed(2)}
-              </p>
-              <p>
-                塔位 {hud.occupiedTowers}/{hud.towerSlots}
-                {" · "}地面弓箭手{" "}
-                {Math.max(0, hud.archers - hud.occupiedTowers)}
-                {" · "}剑枪士 {hud.groundSoldiers}
-              </p>
+              <div className="battle-details">
+                <p>
+                  {hud.waveIndex >= 5 ? "本关" : "下一关"}：生命 ×
+                  {(hud.waveIndex >= 5
+                    ? hud.scaling.healthMultiplier
+                    : hud.scaling.healthMultiplier * 1.18
+                  ).toFixed(2)}
+                  {" · "}攻击 ×
+                  {(hud.waveIndex >= 5
+                    ? hud.scaling.damageMultiplier
+                    : hud.scaling.damageMultiplier * 1.12
+                  ).toFixed(2)}
+                </p>
+                <p>
+                  <GameIcon name="tower" />塔位 {hud.occupiedTowers}/{hud.towerSlots}
+                  {" · "}<GameIcon name="troops" />守军{" "}
+                  {Math.max(0, hud.archers - hud.occupiedTowers) + hud.groundSoldiers}
+                </p>
+              </div>
             </div>
           </section>
 
@@ -1207,7 +1507,7 @@ export default function Game() {
               <span className="bottle-shine" />
             </div>
             <div>
-              <span>INK</span>
+              <span><GameIcon name="drop" />INK</span>
               <strong>{hud.ink}<small>/{hud.maxInk}</small></strong>
               {hud.nightInkRegenBonus > 0 ? (
                 <small className="ink-regen">
@@ -1222,10 +1522,25 @@ export default function Game() {
             className={`voice-console voice-${voice.state}`}
             aria-live="polite"
           >
-            <div className="mic-rune" aria-hidden="true"><i /><b /></div>
+            <div className="mic-rune" aria-hidden="true">
+              <GameIcon name="mic" />
+              <i />
+              <b />
+            </div>
             <div>
-              <span>{voice.transcript || voice.message}</span>
-              {voice.transcript ? <strong>{voice.message}</strong> : null}
+              <span>
+                {voice.transcript ||
+                  (coarsePointer
+                    ? mobileInstruction(voice.message)
+                    : voice.message)}
+              </span>
+              {voice.transcript ? (
+                <strong>
+                  {coarsePointer
+                    ? mobileInstruction(voice.message)
+                    : voice.message}
+                </strong>
+              ) : null}
             </div>
             <kbd>M</kbd>
           </section>
@@ -1299,11 +1614,19 @@ export default function Game() {
                 <strong>{CODEX_ACTIONS[hud.activeActionId].chinese}</strong>
               </div>
               <b>{hud.activeActionCost} 墨</b>
-              <small>右键放置 · Esc取消</small>
+              <small>
+                {coarsePointer
+                  ? "点战场直接放置 · 点 × 取消"
+                  : "右键放置 · Esc取消"}
+              </small>
             </div>
           ) : null}
 
-          {hud.toast ? <div className="game-toast">{hud.toast}</div> : null}
+          {hud.toast ? (
+            <div className="game-toast">
+              {coarsePointer ? mobileInstruction(hud.toast) : hud.toast}
+            </div>
+          ) : null}
 
           {hud.playerDeadFor > 0 ? (
             <div className="respawn-banner">
@@ -1318,7 +1641,7 @@ export default function Game() {
             onClick={() => setBook(!bookOpen)}
             aria-label={bookOpen ? "合上施法魔典" : "打开施法魔典"}
           >
-            <i />
+            <GameIcon name="book" />
             <span>施法魔典</span>
             <b>
               {
@@ -1348,7 +1671,7 @@ export default function Game() {
                   onClick={() => setBook(false)}
                   aria-label="合上施法魔典"
                 >
-                  ×
+                  <GameIcon name="close" />
                 </button>
               </div>
               <iframe
@@ -1361,35 +1684,29 @@ export default function Game() {
 
           {coarsePointer && mode === "playing" && !bookOpen && !portraitBlocked ? (
             <section className="touch-controls" aria-label="手机战斗控制">
-              <div className="touch-movement">
-                <button
-                  type="button"
-                  aria-label="向左移动"
-                  onPointerDown={(event) => startTouchKey(event, "KeyA")}
-                  onPointerUp={(event) => finishTouchKey(event, "KeyA")}
-                  onPointerCancel={(event) => finishTouchKey(event, "KeyA")}
-                >
-                  ◀
-                </button>
-                <button
-                  type="button"
-                  aria-label="向右移动"
-                  onPointerDown={(event) => startTouchKey(event, "KeyD")}
-                  onPointerUp={(event) => finishTouchKey(event, "KeyD")}
-                  onPointerCancel={(event) => finishTouchKey(event, "KeyD")}
-                >
-                  ▶
-                </button>
-                <button
-                  type="button"
-                  className="touch-jump"
-                  aria-label="跳跃"
-                  onPointerDown={(event) => startTouchKey(event, "Space")}
-                  onPointerUp={(event) => finishTouchKey(event, "Space")}
-                  onPointerCancel={(event) => finishTouchKey(event, "Space")}
-                >
-                  ↑
-                </button>
+              <div
+                ref={joystickRef}
+                className="touch-joystick"
+                role="group"
+                aria-label="四向移动摇杆：上跳，下落，左右移动"
+                data-active="false"
+                onPointerDown={startJoystick}
+                onPointerMove={moveJoystick}
+                onPointerUp={(event) => finishJoystick(event)}
+                onPointerCancel={(event) => finishJoystick(event)}
+                onLostPointerCapture={(event) =>
+                  finishJoystick(event, false)
+                }
+              >
+                <span
+                  className="joystick-guide joystick-guide-horizontal"
+                  aria-hidden="true"
+                />
+                <span
+                  className="joystick-guide joystick-guide-vertical"
+                  aria-hidden="true"
+                />
+                <span className="joystick-knob" aria-hidden="true" />
               </div>
               <button
                 type="button"
@@ -1398,48 +1715,71 @@ export default function Game() {
                 onPointerDown={startTouchCasting}
                 onPointerUp={(event) => finishTouchCasting(event)}
                 onPointerCancel={(event) => finishTouchCasting(event, true)}
+                onLostPointerCapture={(event) =>
+                  finishTouchCasting(event, true, false)
+                }
               >
-                <i aria-hidden="true" />
+                <GameIcon name="mic" />
                 <strong>{voice.state === "listening" ? "松开施法" : "按住施法"}</strong>
               </button>
               <div className="touch-actions">
                 <button
                   type="button"
-                  aria-label="近战攻击"
+                  className="touch-primary"
+                  aria-label={
+                    hud.tool === "blade" ? "向前近战攻击" : "拆除选中的建筑"
+                  }
                   onPointerDown={(event) => startTouchAction(event, 0)}
                   onPointerUp={(event) => finishTouchAction(event, 0)}
                   onPointerCancel={(event) => finishTouchAction(event, 0)}
+                  onLostPointerCapture={(event) =>
+                    finishTouchAction(event, 0, false)
+                  }
                 >
-                  ⚔
+                  <GameIcon name={hud.tool === "blade" ? "sword" : "hammer"} />
                 </button>
                 <button
                   type="button"
+                  className="touch-place"
                   aria-label="放置或确认"
                   onPointerDown={(event) => startTouchAction(event, 2)}
                   onPointerUp={(event) => finishTouchAction(event, 2)}
                   onPointerCancel={(event) => finishTouchAction(event, 2)}
-                >
-                  ◆
-                </button>
-                <button
-                  type="button"
-                  aria-label="切换工具"
-                  onPointerDown={(event) => event.preventDefault()}
-                  onClick={() =>
-                    engineRef.current?.selectTool(
-                      hud.tool === "blade" ? "hammer" : "blade",
-                    )
+                  onLostPointerCapture={(event) =>
+                    finishTouchAction(event, 2, false)
                   }
                 >
-                  {hud.tool === "blade" ? "🔨" : "🗡"}
+                  <GameIcon name="place" />
                 </button>
                 <button
                   type="button"
+                  className="touch-tool"
+                  aria-label={
+                    hud.activeActionId ? "取消当前放置" : "切换工具"
+                  }
+                  onPointerDown={(event) => event.preventDefault()}
+                  onClick={() =>
+                    hud.activeActionId
+                      ? engineRef.current?.cancelPlacement()
+                      : engineRef.current?.selectTool(
+                          hud.tool === "blade" ? "hammer" : "blade",
+                        )
+                  }
+                >
+                  {hud.activeActionId
+                    ? <GameIcon name="close" />
+                    : hud.tool === "blade"
+                      ? <GameIcon name="hammer" />
+                      : <GameIcon name="sword" />}
+                </button>
+                <button
+                  type="button"
+                  className="touch-pause"
                   aria-label="暂停"
                   onPointerDown={(event) => event.preventDefault()}
                   onClick={() => changeMode("paused")}
                 >
-                  Ⅱ
+                  <GameIcon name="pause" />
                 </button>
               </div>
             </section>
@@ -1451,6 +1791,7 @@ export default function Game() {
         <section className="modal-backdrop">
           <article className="pause-card">
             <p className="eyebrow">THE WORDS REST</p>
+            <div className="modal-sigil"><GameIcon name="moon" /></div>
             <h2>战斗已暂停</h2>
             <p>麦克风已经关闭，怪物和关卡时间不会前进。</p>
             <button className="primary-button" type="button" onClick={() => changeMode("playing")}>
@@ -1469,6 +1810,9 @@ export default function Game() {
             <p className="eyebrow">
               {mode === "victory" ? "THE PORTAL CLOSES" : "THE SEAL SHATTERS"}
             </p>
+            <div className="modal-sigil">
+              <GameIcon name={mode === "victory" ? "sparkles" : "shield"} />
+            </div>
             <h2>{mode === "victory" ? "召唤门终于关闭" : "言灵封印破碎了"}</h2>
             <p>
               {mode === "victory"
@@ -1523,14 +1867,21 @@ export default function Game() {
       ) : null}
 
       {mode !== "menu" ? (
-        <button className="sound-button" type="button" onClick={toggleMute}>
-          {muted ? "静" : "声"}
+        <button
+          className="sound-button"
+          type="button"
+          onClick={toggleMute}
+          aria-label={muted ? "开启声音" : "关闭声音"}
+        >
+          <GameIcon name={muted ? "volume-off" : "volume"} />
         </button>
       ) : null}
 
       {portraitBlocked ? (
         <section className="rotate-device" role="dialog" aria-live="assertive">
-          <div className="rotate-phone" aria-hidden="true">↻</div>
+          <div className="rotate-phone" aria-hidden="true">
+            <GameIcon name="rotate" />
+          </div>
           <h2>请横置手机</h2>
           <p>Word Caster 已暂停并关闭麦克风。旋转到横屏后继续守护言灵封印。</p>
         </section>

@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 import {
   ACTION_ORDER,
@@ -80,6 +81,36 @@ test("defines the campaign actions, including the supplied defenders, across six
       ACTION_ORDER.filter((id) => CODEX_ACTIONS[id].tier === tier).length,
     ),
     [9, 12, 3, 3, 3, 4],
+  );
+});
+
+test("all 34 interactive actions resolve to canonical grimoire words", () => {
+  const codexDocument = JSON.parse(
+    readFileSync(new URL("../app/game/codex.json", import.meta.url), "utf8"),
+  ) as { words: Array<{ en: string }> };
+  assert.equal(codexDocument.words.length, 480);
+  const bookWords = new Set(
+    codexDocument.words.map((word) => word.en.toLowerCase()),
+  );
+  for (const addedWord of [
+    "Tower",
+    "Apple",
+    "Bread",
+    "Mushroom",
+    "Cheese",
+    "Fish",
+    "Meat",
+    "Coffee",
+    "Tea",
+    "Juice",
+  ]) {
+    bookWords.add(addedWord.toLowerCase());
+  }
+  assert.deepEqual(
+    ACTION_ORDER.filter(
+      (id) => !bookWords.has(CODEX_ACTIONS[id].english.toLowerCase()),
+    ),
+    [],
   );
 });
 
@@ -465,6 +496,108 @@ test("voice execution can be restricted to words learned during daylight", () =>
   if (tower.kind === "action") assert.equal(tower.intent.actionId, "tower");
   assert.equal(resolveVoiceIntent("Barricade", 0, learned).kind, "unknown");
   assert.equal(resolveVoiceIntent("Summon an archer", 0, learned).kind, "action");
+  assert.equal(
+    resolveVoiceIntent("Meteor", 0, learned, {
+      allowAllCampaignActions: true,
+    }).kind,
+    "action",
+  );
+});
+
+test("quick voice access bypasses lessons while preserving each real interaction shape", () => {
+  const createEngine = () => {
+    const engine = new GameEngine({
+      onHud() {},
+      onSound() {},
+      onWin() {},
+      onLose() {},
+      onBookUnlock() {},
+    });
+    engine.newGame(731204);
+    const inkBeforeAccess = engine.ink;
+    assert.equal(engine.needsStarterLessons(), true);
+    assert.equal(engine.enableQuickVoiceAccess(), true);
+    assert.equal(engine.ink, inkBeforeAccess);
+    assert.equal(engine.needsStarterLessons(), false);
+    return engine;
+  };
+
+  const unitEngine = createEngine();
+  const unitInternal = unitEngine as unknown as {
+    learnedActions: Partial<Record<string, number>>;
+    learningDay: LearningDayState;
+    archers: Array<{ actionId?: string }>;
+    mastery: Partial<Record<string, { uses: number; spokenUses: number }>>;
+  };
+  const unitResult = unitEngine.handleTranscript("Archer", "voice");
+  assert.equal(unitResult.status, "executed");
+  assert.equal(unitEngine.ink, STARTING_INK - CODEX_ACTIONS.archer.inkCost);
+  assert.equal(unitInternal.archers.length, 1);
+  assert.equal(unitInternal.mastery.archer?.uses, 1);
+  assert.equal(unitInternal.mastery.archer?.spokenUses, 1);
+  assert.deepEqual(unitInternal.learnedActions, {});
+  assert.equal(unitInternal.learningDay.learnedWordKeys.length, 0);
+
+  const structureEngine = createEngine();
+  const structureInternal = structureEngine as unknown as {
+    activeActionId: string | null;
+    learnedActions: Partial<Record<string, number>>;
+    learningDay: LearningDayState;
+  };
+  const structureResult = structureEngine.handleTranscript("Frost Ward", "voice");
+  assert.equal(structureResult.status, "blueprint-ready");
+  assert.equal(structureInternal.activeActionId, "frost-ward");
+  assert.equal(structureEngine.ink, STARTING_INK);
+  assert.deepEqual(structureInternal.learnedActions, {});
+  assert.equal(structureInternal.learningDay.learnedWordKeys.length, 0);
+
+  const foodEngine = createEngine();
+  const foodInternal = foodEngine as unknown as {
+    heldFood: { actionId: string } | null;
+  };
+  const foodResult = foodEngine.handleTranscript("Apple", "voice");
+  assert.equal(foodResult.status, "executed");
+  assert.equal(foodInternal.heldFood?.actionId, "apple");
+  assert.equal(foodEngine.ink, STARTING_INK - CODEX_ACTIONS.apple.inkCost);
+
+  const spellEngine = createEngine();
+  const spellResult = spellEngine.handleTranscript("Sanctuary", "voice");
+  assert.equal(spellResult.status, "executed");
+  assert.equal(
+    spellEngine.ink,
+    STARTING_INK - CODEX_ACTIONS.sanctuary.inkCost,
+  );
+
+  const rejectedEngine = createEngine();
+  const rejectedResult = rejectedEngine.handleTranscript("Fireball", "voice");
+  assert.equal(rejectedResult.status, "rejected");
+  assert.equal(rejectedEngine.ink, STARTING_INK);
+});
+
+test("quick voice access is voice-only, run-scoped and keeps normal checks", () => {
+  const engine = new GameEngine({
+    onHud() {},
+    onSound() {},
+    onWin() {},
+    onLose() {},
+    onBookUnlock() {},
+  });
+  assert.equal(engine.enableQuickVoiceAccess(), false);
+
+  engine.newGame(731204);
+  assert.equal(engine.enableQuickVoiceAccess(), true);
+  assert.equal(engine.handleTranscript("Meteor", "text").status, "rejected");
+  engine.setPaused(true);
+  assert.equal(engine.handleTranscript("Archer", "voice").status, "rejected");
+  engine.setPaused(false);
+  engine.disableQuickVoiceAccess();
+  assert.equal(engine.handleTranscript("Archer", "voice").status, "rejected");
+
+  assert.equal(engine.enableQuickVoiceAccess(), true);
+  engine.ink = 0;
+  const result = engine.handleTranscript("Archer", "voice");
+  assert.equal(result.status, "rejected");
+  assert.match(result.reason ?? "", /墨水不足/);
 });
 
 test("ink costs reward spoken sentence quality but text stays at base cost", () => {
@@ -539,6 +672,31 @@ test("player movement ignores buildings and lands only on the grass surface", ()
   internal.movePlayerVertical(100);
   assert.equal(engine.player.y + PLAYER_HEIGHT, ground);
   assert.equal(engine.player.onGround, true);
+});
+
+test("desktop movement accepts WASD/arrows and releases stale input", () => {
+  const engine = new GameEngine({
+    onHud() {},
+    onSound() {},
+    onWin() {},
+    onLose() {},
+    onBookUnlock() {},
+  });
+  engine.newGame(731204);
+  const internal = engine as unknown as { keys: Set<string> };
+  for (const code of [
+    "KeyA",
+    "KeyD",
+    "KeyW",
+    "ArrowLeft",
+    "ArrowRight",
+    "ArrowUp",
+  ]) {
+    engine.keyDown(code);
+  }
+  assert.equal(internal.keys.size, 6);
+  engine.releaseInput();
+  assert.equal(internal.keys.size, 0);
 });
 
 test("V2 saves round-trip and corrupted or legacy values fail closed", () => {

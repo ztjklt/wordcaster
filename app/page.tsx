@@ -1,5 +1,5 @@
-import Game from "./Game";
+import HostedGame from "./HostedGame";
 
 export default function Home() {
-  return <Game />;
+  return <HostedGame />;
 }

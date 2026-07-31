@@ -82,6 +82,7 @@ import {
   reanchorLegacyGroundY,
   type TerrainProfile,
 } from "./terrain.ts";
+import { nextVerticalVelocity } from "./joystick.ts";
 
 const GRAVITY = 560;
 const PLAYER_SPEED = 120;
@@ -97,6 +98,18 @@ const SOLDIER_HEIGHT = 40;
 const SOLDIER_RENDER_WIDTH = 28;
 const TOWER_ARCHER_VISIBLE_HEIGHT = 14;
 const MAX_NIGHT_INK_REGEN_BONUS = 0.5;
+const FEATURED_TREE_LAYOUT = [
+  { x: 150, image: 0, height: 112, mirrored: false },
+  { x: 470, image: 2, height: 108, mirrored: true },
+  { x: 820, image: 3, height: 94, mirrored: false },
+  { x: 1160, image: 1, height: 82, mirrored: true },
+  { x: CORE_X - 330, image: 4, height: 92, mirrored: false },
+  { x: CORE_X + 350, image: 1, height: 80, mirrored: false },
+  { x: 2140, image: 0, height: 110, mirrored: true },
+  { x: 2500, image: 3, height: 96, mirrored: true },
+  { x: 2840, image: 2, height: 110, mirrored: false },
+  { x: 3120, image: 4, height: 88, mirrored: true },
+] as const;
 
 export type SoundKind =
   | "swing"
@@ -132,6 +145,7 @@ export interface HudSnapshot {
   nightInkRegenRemaining: number;
   unlockedTier: number;
   daylight: boolean;
+  quickVoiceAccessEnabled: boolean;
   learnedActions: Partial<Record<ActionId, number>>;
   starterLessonsCompleted: number;
   starterLessonsTotal: number;
@@ -336,6 +350,19 @@ export class GameEngine {
   );
   private cloudImages: Array<HTMLImageElement | null> = Array(6).fill(null);
   private sunImage: HTMLImageElement | null = null;
+  private featuredTreeImages: Array<HTMLImageElement | null> = Array(5).fill(
+    null,
+  );
+  private birdImages: Array<HTMLImageElement | null> = Array(4).fill(null);
+  private tallGrassImage: HTMLImageElement | null = null;
+  private gardenDecorImage: HTMLImageElement | null = null;
+  private angelStatueImage: HTMLImageElement | null = null;
+  private smallTentDecorImage: HTMLImageElement | null = null;
+  private largeTentDecorImage: HTMLImageElement | null = null;
+  private cookingAreaImage: HTMLImageElement | null = null;
+  private portalImage: HTMLImageElement | null = null;
+  private hotAirBalloonImage: HTMLImageElement | null = null;
+  private coreWizardImage: HTMLImageElement | null = null;
   private groundImage: HTMLImageElement | null = null;
   private towerImage: HTMLImageElement | null = null;
   private archerArrowImage: HTMLImageElement | null = null;
@@ -403,7 +430,6 @@ export class GameEngine {
     die: Array(4).fill(null),
   };
   private explosionImages: Array<HTMLImageElement | null> = Array(9).fill(null);
-  private dirtImages: Array<HTMLImageElement | null> = Array(2).fill(null);
   private treeImages: Array<HTMLImageElement | null> = Array(6).fill(null);
   private sheepImages: Record<
     "idle" | "bounce",
@@ -481,6 +507,7 @@ export class GameEngine {
   private toastTimer = 0;
   private mastery: Partial<Record<ActionId, WordMastery>> = {};
   private learnedActions: Partial<Record<ActionId, number>> = {};
+  private quickVoiceAccessEnabled = false;
   private learningDay: LearningDayState = {
     dayIndex: 0,
     learnedWordKeys: [],
@@ -543,6 +570,77 @@ export class GameEngine {
       loadImage("./game/background/atmosphere/sun.png", (image) => {
         this.sunImage = image;
       });
+      const featuredTreePaths = [
+        "./game/environment/gandalf/trees/willow.png",
+        "./game/environment/gandalf/trees/flowering.png",
+        "./game/environment/gandalf/trees/pine.png",
+        "./game/environment/gandalf/trees/oak.png",
+        "./game/environment/gandalf/trees/birch.png",
+      ];
+      for (let index = 0; index < featuredTreePaths.length; index += 1) {
+        loadImage(featuredTreePaths[index], (image) => {
+          this.featuredTreeImages[index] = image;
+        });
+      }
+      for (let index = 0; index < this.birdImages.length; index += 1) {
+        loadImage(
+          `./game/environment/gandalf/sky/birds-${index + 1}.png`,
+          (image) => {
+            this.birdImages[index] = image;
+          },
+        );
+      }
+      loadImage(
+        "./game/environment/gandalf/ground/tall-grass.png",
+        (image) => {
+          this.tallGrassImage = image;
+        },
+      );
+      loadImage(
+        "./game/environment/gandalf/ground/garden-decor.png",
+        (image) => {
+          this.gardenDecorImage = image;
+        },
+      );
+      loadImage(
+        "./game/environment/gandalf/ground/angel-statue.png",
+        (image) => {
+          this.angelStatueImage = image;
+        },
+      );
+      loadImage(
+        "./game/environment/gandalf/ground/small-tent.png",
+        (image) => {
+          this.smallTentDecorImage = image;
+        },
+      );
+      loadImage(
+        "./game/environment/gandalf/ground/large-tent.png",
+        (image) => {
+          this.largeTentDecorImage = image;
+        },
+      );
+      loadImage(
+        "./game/environment/gandalf/animated/cooking-area.png",
+        (image) => {
+          this.cookingAreaImage = image;
+        },
+      );
+      loadImage(
+        "./game/environment/gandalf/animated/portal.png",
+        (image) => {
+          this.portalImage = image;
+        },
+      );
+      loadImage(
+        "./game/environment/gandalf/sky/hot-air-balloon.png",
+        (image) => {
+          this.hotAirBalloonImage = image;
+        },
+      );
+      loadImage("./game/environment/core/merchant-wizard.png", (image) => {
+        this.coreWizardImage = image;
+      });
       loadImage("./game/terrain/grass.png", (image) => {
         this.groundImage = image;
       });
@@ -572,11 +670,6 @@ export class GameEngine {
             this.explosionImages[index] = image;
           },
         );
-      }
-      for (let index = 0; index < this.dirtImages.length; index += 1) {
-        loadImage(`./game/terrain/dirt-${index + 1}.png`, (image) => {
-          this.dirtImages[index] = image;
-        });
       }
       for (let index = 0; index < this.treeImages.length; index += 1) {
         loadImage(
@@ -715,6 +808,7 @@ export class GameEngine {
       this.started &&
       this.waveIndex === 0 &&
       this.phase === "prep" &&
+      !this.quickVoiceAccessEnabled &&
       !this.hasRequiredStarterLessons()
     );
   }
@@ -767,6 +861,7 @@ export class GameEngine {
     this.player = this.createPlayer();
     this.mastery = {};
     this.learnedActions = {};
+    this.quickVoiceAccessEnabled = false;
     this.learningDay = {
       dayIndex: 0,
       learnedWordKeys: [],
@@ -834,6 +929,7 @@ export class GameEngine {
         (id) => canLearnCampaignAction(id, this.waveIndex),
       ).map((id) => [id, 3]),
     ) as Partial<Record<ActionId, number>>;
+    this.quickVoiceAccessEnabled = false;
     this.learningDay = {
       dayIndex: this.waveIndex,
       learnedWordKeys: ACTION_ORDER.filter(
@@ -1208,6 +1304,7 @@ export class GameEngine {
           ).map((id) => [id, 1]),
         ) as Partial<Record<ActionId, number>>);
     this.learnedActions = savedLearnedActions;
+    this.quickVoiceAccessEnabled = false;
     const savedLearningDay = save.learningDay;
     this.learningDay = {
       dayIndex: this.waveIndex,
@@ -1338,11 +1435,14 @@ export class GameEngine {
 
   setPaused(paused: boolean): void {
     this.paused = paused;
-    if (paused) {
-      this.keys.clear();
-      this.pointer.left = false;
-    }
+    if (paused) this.releaseInput();
     this.emitHud(true);
+  }
+
+  releaseInput(): void {
+    this.keys.clear();
+    this.pointer.left = false;
+    this.pointer.rightPressed = false;
   }
 
   keyDown(code: string): void {
@@ -1388,6 +1488,36 @@ export class GameEngine {
     return this.heldFood !== null || this.foodAtPointer() !== undefined;
   }
 
+  hasActivePlacement(): boolean {
+    return this.activeActionId !== null;
+  }
+
+  triggerMobilePrimaryAction(): void {
+    if (
+      !this.started ||
+      this.paused ||
+      this.player.respawnTimer > 0 ||
+      this.heldFood
+    ) {
+      return;
+    }
+    if (this.player.tool === "hammer") {
+      this.tryDismantle();
+      return;
+    }
+    if (this.player.tool !== "blade") return;
+    const centerX = this.player.x + PLAYER_WIDTH / 2;
+    const centerY = this.player.y + PLAYER_HEIGHT / 2;
+    this.pointer.worldX =
+      centerX + this.player.facing * TILE_SIZE * 2;
+    this.pointer.worldY = centerY;
+    this.pointer.screenX =
+      (this.pointer.worldX - this.cameraX) * CAMERA_ZOOM;
+    this.pointer.screenY =
+      (this.pointer.worldY - this.cameraY) * CAMERA_ZOOM;
+    this.tryMeleeAttack();
+  }
+
   pointerDown(button: number): void {
     if (!this.started || this.paused || this.player.respawnTimer > 0) return;
     if (button === 0) {
@@ -1419,7 +1549,30 @@ export class GameEngine {
       transcript,
       this.waveIndex,
       this.learnedActions,
+      {
+        allowAllCampaignActions:
+          source === "voice" && this.quickVoiceAccessEnabled,
+      },
     );
+    if (
+      !this.started ||
+      this.paused ||
+      this.phase === "victory" ||
+      this.phase === "defeat"
+    ) {
+      const reason = !this.started
+        ? "战役尚未开始"
+        : this.paused
+          ? "游戏暂停时无法施法"
+          : "战役已经结束";
+      this.setToast(reason, 3);
+      return {
+        status: "rejected",
+        transcript,
+        resolution,
+        reason,
+      };
+    }
     if (resolution.kind === "begin-wave") {
       if (this.startWaveEarly()) {
         this.setToast("言灵成立 · 提前迎敌！", 3);
@@ -1462,7 +1615,39 @@ export class GameEngine {
         reason: "施法魔典没有找到对应词条",
       };
     }
-    const { actionId, quality } = resolution.intent;
+    return this.executeActionResolution(resolution, source);
+  }
+
+  enableQuickVoiceAccess(): boolean {
+    if (
+      !this.started ||
+      this.phase === "victory" ||
+      this.phase === "defeat"
+    ) {
+      this.setToast(
+        !this.started ? "战役尚未开始" : "战役已经结束，无法开启快速访问",
+        3,
+      );
+      return false;
+    }
+    if (!this.quickVoiceAccessEnabled) {
+      this.quickVoiceAccessEnabled = true;
+      this.setToast("常用言灵已授权 · 按住 M 念出英文", 5);
+    }
+    return true;
+  }
+
+  disableQuickVoiceAccess(): void {
+    if (!this.quickVoiceAccessEnabled) return;
+    this.quickVoiceAccessEnabled = false;
+    this.emitHud(true);
+  }
+
+  private executeActionResolution(
+    resolution: Extract<VoiceResolution, { kind: "action" }>,
+    source: VoiceSource,
+  ): CastCommandResult {
+    const { actionId, quality, transcript } = resolution.intent;
     const definition = CODEX_ACTIONS[actionId];
     const cost = effectiveInkCost(actionId, quality, source);
     if (this.ink < cost) {
@@ -1685,7 +1870,11 @@ export class GameEngine {
   }
 
   resetLearnedActions(): void {
-    if (!["prep", "intermission"].includes(this.phase)) return;
+    this.quickVoiceAccessEnabled = false;
+    if (!["prep", "intermission"].includes(this.phase)) {
+      this.emitHud(true);
+      return;
+    }
     this.learnedActions = {};
     this.learningDay = {
       dayIndex: this.waveIndex,
@@ -2218,7 +2407,15 @@ export class GameEngine {
     }
 
     this.movePlayerHorizontal(this.player.vx * dt);
-    this.player.vy = Math.min(360, this.player.vy + GRAVITY * dt);
+    const fastFall =
+      !this.player.onGround &&
+      (this.keys.has("KeyS") || this.keys.has("ArrowDown"));
+    this.player.vy = nextVerticalVelocity(
+      this.player.vy,
+      dt,
+      GRAVITY,
+      fastFall,
+    );
     this.movePlayerVertical(this.player.vy * dt);
   }
 
@@ -3858,6 +4055,7 @@ export class GameEngine {
       nightInkRegenRemaining: this.nightInkRegenRemaining,
       unlockedTier: this.unlockedTier,
       daylight: this.phase === "prep" || this.phase === "intermission",
+      quickVoiceAccessEnabled: this.quickVoiceAccessEnabled,
       learnedActions: cloneLearnedActions(this.learnedActions),
       starterLessonsCompleted: this.starterLessonCount(),
       starterLessonsTotal: REQUIRED_STARTER_ACTIONS.length,
@@ -3942,6 +4140,7 @@ export class GameEngine {
     context.save();
     context.translate(-Math.round(this.cameraX), -Math.round(this.cameraY));
     this.drawWorld(context);
+    this.drawEnvironmentalDetails(context);
     this.drawScenery(context);
     this.drawWarnings(context);
     this.drawCore(context);
@@ -4051,6 +4250,15 @@ export class GameEngine {
     }
     context.restore();
 
+    this.drawSkyDetails(
+      context,
+      width,
+      sceneY,
+      sceneHeight,
+      sceneScale,
+      isNight,
+    );
+
     const castle = this.backgroundImages[1];
     if (castle) {
       const castleFocus =
@@ -4103,6 +4311,71 @@ export class GameEngine {
     }
   }
 
+  private drawSkyDetails(
+    context: CanvasRenderingContext2D,
+    width: number,
+    sceneY: number,
+    sceneHeight: number,
+    sceneScale: number,
+    isNight: boolean,
+  ): void {
+    context.save();
+    context.globalAlpha = isNight ? 0.2 : 0.72;
+
+    if (this.hotAirBalloonImage) {
+      const scale = Math.max(0.82, sceneScale * 1.12);
+      const balloonWidth = this.hotAirBalloonImage.width * scale;
+      const balloonHeight = this.hotAirBalloonImage.height * scale;
+      const travelWidth = width + balloonWidth + 120;
+      const rawX =
+        width * 0.18 + this.elapsed * 0.34 - this.cameraX * 0.012;
+      const x =
+        ((rawX % travelWidth) + travelWidth) % travelWidth -
+        balloonWidth -
+        40;
+      const y =
+        sceneY +
+        sceneHeight * 0.14 +
+        Math.sin(this.elapsed * 0.18) * 4;
+      context.drawImage(
+        this.hotAirBalloonImage,
+        Math.round(x),
+        Math.max(14, Math.round(y)),
+        Math.round(balloonWidth),
+        Math.round(balloonHeight),
+      );
+    }
+
+    for (let index = 0; index < this.birdImages.length; index += 1) {
+      const image = this.birdImages[index];
+      if (!image) continue;
+      const scale = 0.9 + (index % 2) * 0.22;
+      const birdWidth = image.width * scale;
+      const birdHeight = image.height * scale;
+      const travelWidth = width + birdWidth + 100;
+      const rawX =
+        index * 191 +
+        this.elapsed * (1.1 + index * 0.16) -
+        this.cameraX * (0.02 + index * 0.004);
+      const x =
+        ((rawX % travelWidth) + travelWidth) % travelWidth -
+        birdWidth -
+        30;
+      const y =
+        sceneY +
+        sceneHeight * (0.2 + index * 0.055) +
+        Math.sin(this.elapsed * 0.42 + index) * 2;
+      context.drawImage(
+        image,
+        Math.round(x),
+        Math.max(18, Math.round(y)),
+        Math.max(1, Math.round(birdWidth)),
+        Math.max(1, Math.round(birdHeight)),
+      );
+    }
+    context.restore();
+  }
+
   private drawEnemyPortalBackdrop(
     context: CanvasRenderingContext2D,
     width: number,
@@ -4113,18 +4386,33 @@ export class GameEngine {
     for (const portalX of [18, width - 18]) {
       context.save();
       context.globalAlpha = 0.46 + pulse * 0.28;
-      context.strokeStyle = "#b75cff";
-      context.lineWidth = 3;
-      context.beginPath();
-      context.ellipse(portalX, portalY, 11, 27, 0, 0, Math.PI * 2);
-      context.stroke();
-      context.strokeStyle = "#6f39ae";
-      context.lineWidth = 2;
-      context.beginPath();
-      context.ellipse(portalX, portalY, 6, 20, 0, 0, Math.PI * 2);
-      context.stroke();
-      context.fillStyle = "rgba(30, 11, 48, 0.76)";
-      context.fillRect(portalX - 3, portalY - 18, 6, 37);
+      if (this.portalImage) {
+        const frame = Math.floor(this.elapsed * 8) % 10;
+        context.drawImage(
+          this.portalImage,
+          frame * 64,
+          0,
+          64,
+          64,
+          portalX - 32,
+          horizon - 64,
+          64,
+          64,
+        );
+      } else {
+        context.strokeStyle = "#b75cff";
+        context.lineWidth = 3;
+        context.beginPath();
+        context.ellipse(portalX, portalY, 11, 27, 0, 0, Math.PI * 2);
+        context.stroke();
+        context.strokeStyle = "#6f39ae";
+        context.lineWidth = 2;
+        context.beginPath();
+        context.ellipse(portalX, portalY, 6, 20, 0, 0, Math.PI * 2);
+        context.stroke();
+        context.fillStyle = "rgba(30, 11, 48, 0.76)";
+        context.fillRect(portalX - 3, portalY - 18, 6, 37);
+      }
       for (let mote = 0; mote < 5; mote += 1) {
         const phase = this.elapsed * (9 + mote) + mote * 1.7;
         const moteX = portalX + Math.sin(phase) * (7 + (mote % 2) * 4);
@@ -4153,66 +4441,278 @@ export class GameEngine {
     context.restore();
   }
 
+  private drawEnvironmentalDetails(
+    context: CanvasRenderingContext2D,
+  ): void {
+    const isNight = this.phase === "wave";
+    const visibleLeft = this.cameraX - 180;
+    const visibleRight = this.cameraX + this.viewWidth + 180;
+    const drawMirrored = (
+      image: HTMLImageElement,
+      x: number,
+      y: number,
+      width: number,
+      height: number,
+      mirrored: boolean,
+    ) => {
+      context.save();
+      if (mirrored) {
+        context.translate(x + width, 0);
+        context.scale(-1, 1);
+        context.drawImage(image, 0, y, width, height);
+      } else {
+        context.drawImage(image, x, y, width, height);
+      }
+      context.restore();
+    };
+
+    context.save();
+    context.globalAlpha = isNight ? 0.44 : 0.7;
+    for (const tree of FEATURED_TREE_LAYOUT) {
+      if (tree.x < visibleLeft || tree.x > visibleRight) continue;
+      const image = this.featuredTreeImages[tree.image];
+      if (!image) continue;
+      const width = tree.height * (image.width / image.height);
+      const ground = this.groundAt(tree.x);
+      drawMirrored(
+        image,
+        tree.x - width / 2,
+        ground - tree.height,
+        width,
+        tree.height,
+        tree.mirrored,
+      );
+    }
+
+    const drawGroundSprite = (
+      image: HTMLImageElement | null,
+      centerX: number,
+      width: number,
+      height: number,
+    ) => {
+      if (
+        !image ||
+        centerX < visibleLeft - width ||
+        centerX > visibleRight + width
+      ) {
+        return;
+      }
+      context.drawImage(
+        image,
+        Math.round(centerX - width / 2),
+        Math.round(this.groundAt(centerX) - height),
+        width,
+        height,
+      );
+    };
+
+    context.globalAlpha = isNight ? 0.58 : 0.88;
+    drawGroundSprite(this.largeTentDecorImage, 720, 57, 76);
+    drawGroundSprite(this.smallTentDecorImage, 2440, 48, 48);
+    drawGroundSprite(this.angelStatueImage, CORE_X - 76, 42, 42);
+    drawGroundSprite(this.angelStatueImage, CORE_X + 76, 42, 42);
+    drawGroundSprite(this.gardenDecorImage, CORE_X + 178, 106, 60);
+
+    if (this.cookingAreaImage) {
+      const frame = Math.floor(this.elapsed * 7) % 12;
+      for (const campX of [784, 2494]) {
+        if (campX < visibleLeft - 40 || campX > visibleRight + 40) continue;
+        const ground = this.groundAt(campX);
+        context.drawImage(
+          this.cookingAreaImage,
+          frame * 64,
+          0,
+          64,
+          64,
+          Math.round(campX - 24),
+          Math.round(ground - 48),
+          48,
+          48,
+        );
+      }
+    }
+
+    if (this.tallGrassImage) {
+      context.globalAlpha = isNight ? 0.38 : 0.68;
+      for (let index = 0; index < 53; index += 1) {
+        const x = 42 + index * 61 + ((index * 17) % 19);
+        if (x < visibleLeft || x > visibleRight) continue;
+        if (Math.abs(x - CORE_X) < 54) continue;
+        const variant = (index * 5) % 3;
+        const ground = this.groundAt(x);
+        context.drawImage(
+          this.tallGrassImage,
+          variant * 32,
+          0,
+          32,
+          32,
+          Math.round(x - 15),
+          Math.round(ground - 22),
+          30,
+          22,
+        );
+      }
+    }
+    context.restore();
+  }
+
   private drawWorld(context: CanvasRenderingContext2D): void {
     const startX = Math.max(0, Math.floor(this.cameraX / TILE_SIZE) - 1);
     const endX = Math.min(
       WORLD_WIDTH - 1,
       Math.ceil((this.cameraX + this.viewWidth) / TILE_SIZE) + 1,
     );
+    const worldBottom = WORLD_HEIGHT * TILE_SIZE;
+    const terrainLeft = startX * TILE_SIZE;
+    const terrainRight = (endX + 1) * TILE_SIZE;
+    const surfaceForTile = (tile: number) =>
+      Math.round(this.groundAt(tile * TILE_SIZE + TILE_SIZE / 2));
+    const traceTerrainTop = (path: Path2D) => {
+      let currentSurface = surfaceForTile(startX);
+      path.moveTo(terrainLeft, currentSurface);
+
+      for (let tile = startX; tile < endX; tile += 1) {
+        const boundaryX = (tile + 1) * TILE_SIZE;
+        const nextSurface = surfaceForTile(tile + 1);
+        if (nextSurface === currentSurface) {
+          path.lineTo(boundaryX, currentSurface);
+          continue;
+        }
+
+        const cornerNoise =
+          (Math.imul(tile + Math.floor(this.terrain.seed), 2_654_435_761) >>>
+            0) %
+            3 -
+          1;
+        const shoulder = 7 + cornerNoise;
+        path.lineTo(boundaryX - shoulder, currentSurface);
+        path.bezierCurveTo(
+          boundaryX - 3,
+          currentSurface,
+          boundaryX + 3,
+          nextSurface,
+          boundaryX + shoulder,
+          nextSurface,
+        );
+        currentSurface = nextSurface;
+      }
+
+      path.lineTo(terrainRight, currentSurface);
+    };
+
+    const topsoilPath = new Path2D();
+    traceTerrainTop(topsoilPath);
+    const soilPath = new Path2D();
+    traceTerrainTop(soilPath);
+    soilPath.lineTo(terrainRight, worldBottom);
+    soilPath.lineTo(terrainLeft, worldBottom);
+    soilPath.closePath();
+
+    const highestSurface = Math.min(
+      ...Array.from(
+        { length: endX - startX + 1 },
+        (_, index) => surfaceForTile(startX + index),
+      ),
+    );
+    const soilGradient = context.createLinearGradient(
+      0,
+      highestSurface,
+      0,
+      worldBottom,
+    );
+    soilGradient.addColorStop(0, "#6b4d34");
+    soilGradient.addColorStop(0.22, "#59402f");
+    soilGradient.addColorStop(0.56, "#402d27");
+    soilGradient.addColorStop(1, "#291c20");
+    context.fillStyle = soilGradient;
+    context.fill(soilPath);
+
+    // Rounded strokes turn one-tile height changes into soft, crumbly shoulders.
+    context.save();
+    context.lineCap = "round";
+    context.lineJoin = "round";
+    context.strokeStyle = "#806044";
+    context.lineWidth = 3;
+    context.stroke(topsoilPath);
+    context.strokeStyle = "rgba(41, 25, 20, 0.42)";
+    context.lineWidth = 1;
+    context.stroke(topsoilPath);
+    context.restore();
+
+    context.save();
+    context.clip(soilPath);
+
     for (let x = startX; x <= endX; x += 1) {
       const px = x * TILE_SIZE;
-      const surface = Math.round(this.groundAt(px + TILE_SIZE / 2));
-      const worldBottom = WORLD_HEIGHT * TILE_SIZE;
+      const surface = surfaceForTile(x);
+
       for (
         let row = 0;
         surface + row * TILE_SIZE < worldBottom;
         row += 1
       ) {
         const y = surface + row * TILE_SIZE;
-        context.fillStyle =
-          row <= 2 ? "#44352b" : row <= 5 ? "#352721" : "#291d1b";
-        context.fillRect(px, y, TILE_SIZE, TILE_SIZE);
-        const dirtImage = this.dirtImages[(x + row) % this.dirtImages.length];
-        if (dirtImage) {
-          const sourceX = (x * 17 + row * 23) % 172;
-          const sourceY = (row * 19 + x * 7) % 108;
-          context.save();
-          context.globalAlpha = row <= 3 ? 0.72 : 0.52;
-          context.drawImage(
-            dirtImage,
-            sourceX,
-            sourceY,
-            TILE_SIZE,
-            TILE_SIZE,
-            px,
-            y,
-            TILE_SIZE,
-            TILE_SIZE,
-          );
-          context.restore();
-        } else {
+
+        let textureSeed =
+          Math.imul(x + 41, 73_856_093) ^
+          Math.imul(row + 17, 19_349_663) ^
+          Math.floor(this.terrain.seed);
+        const nextTextureValue = () => {
+          textureSeed ^= textureSeed << 13;
+          textureSeed ^= textureSeed >>> 17;
+          textureSeed ^= textureSeed << 5;
+          return textureSeed >>> 0;
+        };
+
+        // Broken mineral streaks create strata without revealing the tile grid.
+        if (nextTextureValue() % 4 !== 0) {
+          const streakX = 2 + (nextTextureValue() % 8);
+          const streakY = 5 + (nextTextureValue() % 11);
+          const streakWidth = 5 + (nextTextureValue() % 8);
           context.fillStyle =
-            row <= 2
-              ? (x + row) % 3 === 0
-                ? "#4a3025"
-                : "#3d281f"
-              : row <= 5
-                ? "#2d1d1b"
-                : "#1b1315";
-          context.fillRect(px, y, TILE_SIZE, TILE_SIZE);
+            row < 3 ? "rgba(181, 130, 85, 0.2)" : "rgba(117, 78, 62, 0.2)";
+          context.fillRect(px + streakX, y + streakY, streakWidth, 1);
+          if (nextTextureValue() % 3 === 0) {
+            context.fillRect(px + streakX + 2, y + streakY + 1, 3, 1);
+          }
         }
-        const depthShade = Math.min(0.26, 0.025 + row * 0.025);
-        context.fillStyle = `rgba(31, 15, 12, ${depthShade})`;
-        context.fillRect(px, y, TILE_SIZE, TILE_SIZE);
-        context.fillStyle = "rgba(65,39,29,0.22)";
-        context.fillRect(px, y + TILE_SIZE - 1, TILE_SIZE, 1);
-        context.fillRect(px + TILE_SIZE - 1, y, 1, TILE_SIZE);
-        if ((x * 7 + row * 5) % 11 === 0) {
-          context.fillStyle = row < 4 ? "#79513b" : "#4b3430";
-          context.fillRect(px + 5 + ((x + row) % 3) * 3, y + 8, 3, 2);
+
+        // Tiny angular stones add readable detail at the game's 2× pixel scale.
+        if (nextTextureValue() % 5 === 0) {
+          const stoneX = 3 + (nextTextureValue() % 12);
+          const stoneY = 4 + (nextTextureValue() % 12);
+          const stoneLight = row < 4 ? "#8d735c" : "#665452";
+          const stoneDark = row < 4 ? "#49382f" : "#382b31";
+          context.fillStyle = stoneDark;
+          context.fillRect(px + stoneX - 1, y + stoneY + 1, 5, 2);
+          context.fillStyle = stoneLight;
+          context.fillRect(px + stoneX, y + stoneY, 3, 2);
+          context.fillStyle = "rgba(232, 198, 145, 0.34)";
+          context.fillRect(px + stoneX, y + stoneY, 2, 1);
+        } else {
+          const crumbX = 2 + (nextTextureValue() % 15);
+          const crumbY = 4 + (nextTextureValue() % 13);
+          context.fillStyle =
+            row < 3 ? "rgba(224, 168, 105, 0.24)" : "rgba(151, 103, 83, 0.2)";
+          context.fillRect(px + crumbX, y + crumbY, 2, 1);
+        }
+
+        // Occasional roots keep the upper soil alive and break up repetition.
+        if (row < 3 && nextTextureValue() % 13 === 0) {
+          const rootX = 4 + (nextTextureValue() % 11);
+          const rootY = 3 + (nextTextureValue() % 6);
+          context.fillStyle = "rgba(194, 145, 86, 0.48)";
+          context.fillRect(px + rootX, y + rootY, 1, 7);
+          context.fillRect(px + rootX + 1, y + rootY + 5, 3, 1);
+          context.fillRect(px + rootX - 2, y + rootY + 3, 2, 1);
         }
       }
+    }
+    context.restore();
 
+    for (let x = startX; x <= endX; x += 1) {
+      const px = x * TILE_SIZE;
+      const surface = surfaceForTile(x);
       const sourceX = groundAssetSourceX(this.terrain, x);
       const sourceTop = groundAssetTopOffset(this.terrain, x);
       const destinationY = Math.round(surface - sourceTop);
@@ -4243,8 +4743,8 @@ export class GameEngine {
           );
         }
       } else {
-        context.fillStyle = "#3d281f";
-        context.fillRect(px, surface, TILE_SIZE, 62);
+        context.fillStyle = "#55733b";
+        context.fillRect(px, surface - 2, TILE_SIZE, 2);
       }
     }
   }
@@ -4378,29 +4878,87 @@ export class GameEngine {
   private drawCore(context: CanvasRenderingContext2D): void {
     const ground = this.coreGround();
     const shielded = this.coreShieldUntil > this.elapsed;
-    if (shielded) {
-      context.fillStyle = "rgba(153,230,246,0.2)";
-      context.fillRect(CORE_X - 38, ground - 98, 76, 98);
-      context.strokeStyle = "#a8f2ff";
-      context.strokeRect(CORE_X - 38.5, ground - 98.5, 77, 99);
-    }
-    context.fillStyle = "#372a31";
-    context.fillRect(CORE_X - 28, ground - 24, 56, 24);
-    context.fillStyle = "#7a523b";
-    context.fillRect(CORE_X - 6, ground - 72, 12, 48);
-    context.fillStyle = "#d9c796";
-    context.fillRect(CORE_X - 27, ground - 82, 25, 36);
-    context.fillRect(CORE_X + 2, ground - 82, 25, 36);
-    context.fillStyle = "#7e5f8e";
-    context.fillRect(CORE_X - 2, ground - 82, 4, 40);
-    context.fillStyle = "#9d75ba";
-    context.fillRect(CORE_X - 14, ground - 70, 6, 6);
-    context.fillRect(CORE_X + 9, ground - 64, 6, 6);
     const ratio = this.coreHealth / CORE_MAX_HEALTH;
-    context.fillStyle = "#1c2225";
-    context.fillRect(CORE_X - 30, ground - 94, 60, 5);
-    context.fillStyle = ratio < 0.3 ? "#ec6f6f" : "#86c985";
-    context.fillRect(CORE_X - 29, ground - 93, 58 * ratio, 3);
+    const pulse = 0.5 + Math.sin(this.elapsed * 2.4) * 0.16;
+
+    context.save();
+    if (shielded) {
+      context.fillStyle = "rgba(153,230,246,0.17)";
+      context.fillRect(CORE_X - 44, ground - 120, 88, 120);
+      context.strokeStyle = "#a8f2ff";
+      context.strokeRect(CORE_X - 44.5, ground - 120.5, 89, 121);
+    }
+
+    const aura = context.createRadialGradient(
+      CORE_X,
+      ground - 57,
+      8,
+      CORE_X,
+      ground - 57,
+      52,
+    );
+    aura.addColorStop(
+      0,
+      ratio < 0.3
+        ? `rgba(236, 111, 111, ${0.2 + pulse * 0.16})`
+        : `rgba(126, 208, 226, ${0.18 + pulse * 0.14})`,
+    );
+    aura.addColorStop(0.55, "rgba(126, 95, 174, 0.11)");
+    aura.addColorStop(1, "rgba(88, 64, 126, 0)");
+    context.fillStyle = aura;
+    context.fillRect(CORE_X - 54, ground - 116, 108, 116);
+
+    context.fillStyle = "#372a31";
+    context.fillRect(CORE_X - 31, ground - 11, 62, 11);
+    context.fillStyle = "#806145";
+    context.fillRect(CORE_X - 27, ground - 14, 54, 5);
+    context.fillStyle = "#a88458";
+    context.fillRect(CORE_X - 20, ground - 16, 40, 3);
+    context.fillStyle = `rgba(152, 112, 205, ${0.5 + pulse * 0.35})`;
+    context.fillRect(CORE_X - 17, ground - 13, 7, 2);
+    context.fillRect(CORE_X - 3, ground - 13, 6, 2);
+    context.fillRect(CORE_X + 10, ground - 13, 7, 2);
+
+    if (this.coreWizardImage) {
+      context.save();
+      context.shadowColor =
+        ratio < 0.3 ? "rgba(236, 111, 111, 0.62)" : "rgba(122, 210, 226, 0.5)";
+      context.shadowBlur = 6;
+      context.drawImage(
+        this.coreWizardImage,
+        0,
+        0,
+        200,
+        280,
+        CORE_X - 34,
+        ground - 95,
+        68,
+        95,
+      );
+      context.restore();
+    } else {
+      context.fillStyle = "#7a523b";
+      context.fillRect(CORE_X - 6, ground - 72, 12, 48);
+      context.fillStyle = "#d9c796";
+      context.fillRect(CORE_X - 27, ground - 82, 25, 36);
+      context.fillRect(CORE_X + 2, ground - 82, 25, 36);
+      context.fillStyle = "#7e5f8e";
+      context.fillRect(CORE_X - 2, ground - 82, 4, 40);
+      context.fillStyle = "#9d75ba";
+      context.fillRect(CORE_X - 14, ground - 70, 6, 6);
+      context.fillRect(CORE_X + 9, ground - 64, 6, 6);
+    }
+
+    context.fillStyle = "rgba(8, 13, 16, 0.86)";
+    context.fillRect(CORE_X - 39, ground - 127, 78, 9);
+    context.strokeStyle =
+      ratio < 0.3 ? "rgba(255, 135, 127, 0.88)" : "rgba(200, 167, 90, 0.72)";
+    context.strokeRect(CORE_X - 38.5, ground - 126.5, 77, 8);
+    context.fillStyle = "rgba(234, 219, 184, 0.16)";
+    context.fillRect(CORE_X - 36, ground - 124, 72, 3);
+    context.fillStyle = ratio < 0.3 ? "#ec6f6f" : "#78d0d2";
+    context.fillRect(CORE_X - 36, ground - 124, 72 * ratio, 3);
+    context.restore();
   }
 
   private drawStructures(context: CanvasRenderingContext2D): void {
@@ -5168,11 +5726,19 @@ export class GameEngine {
   private drawWarnings(context: CanvasRenderingContext2D): void {
     for (const warning of this.warnings) {
       const alpha = Math.max(0, warning.life / warning.maxLife);
-      context.globalAlpha = 0.35 + alpha * 0.65;
-      context.fillStyle = "#ffcc78";
+      const pulse = 0.55 + Math.sin(this.elapsed * 10) * 0.18;
+      context.globalAlpha = (0.42 + alpha * 0.58) * pulse;
+      context.fillStyle = "#efd589";
+      context.shadowColor = "rgba(236, 111, 111, 0.72)";
+      context.shadowBlur = 7;
       if (warning.direction === "air-top") {
-        context.fillRect(warning.x - 12, warning.y - 2, 24, 3);
-        context.fillRect(warning.x - 2, warning.y - 12, 4, 24);
+        context.beginPath();
+        context.arc(warning.x, warning.y, 12, 0, Math.PI * 2);
+        context.strokeStyle = "#efd589";
+        context.lineWidth = 2;
+        context.stroke();
+        context.fillRect(warning.x - 2, warning.y - 7, 4, 9);
+        context.fillRect(warning.x - 2, warning.y + 5, 4, 3);
       } else {
         const y = warning.y - 22;
         context.beginPath();
@@ -5187,6 +5753,7 @@ export class GameEngine {
         }
         context.fill();
       }
+      context.shadowBlur = 0;
     }
     context.globalAlpha = 1;
   }
@@ -5198,7 +5765,8 @@ export class GameEngine {
     const preview = this.getPlacementPreview(definition);
     const centerX = this.player.x + PLAYER_WIDTH / 2;
     const centerY = this.player.y + PLAYER_HEIGHT / 2;
-    context.fillStyle = "rgba(112,222,190,0.08)";
+    const previewColor = preview.ok ? "#78d0d2" : "#ec6f6f";
+    context.fillStyle = "rgba(120,208,210,0.055)";
     context.fillRect(
       centerX - REACH_TILES_X * TILE_SIZE,
       centerY - REACH_TILES_Y * TILE_SIZE,
@@ -5206,16 +5774,41 @@ export class GameEngine {
       REACH_TILES_Y * TILE_SIZE * 2,
     );
     context.fillStyle = preview.ok
-      ? "rgba(117,234,182,0.38)"
-      : "rgba(239,108,105,0.38)";
+      ? "rgba(120,208,210,0.28)"
+      : "rgba(236,111,111,0.3)";
     context.fillRect(preview.x, preview.y, preview.width, preview.height);
-    context.strokeStyle = preview.ok ? "#a6ffd7" : "#ff9b98";
+    context.strokeStyle = previewColor;
+    context.lineWidth = 1.5;
+    context.setLineDash([4, 3]);
     context.strokeRect(
       preview.x + 0.5,
       preview.y + 0.5,
       preview.width - 1,
       preview.height - 1,
     );
+    context.setLineDash([]);
+    const markX = preview.x + preview.width / 2;
+    const markY = preview.y + preview.height / 2;
+    context.fillStyle = "rgba(8,13,16,0.82)";
+    context.beginPath();
+    context.arc(markX, markY, 8, 0, Math.PI * 2);
+    context.fill();
+    context.strokeStyle = previewColor;
+    context.lineWidth = 1;
+    context.stroke();
+    context.beginPath();
+    if (preview.ok) {
+      context.moveTo(markX - 3, markY);
+      context.lineTo(markX - 1, markY + 3);
+      context.lineTo(markX + 4, markY - 3);
+    } else {
+      context.moveTo(markX - 3, markY - 3);
+      context.lineTo(markX + 3, markY + 3);
+      context.moveTo(markX + 3, markY - 3);
+      context.lineTo(markX - 3, markY + 3);
+    }
+    context.stroke();
+    context.lineWidth = 1;
   }
 
   private drawCursor(context: CanvasRenderingContext2D): void {

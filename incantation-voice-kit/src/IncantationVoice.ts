@@ -5,7 +5,7 @@ import {
   resolveSpeechAlternatives,
   resolveSpokenWord,
 } from './matcher';
-import { BrowserWordRecognizer } from './recognizer';
+import { createDefaultRecognizer } from './recognizer';
 import type {
   IncantationCandidateResult,
   IncantationChannelState,
@@ -14,6 +14,7 @@ import type {
   IncantationMatchResult,
   IncantationNoMatchResult,
   IncantationProvider,
+  IncantationRecognizer,
   IncantationStateChange,
   IncantationVoiceInstance,
   IncantationVoiceOptions,
@@ -52,7 +53,7 @@ const clampVolume = (volume: number): number =>
 export class IncantationVoice implements IncantationVoiceInstance {
   private readonly root: HTMLElement;
   private readonly host: HTMLElement;
-  private readonly recognizer: BrowserWordRecognizer;
+  private readonly recognizer: IncantationRecognizer;
   private readonly audio: IncantationAudio;
   private readonly options: IncantationVoiceOptions;
   private words: IncantationWord[];
@@ -60,8 +61,6 @@ export class IncantationVoice implements IncantationVoiceInstance {
   private clearId?: number;
   private destroyed = false;
   private provider: IncantationProvider = 'browser';
-  private permissionState: 'unknown' | 'requesting' | 'granted' | 'denied' = 'unknown';
-  private permissionAttempt = 0;
   private holdTimeout?: number;
 
   constructor(options: IncantationVoiceOptions) {
@@ -75,7 +74,8 @@ export class IncantationVoice implements IncantationVoiceInstance {
     this.audio = new IncantationAudio(clampVolume(options.volume ?? 1));
     this.root = this.createRoot();
     this.host.append(this.root);
-    this.recognizer = new BrowserWordRecognizer(
+    const recognizerFactory = options.recognizerFactory ?? createDefaultRecognizer;
+    this.recognizer = recognizerFactory(
       options.language ?? 'en-US',
       false,
       {
@@ -84,18 +84,18 @@ export class IncantationVoice implements IncantationVoiceInstance {
           result.transcript,
           result.alternatives,
           result.confidence,
-          'browser',
+          this.recognizer.provider,
         ),
         onFailure: (reason, message, fatal) => this.handleRecognitionFailure(reason, message, fatal),
         onState: (state, message) => this.handleRecognizerState(state, message),
       },
     );
-    this.provider = this.recognizer.supported ? 'browser' : 'text';
+    this.provider = this.recognizer.supported ? this.recognizer.provider : 'text';
     this.bind();
-    this.setChannel(this.recognizer.supported ? 'BROWSER' : 'TEXT');
+    this.setChannel(this.recognizer.supported ? this.channelName() : 'TEXT');
     if (!this.recognizer.supported) {
-      this.notifyState('fallback', '浏览器不支持语音识别 · 念写仍可使用', 'text');
-      this.show('言灵待命', '浏览器不支持语音识别 · 请使用念写');
+      this.notifyState('fallback', '当前环境不支持语音识别 · 念写仍可使用', 'text');
+      this.show('言灵待命', '当前环境不支持语音识别 · 请使用念写');
     }
   }
 
@@ -108,34 +108,11 @@ export class IncantationVoice implements IncantationVoiceInstance {
   }
 
   get isRequestingPermission(): boolean {
-    return this.permissionState === 'requesting';
+    return this.recognizer.requestingPermission;
   }
 
   beginHold(): void {
-    if (this.destroyed || this.recognizer.listening || this.permissionState === 'requesting') return;
-    if (
-      this.permissionState !== 'granted'
-      && typeof navigator.mediaDevices?.getUserMedia === 'function'
-    ) {
-      const attempt = ++this.permissionAttempt;
-      this.permissionState = 'requesting';
-      this.audio.playCue('on');
-      this.notifyState('connecting', '正在请求麦克风权限 · 授权后请再次按住');
-      void navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
-        stream.getTracks().forEach((track) => track.stop());
-        if (this.destroyed || attempt !== this.permissionAttempt) return;
-        this.permissionState = 'granted';
-        this.notifyState('idle', '麦克风已启用 · 请再次按住施法');
-      }).catch(() => {
-        if (this.destroyed || attempt !== this.permissionAttempt) return;
-        this.permissionState = 'denied';
-        this.provider = 'text';
-        this.notifyState('fallback', '麦克风权限未开启 · 请使用文字输入', 'text');
-        this.playFailure('permission');
-      });
-      return;
-    }
-    this.permissionState = 'granted';
+    if (this.destroyed || this.recognizer.listening) return;
     this.start();
     if (this.recognizer.listening) {
       this.holdTimeout = window.setTimeout(() => this.finishHold(), 8_000);
@@ -143,7 +120,7 @@ export class IncantationVoice implements IncantationVoiceInstance {
   }
 
   finishHold(): void {
-    if (this.destroyed || this.permissionState === 'requesting') return;
+    if (this.destroyed) return;
     if (this.holdTimeout !== undefined) window.clearTimeout(this.holdTimeout);
     this.holdTimeout = undefined;
     if (!this.recognizer.listening) return;
@@ -153,8 +130,6 @@ export class IncantationVoice implements IncantationVoiceInstance {
   }
 
   cancel(): void {
-    this.permissionAttempt += 1;
-    if (this.permissionState === 'requesting') this.permissionState = 'unknown';
     if (this.holdTimeout !== undefined) window.clearTimeout(this.holdTimeout);
     this.holdTimeout = undefined;
     this.recognizer.cancel();
@@ -168,7 +143,7 @@ export class IncantationVoice implements IncantationVoiceInstance {
     this.audio.playCue('on');
     const started = this.recognizer.start();
     if (started) {
-      this.provider = 'browser';
+      this.provider = this.recognizer.provider;
       this.root.classList.add('ivk-listening');
       this.setIncantLabel('收束');
     } else {
@@ -281,41 +256,88 @@ export class IncantationVoice implements IncantationVoiceInstance {
     root.className = `ivk-root${this.options.renderUI === false ? ' ivk-headless' : ''}`;
     root.setAttribute('aria-label', '言灵语音识别');
     root.style.setProperty('--ivk-accent', this.options.accentColor ?? '#63f0d4');
-    root.innerHTML = `
-      <div class="ivk-words">
-        <div class="ivk-meta">
-          <span class="ivk-channel"><i></i><b>OFF</b></span>
-          <span class="ivk-system-label">INCANTATION LINK</span>
-        </div>
-        <p class="ivk-live">言灵待命</p>
-        <p class="ivk-substatus">点击下方「言灵」开始聆听</p>
-        <div class="ivk-listening-wave" aria-hidden="true">
-          ${Array.from({ length: 9 }, (_, index) => `<i style="--ivk-bar-index:${index}"></i>`).join('')}
-        </div>
-        <div class="ivk-success-rings" aria-hidden="true"><i></i><i></i></div>
-        <div class="ivk-sparks" aria-hidden="true"></div>
-      </div>
-      <span class="ivk-announcer" aria-live="polite" aria-atomic="true"></span>
-      <div class="ivk-actions">
-        <button class="ivk-incant-button" type="button" aria-label="开启或关闭持续语音识别">
-          <i class="ivk-action-glyph" aria-hidden="true"><b></b><b></b></i>
-          <span>言灵<small>L</small></span>
-        </button>
-        <button class="ivk-write-button" type="button" aria-label="开启文字输入">
-          <i class="ivk-action-glyph ivk-write-glyph" aria-hidden="true">⌁</i>
-          <span>念写<small>N</small></span>
-        </button>
-      </div>
-      <form class="ivk-write-tray">
-        <span class="ivk-write-prefix" aria-hidden="true">念写</span>
-        <input maxlength="160" autocomplete="off" aria-label="手动输入英语言灵"
-          placeholder="写下一个词库单词，例如 apple">
-        <button type="submit"><span>执行</span><i aria-hidden="true">→</i></button>
-      </form>
-    `;
-    if (this.options.renderUI === false) {
-      root.querySelector('.ivk-actions')?.remove();
-      root.querySelector('.ivk-write-tray')?.remove();
+
+    const element = <K extends keyof HTMLElementTagNameMap>(
+      tagName: K,
+      className?: string,
+      text?: string,
+    ): HTMLElementTagNameMap[K] => {
+      const node = document.createElement(tagName);
+      if (className) node.className = className;
+      if (text !== undefined) node.textContent = text;
+      return node;
+    };
+
+    const words = element('div', 'ivk-words');
+    const meta = element('div', 'ivk-meta');
+    const channel = element('span', 'ivk-channel');
+    channel.append(element('i'), element('b', undefined, 'OFF'));
+    meta.append(channel, element('span', 'ivk-system-label', 'INCANTATION LINK'));
+
+    const wave = element('div', 'ivk-listening-wave');
+    wave.setAttribute('aria-hidden', 'true');
+    for (let index = 0; index < 9; index += 1) {
+      const bar = element('i');
+      bar.style.setProperty('--ivk-bar-index', String(index));
+      wave.append(bar);
+    }
+
+    const rings = element('div', 'ivk-success-rings');
+    rings.setAttribute('aria-hidden', 'true');
+    rings.append(element('i'), element('i'));
+    const sparks = element('div', 'ivk-sparks');
+    sparks.setAttribute('aria-hidden', 'true');
+    words.append(
+      meta,
+      element('p', 'ivk-live', '言灵待命'),
+      element('p', 'ivk-substatus', '点击下方「言灵」开始聆听'),
+      wave,
+      rings,
+      sparks,
+    );
+
+    const announcer = element('span', 'ivk-announcer');
+    announcer.setAttribute('aria-live', 'polite');
+    announcer.setAttribute('aria-atomic', 'true');
+    root.append(words, announcer);
+
+    if (this.options.renderUI !== false) {
+      const actions = element('div', 'ivk-actions');
+      const voiceButton = element('button', 'ivk-incant-button');
+      voiceButton.type = 'button';
+      voiceButton.setAttribute('aria-label', '开启或关闭持续语音识别');
+      const voiceGlyph = element('i', 'ivk-action-glyph');
+      voiceGlyph.setAttribute('aria-hidden', 'true');
+      voiceGlyph.append(element('b'), element('b'));
+      const voiceLabel = element('span', undefined, '言灵');
+      voiceLabel.append(element('small', undefined, 'L'));
+      voiceButton.append(voiceGlyph, voiceLabel);
+
+      const writeButton = element('button', 'ivk-write-button');
+      writeButton.type = 'button';
+      writeButton.setAttribute('aria-label', '开启文字输入');
+      const writeGlyph = element('i', 'ivk-action-glyph ivk-write-glyph', '⌁');
+      writeGlyph.setAttribute('aria-hidden', 'true');
+      const writeLabel = element('span', undefined, '念写');
+      writeLabel.append(element('small', undefined, 'N'));
+      writeButton.append(writeGlyph, writeLabel);
+      actions.append(voiceButton, writeButton);
+
+      const form = element('form', 'ivk-write-tray');
+      const prefix = element('span', 'ivk-write-prefix', '念写');
+      prefix.setAttribute('aria-hidden', 'true');
+      const input = element('input');
+      input.maxLength = 160;
+      input.autocomplete = 'off';
+      input.setAttribute('aria-label', '手动输入英语言灵');
+      input.placeholder = '写下一个词库单词，例如 apple';
+      const submit = element('button');
+      submit.type = 'submit';
+      const submitGlyph = element('i', undefined, '→');
+      submitGlyph.setAttribute('aria-hidden', 'true');
+      submit.append(element('span', undefined, '执行'), submitGlyph);
+      form.append(prefix, input, submit);
+      root.append(actions, form);
     }
     return root;
   }
@@ -464,6 +486,16 @@ export class IncantationVoice implements IncantationVoiceInstance {
     fatal: boolean,
   ): void {
     if (this.destroyed) return;
+    const failure: IncantationNoMatchResult = {
+      utteranceId: randomId(),
+      transcript: '',
+      normalizedTranscript: '',
+      confidence: null,
+      provider: this.recognizer.provider,
+      reason,
+      candidateWordIds: [],
+    };
+    this.options.onNoMatch?.(failure);
     if (fatal) {
       this.provider = 'text';
       this.root.classList.remove('ivk-listening', 'ivk-transcribing');
@@ -471,20 +503,11 @@ export class IncantationVoice implements IncantationVoiceInstance {
       this.setIncantLabel('言灵');
       this.show('语音已降级', message);
       this.openWriteTray();
-      const failure: IncantationNoMatchResult = {
-        utteranceId: randomId(),
-        transcript: '',
-        normalizedTranscript: '',
-        confidence: null,
-        provider: 'browser',
-        reason,
-        candidateWordIds: [],
-      };
-      this.options.onNoMatch?.(failure);
       this.playFailure(reason);
       return;
     }
     this.text('.ivk-substatus', message);
+    this.playFailure(reason);
   }
 
   private handleRecognizerState(state: IncantationChannelState, message: string): void {
@@ -492,8 +515,8 @@ export class IncantationVoice implements IncantationVoiceInstance {
     this.root.classList.toggle('ivk-listening', state === 'listening' || state === 'transcribing');
     this.root.classList.toggle('ivk-reconnecting', state === 'reconnecting' || state === 'connecting');
     if (state === 'listening') {
-      this.provider = 'browser';
-      this.setChannel('BROWSER');
+      this.provider = this.recognizer.provider;
+      this.setChannel(this.channelName());
       this.setIncantLabel('收束');
     } else if (state === 'idle') {
       this.setIncantLabel('言灵');
@@ -580,6 +603,10 @@ export class IncantationVoice implements IncantationVoiceInstance {
 
   private setChannel(value: string): void {
     this.text('.ivk-channel b', value);
+  }
+
+  private channelName(): string {
+    return this.recognizer.provider === 'volcengine' ? 'ARK' : 'BROWSER';
   }
 
   private setIncantLabel(value: string): void {

@@ -20,6 +20,8 @@ test("normal hold release commits a final transcript while cancel discards it", 
     onend: (() => void) | null = null;
 
     constructor() {
+      // The test keeps the browser-created instance so it can assert cancellation.
+      // eslint-disable-next-line @typescript-eslint/no-this-alias
       current = this;
     }
 
