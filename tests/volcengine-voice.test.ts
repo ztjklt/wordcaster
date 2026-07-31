@@ -167,7 +167,7 @@ test("server proxy refuses requests when the Ark secret is not configured", asyn
       headers: { "CF-Connecting-IP": "203.0.113.11" },
       body: form,
     }),
-    {},
+    undefined,
   );
   assert.equal(response.status, 503);
   assert.deepEqual(await response.json(), { error: "voice_not_configured" });

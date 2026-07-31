@@ -98,9 +98,15 @@ export function cleanArkTranscript(value: string): string {
 
 export async function handleArkTranscription(
   request: Request,
-  env: ArkEnvironment,
+  env: ArkEnvironment | undefined,
   fetchImpl: typeof fetch = fetch,
 ): Promise<Response> {
+  // Cloudflare supplies Worker bindings through `env`, while vinext's Node
+  // production server (used by Railway) exposes them through process.env.
+  const apiKey = env?.ARK_API_KEY ?? process.env.ARK_API_KEY;
+  const configuredModel =
+    env?.ARK_AUDIO_MODEL ?? process.env.ARK_AUDIO_MODEL;
+
   if (request.method !== "POST") {
     return jsonResponse(
       { error: "method_not_allowed" },
@@ -117,7 +123,7 @@ export async function handleArkTranscription(
   if (!allowedByRateLimit(request)) {
     return jsonResponse({ error: "rate_limited" }, 429);
   }
-  if (!env.ARK_API_KEY) {
+  if (!apiKey) {
     return jsonResponse({ error: "voice_not_configured" }, 503);
   }
 
@@ -145,12 +151,12 @@ export async function handleArkTranscription(
   }
 
   const encodedAudio = Buffer.from(await audio.arrayBuffer()).toString("base64");
-  const model = env.ARK_AUDIO_MODEL?.trim() || DEFAULT_AUDIO_MODEL;
+  const model = configuredModel?.trim() || DEFAULT_AUDIO_MODEL;
   const arkResponse = await fetchImpl(ARK_CHAT_URL, {
     method: "POST",
     headers: {
       Accept: "application/json",
-      Authorization: `Bearer ${env.ARK_API_KEY}`,
+      Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
