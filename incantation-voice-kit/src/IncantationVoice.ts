@@ -146,7 +146,7 @@ export class IncantationVoice implements IncantationVoiceInstance {
       this.provider = this.recognizer.provider;
       this.root.classList.add('ivk-listening');
       this.setIncantLabel('收束');
-    } else {
+    } else if (!this.recognizer.supported) {
       this.provider = 'text';
       this.openWriteTray();
     }
@@ -493,6 +493,7 @@ export class IncantationVoice implements IncantationVoiceInstance {
       confidence: null,
       provider: this.recognizer.provider,
       reason,
+      message,
       candidateWordIds: [],
     };
     this.options.onNoMatch?.(failure);

@@ -592,6 +592,7 @@ export default function Game({
       },
       onNoMatch: (failure) => {
         const failureMessage = (() => {
+          if (failure.message) return failure.message;
           if (failure.reason === "permission") {
             return "麦克风权限未开启 · 请使用文字输入";
           }
@@ -619,11 +620,17 @@ export default function Game({
         playIncantationEffect(false);
       },
       onStateChange: ({ state, message }) => {
-        if (state === "listening" || state === "transcribing") {
+        if (state === "listening") {
           setVoice((current) => ({
             state: "listening",
             transcript: current.transcript,
             message: "正在聆听 · 松开后解析",
+          }));
+        } else if (state === "transcribing") {
+          setVoice((current) => ({
+            state: "processing",
+            transcript: current.transcript,
+            message,
           }));
         } else if (state === "connecting") {
           setVoice({
@@ -1545,7 +1552,7 @@ export default function Game({
             <kbd>M</kbd>
           </section>
 
-          {voice.state === "unsupported" ? (
+          {voice.state === "unsupported" || voice.state === "no-match" ? (
             <form className="voice-text-fallback" onSubmit={submitTextCommand}>
               <input
                 value={textCommand}

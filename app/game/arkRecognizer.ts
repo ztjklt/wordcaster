@@ -8,6 +8,8 @@ import type {
 const TARGET_SAMPLE_RATE = 16_000;
 const MIN_AUDIO_SECONDS = 0.18;
 const MIN_SIGNAL_RMS = 0.0025;
+const MICROPHONE_PERMISSION_TIMEOUT_MS = 12_000;
+const TRANSCRIPTION_TIMEOUT_MS = 20_000;
 
 type AudioWindow = Window & typeof globalThis & {
   webkitAudioContext?: typeof AudioContext;
@@ -156,6 +158,7 @@ class ArkWordRecognizer implements IncantationRecognizer {
   private processor?: ScriptProcessorNode;
   private silentGain?: GainNode;
   private abortController?: AbortController;
+  private permissionTimeoutId?: number;
 
   constructor(
     private readonly language: string,
@@ -179,9 +182,7 @@ class ArkWordRecognizer implements IncantationRecognizer {
   }
 
   start(): boolean {
-    if (this.destroyed || this.holding || this.requestInFlight) {
-      return this.supported;
-    }
+    if (this.destroyed || this.holding || this.requestInFlight) return false;
     if (!this.supported) {
       this.callbacks.onFailure(
         "unsupported",
@@ -198,6 +199,10 @@ class ArkWordRecognizer implements IncantationRecognizer {
     this.finishRequested = false;
     this.chunks = [];
     this.callbacks.onState("connecting", "正在启动麦克风…");
+    this.permissionTimeoutId = window.setTimeout(
+      () => this.handlePermissionTimeout(session),
+      MICROPHONE_PERMISSION_TIMEOUT_MS,
+    );
     void this.openMicrophone(session);
     return true;
   }
@@ -218,6 +223,7 @@ class ArkWordRecognizer implements IncantationRecognizer {
     this.requestInFlight = false;
     this.abortController?.abort();
     this.abortController = undefined;
+    this.clearPermissionTimeout();
     this.chunks = [];
     this.closeCapture();
     if (!this.destroyed) this.callbacks.onState("idle", "言灵已收束");
@@ -248,6 +254,7 @@ class ArkWordRecognizer implements IncantationRecognizer {
         return;
       }
 
+      this.clearPermissionTimeout();
       this.permissionPending = false;
       if (!this.holding && this.finishRequested) {
         stream.getTracks().forEach((track) => track.stop());
@@ -286,6 +293,7 @@ class ArkWordRecognizer implements IncantationRecognizer {
       this.callbacks.onState("listening", "火山语音正在聆听");
     } catch (error) {
       if (this.destroyed || session !== this.session) return;
+      this.clearPermissionTimeout();
       this.permissionPending = false;
       this.holding = false;
       this.finishRequested = false;
@@ -329,7 +337,10 @@ class ArkWordRecognizer implements IncantationRecognizer {
     this.callbacks.onState("transcribing", "火山模型正在辨认言灵…");
     const abortController = new AbortController();
     this.abortController = abortController;
-    const timeoutId = window.setTimeout(() => abortController.abort(), 20_000);
+    const timeoutId = window.setTimeout(
+      () => abortController.abort(),
+      TRANSCRIPTION_TIMEOUT_MS,
+    );
 
     try {
       const wav = encodePcm16Wav(chunks, sampleRate);
@@ -380,6 +391,32 @@ class ArkWordRecognizer implements IncantationRecognizer {
         this.abortController = undefined;
       }
     }
+  }
+
+  private handlePermissionTimeout(session: number): void {
+    if (
+      this.destroyed
+      || session !== this.session
+      || !this.permissionPending
+    ) {
+      return;
+    }
+    this.permissionTimeoutId = undefined;
+    this.session += 1;
+    this.holding = false;
+    this.permissionPending = false;
+    this.finishRequested = false;
+    this.chunks = [];
+    this.closeCapture();
+    const message = "麦克风授权等待超时 · 请允许权限或使用文字输入";
+    this.callbacks.onFailure("permission", message, true);
+    this.callbacks.onState("fallback", message);
+  }
+
+  private clearPermissionTimeout(): void {
+    if (this.permissionTimeoutId === undefined) return;
+    window.clearTimeout(this.permissionTimeoutId);
+    this.permissionTimeoutId = undefined;
   }
 
   private closeCapture(): void {

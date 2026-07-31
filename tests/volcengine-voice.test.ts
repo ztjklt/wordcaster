@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { encodePcm16Wav } from "../app/game/arkRecognizer.ts";
+import {
+  createArkRecognizer,
+  encodePcm16Wav,
+} from "../app/game/arkRecognizer.ts";
 import { createDefaultRecognizer } from "../incantation-voice-kit/src/recognizer.ts";
 import {
   handleArkTranscription,
@@ -38,6 +41,8 @@ test("Douyin bridge records AAC and sends it to the confirmed Ark audio model", 
   Object.defineProperty(globalThis, "window", {
     configurable: true,
     value: {
+      setTimeout,
+      clearTimeout,
       tt: {
         getRecorderManager: () => recorder,
         callAIChatCompletion(options: {
@@ -77,6 +82,144 @@ test("Douyin bridge records AAC and sends it to the confirmed Ark audio model", 
     assert.deepEqual(finalTranscripts, ["Build a stone wall"]);
     assert.equal(typeof onError, "function");
     recognizer.destroy();
+  } finally {
+    if (originalWindow) {
+      Object.defineProperty(globalThis, "window", originalWindow);
+    } else {
+      delete (globalThis as { window?: unknown }).window;
+    }
+  }
+});
+
+test("browser microphone permission watchdog exits the pending state", () => {
+  const originalWindow = Object.getOwnPropertyDescriptor(globalThis, "window");
+  const originalNavigator = Object.getOwnPropertyDescriptor(
+    globalThis,
+    "navigator",
+  );
+  let permissionTimeout: (() => void) | undefined;
+  const failures: Array<{ reason: string; fatal: boolean }> = [];
+  const states: string[] = [];
+
+  Object.defineProperty(globalThis, "window", {
+    configurable: true,
+    value: {
+      AudioContext: class FakeAudioContext {},
+      setTimeout(callback: () => void) {
+        permissionTimeout = callback;
+        return 1;
+      },
+      clearTimeout() {},
+    },
+  });
+  Object.defineProperty(globalThis, "navigator", {
+    configurable: true,
+    value: {
+      mediaDevices: {
+        getUserMedia: () => new Promise<MediaStream>(() => {}),
+      },
+    },
+  });
+
+  try {
+    const recognizer = createArkRecognizer("en-US", false, {
+      onPartial() {},
+      onFinal() {},
+      onFailure(reason, _message, fatal) {
+        failures.push({ reason, fatal });
+      },
+      onState(state) {
+        states.push(state);
+      },
+    });
+    assert.equal(recognizer.start(), true);
+    assert.equal(recognizer.requestingPermission, true);
+    permissionTimeout?.();
+    assert.equal(recognizer.requestingPermission, false);
+    assert.equal(recognizer.listening, false);
+    assert.deepEqual(failures, [{ reason: "permission", fatal: true }]);
+    assert.equal(states.at(-1), "fallback");
+    recognizer.destroy();
+  } finally {
+    if (originalWindow) {
+      Object.defineProperty(globalThis, "window", originalWindow);
+    } else {
+      delete (globalThis as { window?: unknown }).window;
+    }
+    if (originalNavigator) {
+      Object.defineProperty(globalThis, "navigator", originalNavigator);
+    } else {
+      delete (globalThis as { navigator?: unknown }).navigator;
+    }
+  }
+});
+
+test("Douyin recognizer rejects duplicate holds and recovers after Ark timeout", () => {
+  const originalWindow = Object.getOwnPropertyDescriptor(globalThis, "window");
+  let onStart: (() => void) | undefined;
+  let onStop: ((result: { tempFilePath?: string }) => void) | undefined;
+  let nextTimerId = 1;
+  const timers = new Map<number, () => void>();
+  const failures: string[] = [];
+  const states: string[] = [];
+
+  const recorder = {
+    onStart(callback: () => void) {
+      onStart = callback;
+    },
+    onStop(callback: (result: { tempFilePath?: string }) => void) {
+      onStop = callback;
+    },
+    onError() {},
+    start() {
+      onStart?.();
+    },
+    stop() {
+      onStop?.({ tempFilePath: "tt://recording/timeout.aac" });
+    },
+  };
+
+  Object.defineProperty(globalThis, "window", {
+    configurable: true,
+    value: {
+      setTimeout(callback: () => void) {
+        const id = nextTimerId;
+        nextTimerId += 1;
+        timers.set(id, callback);
+        return id;
+      },
+      clearTimeout(id: number) {
+        timers.delete(id);
+      },
+      tt: {
+        getRecorderManager: () => recorder,
+        callAIChatCompletion() {
+          // Deliberately leave the request pending so the watchdog settles it.
+        },
+      },
+    },
+  });
+
+  try {
+    const recognizer = createDefaultRecognizer("en-US", false, {
+      onPartial() {},
+      onFinal() {},
+      onFailure(reason) {
+        failures.push(reason);
+      },
+      onState(state) {
+        states.push(state);
+      },
+    });
+    assert.equal(recognizer.start(), true);
+    recognizer.finish();
+    assert.equal(recognizer.start(), false);
+    assert.equal(timers.size, 1);
+    timers.values().next().value?.();
+    assert.deepEqual(failures, ["network"]);
+    assert.equal(states.at(-1), "idle");
+    assert.equal(recognizer.start(), true);
+    recognizer.cancel();
   } finally {
     if (originalWindow) {
       Object.defineProperty(globalThis, "window", originalWindow);

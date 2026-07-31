@@ -4,6 +4,8 @@ import type {
 } from './types';
 
 const ARK_AUDIO_MODEL = 'doubao-seed-2-0-lite-260428';
+const RECORDER_START_TIMEOUT_MS = 12_000;
+const TRANSCRIPTION_TIMEOUT_MS = 20_000;
 
 interface RecorderStopResult {
   tempFilePath?: string;
@@ -80,6 +82,8 @@ export class DouyinWordRecognizer implements IncantationRecognizer {
   private destroyed = false;
   private requestInFlight = false;
   private session = 0;
+  private recorderStartTimeoutId?: number;
+  private requestTimeoutId?: number;
 
   constructor(
     private readonly language: string,
@@ -99,7 +103,7 @@ export class DouyinWordRecognizer implements IncantationRecognizer {
   }
 
   start(): boolean {
-    if (this.destroyed || this.active || this.requestInFlight) return this.supported;
+    if (this.destroyed || this.active || this.requestInFlight) return false;
     const platform = bridge();
     if (!platform) return false;
 
@@ -111,11 +115,13 @@ export class DouyinWordRecognizer implements IncantationRecognizer {
     this.shouldSubmit = false;
     recorder.onStart(() => {
       if (!this.isCurrent(session, recorder)) return;
+      this.clearRecorderStartTimeout();
       this.permissionPending = false;
       this.callbacks.onState('listening', '火山语音正在聆听');
     });
     recorder.onStop((result) => {
       if (!this.isCurrent(session, recorder)) return;
+      this.clearRecorderStartTimeout();
       this.recorder = undefined;
       this.active = false;
       this.permissionPending = false;
@@ -128,6 +134,7 @@ export class DouyinWordRecognizer implements IncantationRecognizer {
     });
     recorder.onError((error) => {
       if (!this.isCurrent(session, recorder)) return;
+      this.clearRecorderStartTimeout();
       this.recorder = undefined;
       this.active = false;
       this.permissionPending = false;
@@ -141,10 +148,28 @@ export class DouyinWordRecognizer implements IncantationRecognizer {
     });
 
     this.callbacks.onState('connecting', '正在启动火山语音…');
+    this.recorderStartTimeoutId = window.setTimeout(() => {
+      if (!this.isCurrent(session, recorder) || !this.permissionPending) return;
+      this.recorderStartTimeoutId = undefined;
+      this.session += 1;
+      this.recorder = undefined;
+      this.active = false;
+      this.permissionPending = false;
+      this.shouldSubmit = false;
+      try {
+        recorder.stop();
+      } catch {
+        // The host may not have opened the recorder yet.
+      }
+      const message = '麦克风授权等待超时 · 请允许权限或使用文字输入';
+      this.callbacks.onFailure('permission', message, true);
+      this.callbacks.onState('fallback', message);
+    }, RECORDER_START_TIMEOUT_MS);
     try {
       recorder.start({ format: 'aac' });
       return true;
     } catch {
+      this.clearRecorderStartTimeout();
       this.recorder = undefined;
       this.active = false;
       this.permissionPending = false;
@@ -175,6 +200,8 @@ export class DouyinWordRecognizer implements IncantationRecognizer {
     this.shouldSubmit = false;
     this.requestInFlight = false;
     this.permissionPending = false;
+    this.clearRecorderStartTimeout();
+    this.clearRequestTimeout();
     const recorder = this.recorder;
     this.recorder = undefined;
     this.active = false;
@@ -202,6 +229,24 @@ export class DouyinWordRecognizer implements IncantationRecognizer {
   ): void {
     this.requestInFlight = true;
     this.callbacks.onState('transcribing', '火山模型正在辨认言灵…');
+    let settled = false;
+    const settle = (callback?: () => void) => {
+      if (settled || this.destroyed || session !== this.session) return;
+      settled = true;
+      this.clearRequestTimeout();
+      this.requestInFlight = false;
+      callback?.();
+    };
+    this.requestTimeoutId = window.setTimeout(() => {
+      settle(() => {
+        this.callbacks.onFailure(
+          'network',
+          '火山语音识别超时 · 请使用文字输入或再试一次',
+          false,
+        );
+        this.callbacks.onState('idle', '言灵待命');
+      });
+    }, TRANSCRIPTION_TIMEOUT_MS);
     platform.callAIChatCompletion({
       type: 'audio',
       stream: false,
@@ -224,32 +269,46 @@ export class DouyinWordRecognizer implements IncantationRecognizer {
         },
       ],
       success: (result) => {
-        if (this.destroyed || session !== this.session) return;
-        const transcript = cleanTranscript(String(result.data ?? ''));
-        if (!transcript) {
-          this.callbacks.onFailure('no-speech', '没有听到清晰的英语', false);
-          this.callbacks.onState('idle', '言灵待命');
-          return;
-        }
-        this.callbacks.onFinal({
-          transcript,
-          alternatives: [],
-          confidence: null,
+        settle(() => {
+          const transcript = cleanTranscript(String(result.data ?? ''));
+          if (!transcript) {
+            this.callbacks.onFailure('no-speech', '没有听到清晰的英语', false);
+            this.callbacks.onState('idle', '言灵待命');
+            return;
+          }
+          this.callbacks.onFinal({
+            transcript,
+            alternatives: [],
+            confidence: null,
+          });
         });
       },
       fail: (error) => {
-        if (this.destroyed || session !== this.session) return;
-        this.callbacks.onFailure(
-          'network',
-          error.errMsg || '火山语音识别暂时不可用',
-          false,
-        );
-        this.callbacks.onState('idle', '言灵待命');
+        settle(() => {
+          this.callbacks.onFailure(
+            'network',
+            error.errMsg || '火山语音识别暂时不可用 · 请使用文字输入或再试一次',
+            false,
+          );
+          this.callbacks.onState('idle', '言灵待命');
+        });
       },
       complete: () => {
-        if (session === this.session) this.requestInFlight = false;
+        settle();
       },
     });
+  }
+
+  private clearRecorderStartTimeout(): void {
+    if (this.recorderStartTimeoutId === undefined) return;
+    window.clearTimeout(this.recorderStartTimeoutId);
+    this.recorderStartTimeoutId = undefined;
+  }
+
+  private clearRequestTimeout(): void {
+    if (this.requestTimeoutId === undefined) return;
+    window.clearTimeout(this.requestTimeoutId);
+    this.requestTimeoutId = undefined;
   }
 
   private isCurrent(

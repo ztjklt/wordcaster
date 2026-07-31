@@ -56,6 +56,8 @@ export interface IncantationNoMatchResult {
   confidence: number | null;
   provider: IncantationProvider;
   reason: IncantationFailureReason;
+  /** Human-readable recognizer failure detail, when recognition itself failed. */
+  message?: string;
   candidateWordIds: readonly string[];
 }
 
