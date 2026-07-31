@@ -297,6 +297,50 @@ test("server proxy keeps the key server-side and returns a cleaned transcript", 
   assert.equal(response.headers.get("Cache-Control"), "no-store");
 });
 
+test("server proxy accepts the public origin behind a trusted reverse proxy", async () => {
+  const wav = encodePcm16Wav(
+    [new Float32Array(4_000).fill(0.2)],
+    16_000,
+  );
+  const form = new FormData();
+  form.append("audio", new Blob([wav], { type: "audio/wav" }), "spell.wav");
+  const response = await handleArkTranscription(
+    new Request("http://wordcaster.railway.internal/api/transcribe", {
+      method: "POST",
+      headers: {
+        Origin: "https://wordcaster-production.up.railway.app",
+        "X-Forwarded-Host": "wordcaster-production.up.railway.app",
+        "X-Forwarded-Proto": "https",
+      },
+      body: form,
+    }),
+    { ARK_API_KEY: "test-server-secret" },
+    async () => Response.json({
+      choices: [{ message: { content: "Archer" } }],
+    }),
+  );
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), { transcript: "Archer" });
+});
+
+test("server proxy still rejects a mismatched forwarded origin", async () => {
+  const response = await handleArkTranscription(
+    new Request("http://wordcaster.railway.internal/api/transcribe", {
+      method: "POST",
+      headers: {
+        Origin: "https://attacker.example",
+        "X-Forwarded-Host": "wordcaster-production.up.railway.app",
+        "X-Forwarded-Proto": "https",
+      },
+    }),
+    { ARK_API_KEY: "test-server-secret" },
+  );
+
+  assert.equal(response.status, 403);
+  assert.deepEqual(await response.json(), { error: "invalid_origin" });
+});
+
 test("server proxy refuses requests when the Ark secret is not configured", async () => {
   const form = new FormData();
   form.append(

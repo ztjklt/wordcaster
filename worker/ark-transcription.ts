@@ -73,6 +73,26 @@ function isAudioFile(value: FormDataEntryValue | null): value is File {
   );
 }
 
+function firstForwardedValue(value: string | null): string | undefined {
+  return value?.split(",")[0]?.trim() || undefined;
+}
+
+function isSameOriginRequest(request: Request, origin: string): boolean {
+  const requestUrl = new URL(request.url);
+  if (origin === requestUrl.origin) return true;
+
+  // Railway and similar reverse proxies expose the public request origin
+  // through forwarded headers while the Worker receives an internal URL.
+  const forwardedHost = firstForwardedValue(
+    request.headers.get("X-Forwarded-Host"),
+  );
+  if (!forwardedHost) return false;
+  const forwardedProto = firstForwardedValue(
+    request.headers.get("X-Forwarded-Proto"),
+  ) || requestUrl.protocol.replace(":", "");
+  return origin === `${forwardedProto}://${forwardedHost}`;
+}
+
 function arkText(payload: ArkChatResponse): string {
   const content = payload.choices?.[0]?.message?.content;
   if (typeof content === "string") return content;
@@ -115,9 +135,8 @@ export async function handleArkTranscription(
     );
   }
 
-  const requestUrl = new URL(request.url);
   const origin = request.headers.get("Origin");
-  if (origin && origin !== requestUrl.origin) {
+  if (origin && !isSameOriginRequest(request, origin)) {
     return jsonResponse({ error: "invalid_origin" }, 403);
   }
   if (!allowedByRateLimit(request)) {
