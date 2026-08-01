@@ -38,6 +38,7 @@ import {
   wallBlocksEnemy,
   meleeHealthCost,
   recordDailyLesson,
+  resolveCenteredCamera,
   type ActionId,
   type ArcherState,
   type CodexActionDefinition,
@@ -1845,9 +1846,10 @@ export class GameEngine {
         dailyLessonLimit: DAILY_LESSON_LIMIT,
       };
     }
+    const previousLearningDay = this.learningDay;
     const countsAsNew =
       dailyResult.state.learnedWordKeys.length >
-      this.learningDay.learnedWordKeys.length;
+      previousLearningDay.learnedWordKeys.length;
     this.learningDay = dailyResult.state;
     if (countsAsNew) {
       if (!actionId) {
@@ -1858,7 +1860,7 @@ export class GameEngine {
         );
       }
     }
-    if (dailyResult.state !== this.learningDay) {
+    if (dailyResult.state !== previousLearningDay) {
       this.save();
       this.emitHud(true);
     }
@@ -4093,26 +4095,42 @@ export class GameEngine {
   }
 
   private updateCamera(dt: number): void {
-    const target =
+    const focusX =
       this.player.respawnTimer > 0 ? CORE_X : this.player.x + PLAYER_WIDTH / 2;
-    const desired = Math.max(
-      0,
-      Math.min(WORLD_PIXEL_WIDTH - this.viewWidth, target - this.viewWidth / 2),
+    const focusY =
+      this.player.respawnTimer > 0
+        ? this.coreGround() - PLAYER_HEIGHT / 2
+        : this.player.y + PLAYER_HEIGHT / 2;
+    const desired = resolveCenteredCamera(
+      focusX,
+      focusY,
+      this.viewWidth,
+      this.viewHeight,
     );
-    this.cameraX += (desired - this.cameraX) * Math.min(1, dt * 7);
+    const easing = Math.min(1, dt * 7);
+    this.cameraX += (desired.x - this.cameraX) * easing;
+    this.cameraY += (desired.y - this.cameraY) * easing;
     this.pointer.worldX = this.cameraX + this.pointer.screenX / CAMERA_ZOOM;
     this.pointer.worldY = this.cameraY + this.pointer.screenY / CAMERA_ZOOM;
   }
 
   private snapCamera(): void {
-    this.cameraX = Math.max(
-      0,
-      Math.min(
-        WORLD_PIXEL_WIDTH - this.viewWidth,
-        this.player.x + PLAYER_WIDTH / 2 - this.viewWidth / 2,
-      ),
+    const focusX =
+      this.player.respawnTimer > 0 ? CORE_X : this.player.x + PLAYER_WIDTH / 2;
+    const focusY =
+      this.player.respawnTimer > 0
+        ? this.coreGround() - PLAYER_HEIGHT / 2
+        : this.player.y + PLAYER_HEIGHT / 2;
+    const origin = resolveCenteredCamera(
+      focusX,
+      focusY,
+      this.viewWidth,
+      this.viewHeight,
     );
-    this.cameraY = (SURFACE_Y - 12) * TILE_SIZE;
+    this.cameraX = origin.x;
+    this.cameraY = origin.y;
+    this.pointer.worldX = this.cameraX + this.pointer.screenX / CAMERA_ZOOM;
+    this.pointer.worldY = this.cameraY + this.pointer.screenY / CAMERA_ZOOM;
   }
 
   render(canvas: HTMLCanvasElement): void {
@@ -4120,19 +4138,14 @@ export class GameEngine {
     const cssHeight = Math.max(1, canvas.clientHeight);
     const width = Math.max(320, Math.floor(cssWidth / CAMERA_ZOOM));
     const height = Math.max(180, Math.floor(cssHeight / CAMERA_ZOOM));
+    const viewportChanged = this.viewWidth !== width || this.viewHeight !== height;
     if (canvas.width !== width || canvas.height !== height) {
       canvas.width = width;
       canvas.height = height;
     }
     this.viewWidth = width;
     this.viewHeight = height;
-    this.cameraY = Math.max(
-      0,
-      Math.min(
-        WORLD_HEIGHT * TILE_SIZE - height,
-        (SURFACE_Y - 12) * TILE_SIZE,
-      ),
-    );
+    if (viewportChanged) this.snapCamera();
     const context = canvas.getContext("2d");
     if (!context) return;
     context.imageSmoothingEnabled = false;

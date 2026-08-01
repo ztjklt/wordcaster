@@ -30,6 +30,7 @@ import {
   meleeHealthCost,
   rectsOverlap,
   recordDailyLesson,
+  resolveCenteredCamera,
   resolveVoiceIntent,
   resolveWallCollapse,
   wallBlocksEnemy,
@@ -60,6 +61,25 @@ test("locks the 20-pixel one-line world and recommended camera scale", () => {
   assert.equal(REACH_TILES_Y, 8);
   assert.equal(1280 / CAMERA_ZOOM / TILE_SIZE, 32);
   assert.equal(720 / CAMERA_ZOOM / TILE_SIZE, 18);
+});
+
+test("centers the camera on the player and clamps at world edges", () => {
+  assert.deepEqual(resolveCenteredCamera(1600, 350, 422, 195), {
+    x: 1389,
+    y: 252.5,
+  });
+  assert.deepEqual(resolveCenteredCamera(12, 20, 422, 195), {
+    x: 0,
+    y: 0,
+  });
+  assert.deepEqual(resolveCenteredCamera(3190, 590, 422, 195), {
+    x: 2778,
+    y: 405,
+  });
+  assert.deepEqual(resolveCenteredCamera(100, 100, 4000, 800), {
+    x: 0,
+    y: 0,
+  });
 });
 
 test("defines the campaign actions, including the supplied defenders, across six tiers", () => {
@@ -303,6 +323,27 @@ test("each daylight accepts eight new words, counts starter lessons and keeps re
   const review = recordDailyLesson(state, "Tower", false);
   assert.equal(review.accepted, true);
   assert.equal(review.state.learnedWordKeys.length, 8);
+});
+
+test("learning a new word immediately publishes the updated daily quota", () => {
+  let publishedDailyLessons = -1;
+  const engine = new GameEngine({
+    onHud(snapshot) {
+      publishedDailyLessons = snapshot.dailyLessonsLearned;
+    },
+    onSound() {},
+    onWin() {},
+    onLose() {},
+    onBookUnlock() {},
+  });
+  engine.newGame(731204);
+  const result = engine.learnBookWordWithResult("Tower", 3, {
+    actionId: "tower",
+    newlyLearned: true,
+  });
+  assert.equal(result.accepted, true);
+  assert.equal(result.dailyLessonsLearned, 1);
+  assert.equal(publishedDailyLessons, 1);
 });
 
 test("wall segments stack and enemy size determines how many rows block it", () => {

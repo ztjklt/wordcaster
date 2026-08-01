@@ -12,6 +12,27 @@ export const MAX_INK = 60;
 export const STARTING_INK = 24;
 export const DAILY_LESSON_LIMIT = 8;
 export const LEARNING_REVISION = 4;
+
+export interface CameraOrigin {
+  x: number;
+  y: number;
+}
+
+export function resolveCenteredCamera(
+  focusX: number,
+  focusY: number,
+  viewWidth: number,
+  viewHeight: number,
+  worldWidth = WORLD_WIDTH * TILE_SIZE,
+  worldHeight = WORLD_HEIGHT * TILE_SIZE,
+): CameraOrigin {
+  const maxX = Math.max(0, worldWidth - viewWidth);
+  const maxY = Math.max(0, worldHeight - viewHeight);
+  return {
+    x: Math.max(0, Math.min(maxX, focusX - viewWidth / 2)),
+    y: Math.max(0, Math.min(maxY, focusY - viewHeight / 2)),
+  };
+}
 export const SAVE_KEY = "word-caster-save-v2";
 /** Kept only for one-way, non-destructive save migration. */
 export const LEGACY_V2_SAVE_KEY = "duskwood-line-defense-v2";

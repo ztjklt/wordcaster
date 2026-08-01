@@ -144,6 +144,16 @@ test("codex right-page cards render immediately instead of remaining transparent
     book,
     /function pageSize\(\)\{return matchMedia\('\(max-width:900px\),\(max-height:560px\)'\)\.matches\?6:9\}/,
   );
+  assert.equal(
+    book.match(/@media\(max-width:900px\),\(max-height:560px\)\{/g)?.length,
+    1,
+  );
+  assert.match(
+    book,
+    /grid-template-columns:repeat\(auto-fit,minmax\(118px,1fr\)\);grid-template-rows:none;grid-auto-rows:minmax\(82px,auto\)/,
+  );
+  assert.match(book, /height:var\(--book-viewport-height,100dvh\)/);
+  assert.match(book, /window\.visualViewport\?\.addEventListener\('resize',syncBookViewport\)/);
   assert.match(book, /@media\(max-width:500px\)\{\s*\.wg\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
   assert.doesNotMatch(book, /style="animation:fi/);
   assert.match(book, /prioritizeCampaignWords/);
@@ -151,6 +161,8 @@ test("codex right-page cards render immediately instead of remaining transparent
   assert.match(book, /第四日起/);
   assert.match(book, /WORD_CASTER_CODEX_LEARN_REQUEST/);
   assert.match(book, /WORD_CASTER_CODEX_LEARN_RESULT/);
+  assert.match(book, /data-action="retry-learn-commit"/);
+  assert.match(book, /LEARN_COMMIT_TIMEOUT_MS=8000/);
   assert.match(book, /const COMMON_CAT='common'/);
   assert.match(book, /const NAV_CATS=\[COMMON_CAT,\.\.\.CATS\]/);
   assert.match(
