@@ -1,4 +1,13 @@
-# Word Caster
+<div align="center">
+  <h1>Word Caster</h1>
+  <p><strong>让英语词语成为魔法。</strong></p>
+
+  [![CI](https://github.com/ztjklt/wordcaster/actions/workflows/ci.yml/badge.svg)](https://github.com/ztjklt/wordcaster/actions/workflows/ci.yml)
+  ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
+  ![Voice](https://img.shields.io/badge/Voice-Powered-8B5CF6)
+</div>
+
+![Word Caster gameplay](public/social-preview.png)
 
 原创中文横版像素言灵守城游戏。玩家是守护“言灵封印”的 Word Caster：
 白天在 Caster’s Grimoire 学习英语咒词，夜晚念出词语召唤士兵、
@@ -6,6 +15,13 @@
 
 战役前3个白昼开放基础建造、四类守军和基础法术，第4个白昼起开放高级言灵。
 每个白昼最多首次学习8个词，夜晚可以翻书浏览但不能开始新课程。
+
+## 核心特色
+
+- 将英语单词学习融入语音施法、守城与资源决策
+- 支持键鼠、触屏和移动端横屏操作
+- 语音不可用时可切换文字输入，不阻断核心玩法
+- 包含白昼学习、夜晚战斗、建造、防御塔和高级言灵系统
 
 ## 运行
 
